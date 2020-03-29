@@ -60,3 +60,6 @@ buck-out/
 yarn.lock
 .vscode/launch.json
 ios/Podfile.lock
+
+# api
+.env

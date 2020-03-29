@@ -14,6 +14,8 @@ import {
   BackHandler,
 } from 'react-native';
 
+import { PLACES_API_KEY } from 'react-native-dotenv';
+
 import colors from '../constants/colors';
 import WebView from 'react-native-webview';
 import Button from '../components/Button';
@@ -101,7 +103,7 @@ const GooglePlacesInput = props => {
       }}
       query={{
         // available options: https://developers.google.com/places/web-service/autocomplete
-        key: 'AIzaSyAKlIKW0dkVicfoIt9f3cysikJOdrbfKZE',
+        key: PLACES_API_KEY,
         language: 'en', // language of the results
       }}
       styles={{
