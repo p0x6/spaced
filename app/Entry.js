@@ -40,7 +40,7 @@ class Entry extends Component {
       <NavigationContainer>
         <SafeAreaView style={{ flex: 1 }}>
           <Stack.Navigator initialRouteName='InitialScreen'>
-            {this.state.initialRouteName === 'false' ? (
+            {this.state.initialRouteName === 'true' ? (
               <Stack.Screen
                 name='InitialScreen'
                 component={LocationTracking}
