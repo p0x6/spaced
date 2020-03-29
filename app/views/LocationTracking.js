@@ -167,9 +167,7 @@ class LocationTracking extends Component {
               </MenuOption>
             </MenuOptions>
           </Menu>
-          <Text style={styles.headerTitle}>
-            {languages.t('label.private_kit')}
-          </Text>
+          <Text style={styles.headerTitle}>Safe Paths</Text>
 
           <View style={styles.buttonsAndLogoView}>
             {this.state.isLogging ? (

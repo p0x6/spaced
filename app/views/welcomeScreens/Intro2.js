@@ -23,7 +23,8 @@ const Intro2 = props => {
           {languages.t('label.intro2_title2')}
         </Text>
         <Text style={styles.infoCardBodyText}>
-          {languages.t('label.intro2_para2')}
+          Your location data is shared only with your consent. You can blacklist
+          your home and work addresses.
         </Text>
       </View>
 
