@@ -9,6 +9,8 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
   BackHandler,
 } from 'react-native';
 
@@ -25,6 +27,8 @@ import languages from './../locales/languages';
 import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import CustomCircle from '../helpers/customCircle';
 import MapView from 'react-native-map-clustering';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 
@@ -55,11 +59,11 @@ function distance(lat1, lon1, lat2, lon2) {
   if (lat1 == lat2 && lon1 == lon2) {
     return 0;
   } else {
-    var radlat1 = (Math.PI * lat1) / 180;
-    var radlat2 = (Math.PI * lat2) / 180;
-    var theta = lon1 - lon2;
-    var radtheta = (Math.PI * theta) / 180;
-    var dist =
+    let radlat1 = (Math.PI * lat1) / 180;
+    let radlat2 = (Math.PI * lat2) / 180;
+    let theta = lon1 - lon2;
+    let radtheta = (Math.PI * theta) / 180;
+    let dist =
       Math.sin(radlat1) * Math.sin(radlat2) +
       Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
     if (dist > 1) {
@@ -71,6 +75,64 @@ function distance(lat1, lon1, lat2, lon2) {
     return dist * 1.609344;
   }
 }
+
+const GooglePlacesInput = props => {
+  return (
+    <GooglePlacesAutocomplete
+      placeholder='Search'
+      minLength={2} // minimum length of text to search
+      autoFocus={false}
+      returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+      keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
+      listViewDisplayed='auto' // true/false/undefined
+      fetchDetails
+      renderDescription={row => row.description} // custom description render
+      onPress={(data, details = null) => {
+        // 'details' is provided when fetchDetails = true
+        console.log('DATA: ', data);
+        console.log('DETAILS: ', details);
+        props.setSearch();
+        if (_.get(details, 'geometry.location')) {
+          props.notifyChange(details.geometry.location);
+        }
+      }}
+      textInputProps={{
+        onFocus: props.setSearch,
+      }}
+      query={{
+        // available options: https://developers.google.com/places/web-service/autocomplete
+        key: 'AIzaSyAKlIKW0dkVicfoIt9f3cysikJOdrbfKZE',
+        language: 'en', // language of the results
+      }}
+      styles={{
+        textInputContainer: {
+          width: '100%',
+        },
+        description: {
+          fontWeight: 'bold',
+        },
+        predefinedPlacesDescription: {
+          color: '#1faadb',
+        },
+      }}
+      nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
+      GooglePlacesDetailsQuery={{
+        // available options for GooglePlacesDetails API : https://developers.google.com/places/web-service/details
+        fields: 'geometry',
+      }}
+      debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+      renderRightButton={() => (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            props.setSearch();
+            Keyboard.dismiss();
+          }}>
+          <Text>X</Text>
+        </TouchableWithoutFeedback>
+      )}
+    />
+  );
+};
 
 class OverlapScreen extends Component {
   constructor(props) {
@@ -84,6 +146,8 @@ class OverlapScreen extends Component {
     };
     this.getInitialState();
     this.setMarkers();
+    this.moveToSearchArea = this.moveToSearchArea.bind(this);
+    this.setIsSearching = this.setIsSearching.bind(this);
   }
 
   getOverlap = async () => {
@@ -95,10 +159,10 @@ class OverlapScreen extends Component {
 
   setMarkers = async () => {
     GetStoreData('LOCATION_DATA').then(locationArrayString => {
-      var locationArray = JSON.parse(locationArrayString);
+      let locationArray = JSON.parse(locationArrayString);
       if (locationArray !== null) {
-        var markers = [];
-        for (var i = 0; i < locationArray.length - 1; i += 1) {
+        let markers = [];
+        for (let i = 0; i < locationArray.length - 1; i += 1) {
           const coord = locationArray[i];
           const marker = {
             coordinate: {
@@ -120,12 +184,13 @@ class OverlapScreen extends Component {
   getInitialState = async () => {
     try {
       GetStoreData('LOCATION_DATA').then(locationArrayString => {
-        var locationArray = JSON.parse(locationArrayString);
+        let locationArray = JSON.parse(locationArrayString);
         if (locationArray === null) {
           console.log(locationArray);
         } else {
-          var lastCoords = locationArray[locationArray.length - 1];
+          let lastCoords = locationArray[locationArray.length - 1];
           this.setState({
+            isSearching: false,
             initialRegion: {
               latitude: lastCoords['latitude'],
               longitude: lastCoords['longitude'],
@@ -214,17 +279,17 @@ class OverlapScreen extends Component {
 
   parseCSV = async records => {
     try {
-      var latestLat = this.state.initialRegion.latitude;
-      var latestLong = this.state.initialRegion.longitude;
+      let latestLat = this.state.initialRegion.latitude;
+      let latestLong = this.state.initialRegion.longitude;
       const rows = records.split('\n');
-      var parsedRows = {};
-      for (var i = rows.length - 1; i >= 0; i--) {
-        var row = rows[i].split(',');
+      let parsedRows = {};
+      for (let i = rows.length - 1; i >= 0; i--) {
+        let row = rows[i].split(',');
         const lat = parseFloat(row[7]);
         const long = parseFloat(row[8]);
         if (!isNaN(lat) && !isNaN(long)) {
           if (true) {
-            var key = String(lat) + '|' + String(long);
+            let key = String(lat) + '|' + String(long);
             if (!(key in parsedRows)) {
               parsedRows[key] = 0;
             }
@@ -240,7 +305,7 @@ class OverlapScreen extends Component {
 
   plotCircles = async records => {
     try {
-      var circles = [];
+      let circles = [];
       const dist_threshold = 2000; //In KMs
       const latestLat = this.state.initialRegion.latitude;
       const latestLong = this.state.initialRegion.longitude;
@@ -293,6 +358,26 @@ class OverlapScreen extends Component {
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
   }
 
+  moveToSearchArea(location) {
+    if (location.lat && location.lng) {
+      console.log('======== moving area to searched location ======', location);
+      this.setState({
+        initialRegion: {
+          latitude: location.lat,
+          longitude: location.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+      });
+    }
+  }
+
+  setIsSearching() {
+    this.setState({
+      isSearching: !this.state.isSearching,
+    });
+  }
+
   // This map shows where your private location trail overlaps with public data from a variety of sources, including official reports from WHO, Ministries of Health, and Chinese local, provincial, and national health authorities. If additional data are available from reliable online reports, they are included.
 
   render() {
@@ -304,61 +389,69 @@ class OverlapScreen extends Component {
             onPress={() => this.backToMain()}>
             <Image style={styles.backArrow} source={backArrow} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            {languages.t('label.overlap_title')}
-          </Text>
+          <Text style={styles.headerTitle}>Check Hotspots</Text>
         </View>
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          initialRegion={this.state.initialRegion}
-          customMapStyle={customMapStyles}>
-          {this.state.markers.map(marker => (
-            <Marker
-              key={marker.key}
-              coordinate={marker.coordinate}
-              title={marker.title}
-              description={marker.description}
-              tracksViewChanges={false}
-            />
-          ))}
-          {this.state.circles.map(circle => (
-            <CustomCircle
-              key={circle.key}
-              center={circle.center}
-              radius={circle.radius}
-              fillColor='rgba(163, 47, 163, 0.3)'
-              zIndex={2}
-              strokeWidth={0}
-            />
-          ))}
-        </MapView>
-        <View style={styles.main}>
-          <TouchableOpacity
-            style={styles.buttonTouchable}
-            onPress={() => this.downloadAndPlot()}
-            disabled={this.state.showButton.disabled}>
-            {/* If no overlap found, change button text to say so. Temporary solution, replace with something more robust */}
-            <Text style={styles.buttonText}>
-              {languages.t(this.state.showButton.text)}
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.sectionDescription}>
-            {languages.t('label.overlap_para_1')}
-          </Text>
-        </View>
-        <View style={styles.footer}>
-          <Text
-            style={[
-              styles.sectionFooter,
-              { textAlign: 'center', paddingTop: 15, color: 'blue' },
-            ]}
-            onPress={() =>
-              Linking.openURL('https://github.com/beoutbreakprepared/nCoV2019')
-            }>
-            {languages.t('label.nCoV2019_url_info')}{' '}
-          </Text>
-          {/* <Text
+        <GooglePlacesInput
+          notifyChange={this.moveToSearchArea}
+          setSearch={this.setIsSearching}
+        />
+        {/*<TouchableOpacity style={[styles.overlay, { height: 360}]} onPress={this.setIsSearching}>*/}
+        {/*  */}
+        {/*</TouchableOpacity>*/}
+        {!this.state.isSearching ? (
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={this.state.initialRegion}
+            customMapStyle={customMapStyles}>
+            {this.state.markers.map(marker => (
+              <Marker
+                key={marker.key}
+                coordinate={marker.coordinate}
+                title={marker.title}
+                description={marker.description}
+                tracksViewChanges={false}
+              />
+            ))}
+            {this.state.circles.map(circle => (
+              <CustomCircle
+                key={circle.key}
+                center={circle.center}
+                radius={circle.radius}
+                fillColor='rgba(163, 47, 163, 0.3)'
+                zIndex={2}
+                strokeWidth={0}
+              />
+            ))}
+          </MapView>
+        ) : null}
+
+        {/*<View style={styles.main}>*/}
+        {/*  <TouchableOpacity*/}
+        {/*    style={styles.buttonTouchable}*/}
+        {/*    onPress={() => this.downloadAndPlot()}*/}
+        {/*    disabled={this.state.showButton.disabled}>*/}
+        {/*    /!* If no overlap found, change button text to say so. Temporary solution, replace with something more robust *!/*/}
+        {/*    <Text style={styles.buttonText}>*/}
+        {/*      {languages.t(this.state.showButton.text)}*/}
+        {/*    </Text>*/}
+        {/*  </TouchableOpacity>*/}
+        {/*  <Text style={styles.sectionDescription}>*/}
+        {/*    {languages.t('label.overlap_para_1')}*/}
+        {/*  </Text>*/}
+        {/*</View>*/}
+        {/*<View style={styles.footer}>*/}
+        {/*  <Text*/}
+        {/*    style={[*/}
+        {/*      styles.sectionFooter,*/}
+        {/*      { textAlign: 'center', paddingTop: 15, color: 'blue' },*/}
+        {/*    ]}*/}
+        {/*    onPress={() =>*/}
+        {/*      Linking.openURL('https://github.com/beoutbreakprepared/nCoV2019')*/}
+        {/*    }>*/}
+        {/*    {languages.t('label.nCoV2019_url_info')}{' '}*/}
+        {/*  </Text>*/}
+        {/* <Text
             style={[
               styles.sectionFooter,
               { color: 'blue', textAlign: 'center', marginTop: 0 },
@@ -368,7 +461,7 @@ class OverlapScreen extends Component {
             }>
             {languages.t('label.nCoV2019_url')}
           </Text> */}
-        </View>
+        {/*</View>*/}
       </SafeAreaView>
     );
   }
@@ -402,10 +495,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   map: {
-    flex: 1,
-    flexDirection: 'column',
-    padding: 15,
-    width: '96%',
+    flex: 11,
+    width: width,
     alignSelf: 'center',
   },
   buttonTouchable: {

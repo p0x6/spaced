@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="edu.mit.privatekit">
+  package="com.posix.safepaths">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -41,7 +41,7 @@
             android:resource="@android:color/white"/>
         <meta-data
            android:name="com.google.android.geo.API_KEY"
-           android:value="AIzaSyDNplqevzMxOGNuTr_lv6NXsjzIa1PboVc"/>
+           android:value="AIzaSyAKlIKW0dkVicfoIt9f3cysikJOdrbfKZE"/>
 
         <service
             android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
