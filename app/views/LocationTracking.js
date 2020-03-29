@@ -192,7 +192,7 @@ class LocationTracking extends Component {
                   onPress={() => this.overlap()}
                   style={styles.startLoggingButtonTouchable}>
                   <Text style={styles.startLoggingButtonText}>
-                    {languages.t('label.overlap')}
+                    SEARCH PLACES
                   </Text>
                 </TouchableOpacity>
               </>
@@ -220,7 +220,8 @@ class LocationTracking extends Component {
 
             {this.state.isLogging ? (
               <Text style={styles.sectionDescription}>
-                {languages.t('label.logging_message')}
+                Data is currently being logged on your phone and shared with
+                others.
               </Text>
             ) : (
               <Text style={styles.sectionDescription}>

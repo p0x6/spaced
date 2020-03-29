@@ -93,13 +93,13 @@ const GooglePlacesInput = props => {
         // 'details' is provided when fetchDetails = true
         console.log('DATA: ', data);
         console.log('DETAILS: ', details);
-        props.setSearch();
+        props.setIsSearching(false);
         if (_.get(details, 'geometry.location')) {
           props.notifyChange(details.geometry.location);
         }
       }}
       textInputProps={{
-        onFocus: props.setSearch,
+        onFocus: () => props.setIsSearching(true),
       }}
       query={{
         // available options: https://developers.google.com/places/web-service/autocomplete
@@ -126,7 +126,7 @@ const GooglePlacesInput = props => {
       renderRightButton={() => (
         <TouchableWithoutFeedback
           onPress={() => {
-            props.setSearch();
+            props.setIsSearching(false);
             Keyboard.dismiss();
           }}>
           <Text>X</Text>
@@ -374,9 +374,9 @@ class OverlapScreen extends Component {
     }
   }
 
-  setIsSearching() {
+  setIsSearching(state) {
     this.setState({
-      isSearching: !this.state.isSearching,
+      isSearching: state || !this.state.isSearching,
     });
   }
 
@@ -395,11 +395,8 @@ class OverlapScreen extends Component {
         </View>
         <GooglePlacesInput
           notifyChange={this.moveToSearchArea}
-          setSearch={this.setIsSearching}
+          setIsSearching={this.setIsSearching}
         />
-        {/*<TouchableOpacity style={[styles.overlay, { height: 360}]} onPress={this.setIsSearching}>*/}
-        {/*  */}
-        {/*</TouchableOpacity>*/}
         {!this.state.isSearching ? (
           <MapView
             provider={PROVIDER_GOOGLE}
