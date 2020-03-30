@@ -31,6 +31,7 @@ import CustomCircle from '../helpers/customCircle';
 import MapView from 'react-native-map-clustering';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import _ from 'lodash';
+import SafePathsAPI from '../services/API';
 
 const width = Dimensions.get('window').width;
 
@@ -146,10 +147,10 @@ class OverlapScreen extends Component {
       showButton: { disabled: false, text: show_button_text },
       initialRegion: INITIAL_REGION,
     };
-    this.getInitialState();
-    this.setMarkers();
     this.moveToSearchArea = this.moveToSearchArea.bind(this);
     this.setIsSearching = this.setIsSearching.bind(this);
+    this.getInitialState();
+    this.setMarkers();
   }
 
   getOverlap = async () => {
@@ -160,27 +161,53 @@ class OverlapScreen extends Component {
   };
 
   setMarkers = async () => {
-    GetStoreData('LOCATION_DATA').then(locationArrayString => {
-      let locationArray = JSON.parse(locationArrayString);
+    console.log('----- SET MARKER --------');
+    SafePathsAPI.getPositions(this.state.initialRegion).then(userPositions => {
+      let locationArray = _.get(userPositions, 'data', []);
+      console.log('user positions: ', userPositions);
       if (locationArray !== null) {
         let markers = [];
         for (let i = 0; i < locationArray.length - 1; i += 1) {
           const coord = locationArray[i];
+          console.log('coord: ', coord);
           const marker = {
             coordinate: {
-              latitude: coord['latitude'],
-              longitude: coord['longitude'],
+              latitude: coord['location']['latitude'],
+              longitude: coord['location']['longitude'],
             },
             key: i + 1,
             color: '#f26964',
           };
+          console.log('marker: ', marker);
           markers.push(marker);
         }
+        console.log('markers: ', markers);
         this.setState({
           markers: markers,
         });
       }
     });
+    // GetStoreData('LOCATION_DATA').then(locationArrayString => {
+    //   let locationArray = JSON.parse(locationArrayString);
+    //   if (locationArray !== null) {
+    //     let markers = [];
+    //     for (let i = 0; i < locationArray.length - 1; i += 1) {
+    //       const coord = locationArray[i];
+    //       const marker = {
+    //         coordinate: {
+    //           latitude: coord['latitude'],
+    //           longitude: coord['longitude'],
+    //         },
+    //         key: i + 1,
+    //         color: '#f26964',
+    //       };
+    //       markers.push(marker);
+    //     }
+    //     this.setState({
+    //       markers: markers,
+    //     });
+    //   }
+    // });
   };
 
   getInitialState = async () => {
@@ -371,6 +398,7 @@ class OverlapScreen extends Component {
           longitudeDelta: 0.01,
         },
       });
+      this.setMarkers();
     }
   }
 
@@ -402,6 +430,9 @@ class OverlapScreen extends Component {
             provider={PROVIDER_GOOGLE}
             style={styles.map}
             initialRegion={this.state.initialRegion}
+            onPanDrag={this.moveToSearchArea}
+            onDoublePress={this.moveToSearchArea}
+            onZoom={this.moveToSearchArea}
             customMapStyle={customMapStyles}>
             {this.state.markers.map(marker => (
               <Marker
