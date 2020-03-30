@@ -14,65 +14,97 @@ let lastPointCount = 0;
 // // DEBUG: Reduce Time intervall for faster debugging
 let locationInterval = 5000;
 
-function saveLocation(location) {
-  // Persist this location data in our local storage of time/lat/lon values
+export class LocationData {
+  constructor() {
+    this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
+    // DEBUG: Reduce Time intervall for faster debugging
+    // this.locationInterval = 5000;
+  }
 
-  GetStoreData('LOCATION_DATA').then(locationArrayString => {
-    let locationArray;
-    if (locationArrayString !== null) {
-      locationArray = JSON.parse(locationArrayString);
-    } else {
-      locationArray = [];
-    }
-
-    // Always work in UTC, not the local time in the locationData
-    let nowUTC = new Date().toISOString();
-    let unixtimeUTC = Date.parse(nowUTC);
-    let unixtimeUTC_28daysAgo = unixtimeUTC - 60 * 60 * 24 * 1000 * 28;
-
-    // Curate the list of points, only keep the last 28 days
-    let curated = [];
-    for (let i = 0; i < locationArray.length; i++) {
-      if (locationArray[i]['time'] > unixtimeUTC_28daysAgo) {
-        curated.push(locationArray[i]);
+  getLocationData() {
+    return GetStoreData('LOCATION_DATA').then(locationArrayString => {
+      let locationArray = [];
+      if (locationArrayString !== null) {
+        locationArray = JSON.parse(locationArrayString);
       }
-    }
 
-    // Backfill the stationary points, if available
-    if (curated.length >= 1) {
-      let lastLocationArray = curated[curated.length - 1];
-      let lastTS = lastLocationArray['time'];
-      for (
-        ;
-        lastTS < unixtimeUTC - locationInterval;
-        lastTS += locationInterval
-      ) {
-        curated.push(JSON.parse(JSON.stringify(lastLocationArray)));
-      }
-    }
-
-    // Save the location using the current lat-lon and the
-    // calculated UTC time (maybe a few milliseconds off from
-    // when the GPS data was collected, but that's unimportant
-    // for what we are doing.)
-    lastPointCount = locationArray.length;
-    console.log('[GPS] Saving point:', lastPointCount);
-    let lat_lon_time = {
-      latitude: location['latitude'],
-      longitude: location['longitude'],
-      time: unixtimeUTC,
-    };
-    curated.push(lat_lon_time);
-    SafePathsAPI.saveMyLocation({
-      latitude: location['latitude'],
-      longitude: location['longitude'],
+      return locationArray;
     });
-    SetStoreData('LOCATION_DATA', curated);
-  });
+  }
+
+  async getPointStats() {
+    const locationData = await this.getLocationData();
+
+    let lastPoint = null;
+    let firstPoint = null;
+    let pointCount = 0;
+
+    if (locationData.length) {
+      lastPoint = locationData.slice(-1)[0];
+      firstPoint = locationData[0];
+      pointCount = locationData.length;
+    }
+
+    return {
+      lastPoint,
+      firstPoint,
+      pointCount,
+    };
+  }
+
+  saveLocation(location) {
+    // Persist this location data in our local storage of time/lat/lon values
+    this.getLocationData().then(locationArray => {
+      // Always work in UTC, not the local time in the locationData
+      let nowUTC = new Date().toISOString();
+      let unixtimeUTC = Date.parse(nowUTC);
+      let unixtimeUTC_28daysAgo = unixtimeUTC - 60 * 60 * 24 * 1000 * 28;
+
+      // Curate the list of points, only keep the last 28 days
+      let curated = [];
+      for (let i = 0; i < locationArray.length; i++) {
+        if (locationArray[i]['time'] > unixtimeUTC_28daysAgo) {
+          curated.push(locationArray[i]);
+        }
+      }
+
+      // Backfill the stationary points, if available
+      if (curated.length >= 1) {
+        let lastLocationArray = curated[curated.length - 1];
+        let lastTS = lastLocationArray['time'];
+        for (
+          ;
+          lastTS < unixtimeUTC - this.locationInterval;
+          lastTS += this.locationInterval
+        ) {
+          curated.push(JSON.parse(JSON.stringify(lastLocationArray)));
+        }
+      }
+
+      // Save the location using the current lat-lon and the
+      // calculated UTC time (maybe a few milliseconds off from
+      // when the GPS data was collected, but that's unimportant
+      // for what we are doing.)
+      console.log('[GPS] Saving point:', locationArray.length);
+      let lat_lon_time = {
+        latitude: location['latitude'],
+        longitude: location['longitude'],
+        time: unixtimeUTC,
+      };
+      curated.push(lat_lon_time);
+      SafePathsAPI.saveMyLocation({
+        latitude: location['latitude'],
+        longitude: location['longitude'],
+      });
+      SetStoreData('LOCATION_DATA', curated);
+    });
+  }
 }
 
 export default class LocationServices {
   static start() {
+    const locationData = new LocationData();
+
     instanceCount += 1;
     if (instanceCount > 1) {
       BackgroundGeolocation.start();
@@ -116,9 +148,9 @@ export default class LocationServices {
       stopOnTerminate: false,
       locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
 
-      interval: locationInterval,
-      fastestInterval: locationInterval,
-      activitiesInterval: locationInterval,
+      interval: locationData.locationInterval,
+      fastestInterval: locationData.locationInterval,
+      activitiesInterval: locationData.locationInterval,
 
       activityType: 'AutomotiveNavigation',
       pauseLocationUpdates: false,
@@ -142,7 +174,7 @@ export default class LocationServices {
         // execute long running task
         // eg. ajax post location
         // IMPORTANT: task has to be ended by endTask
-        saveLocation(location);
+        locationData.saveLocation(location);
         BackgroundGeolocation.endTask(taskKey);
       });
     });
@@ -153,7 +185,7 @@ export default class LocationServices {
         // Application was shutdown, but the headless mechanism allows us
         // to capture events in the background.  (On Android, at least)
         if (event.name === 'location' || event.name === 'stationary') {
-          saveLocation(event.params);
+          locationData.saveLocation(event.params);
         }
       });
     }
@@ -170,7 +202,7 @@ export default class LocationServices {
         // tested as I couldn't produce stationaryLocation callback in emulator
         // but since the plugin documentation mentions it, no reason to keep
         // it empty I believe.
-        saveLocation(stationaryLocation);
+        locationData.saveLocation(stationaryLocation);
         BackgroundGeolocation.endTask(taskKey);
       });
       console.log('[INFO] stationaryLocation:', stationaryLocation);
@@ -325,10 +357,6 @@ export default class LocationServices {
 
     // you can also just start without checking for status
     // BackgroundGeolocation.start();
-  }
-
-  static getPointCount() {
-    return lastPointCount;
   }
 
   static stop(nav) {
