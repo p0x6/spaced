@@ -112,7 +112,7 @@ export default class LocationServices {
     }
 
     try {
-      GetStoreData('UUID').then(myUUID => {
+      GetStoreData('uuid').then(myUUID => {
         if (!myUUID) {
           UUIDGenerator.getRandomUUID(uuid => {
             console.log('SETTING UUID ', uuid);

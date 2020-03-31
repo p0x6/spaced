@@ -15,7 +15,7 @@ class API {
 
   getUUID() {
     try {
-      GetStoreData('UUID').then(myUUID => {
+      GetStoreData('uuid').then(myUUID => {
         if (!myUUID) {
           UUIDGenerator.getRandomUUID(uuid => {
             this.uuid = uuid;
@@ -32,17 +32,6 @@ class API {
     }
   }
 
-  getIntersection() {
-    if (this.isReady && this.uuid) {
-      return this.instance.get('/get-intersection', {
-        params: {
-          uuid: this.uuid,
-        },
-      });
-    }
-    this.getUUID();
-  }
-
   getPositions(searchLocation) {
     if (this.isReady && this.uuid) {
       return this.instance.get('/get-user-positions', {
@@ -50,6 +39,17 @@ class API {
           radius: 2000,
           latitude: searchLocation.latitude,
           longitude: searchLocation.longitude,
+          uuid: this.uuid,
+        },
+      });
+    }
+    this.getUUID();
+  }
+
+  getIntersections() {
+    if (this.isReady && this.uuid) {
+      return this.instance.get('/get-intersection', {
+        params: {
           uuid: this.uuid,
         },
       });

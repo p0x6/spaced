@@ -25,10 +25,11 @@ import {
   VictoryChart,
   VictoryTooltip,
 } from 'victory-native';
+import SafePathsAPI from '../services/API';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
-var using_random_intersections = false;
+let using_random_intersections = false;
 
 class NotificationScreen extends Component {
   constructor(props) {
@@ -74,8 +75,8 @@ class NotificationScreen extends Component {
 
   generate_random_intersections(length = 28) {
     using_random_intersections = true;
-    var dayBin = [];
-    for (var i = 0; i < length; i++) {
+    let dayBin = [];
+    for (let i = 0; i < length; i++) {
       // Random Integer between 0-99
       const intersections = Math.floor(Math.random() * 100);
       dayBin.push(intersections);
@@ -85,19 +86,23 @@ class NotificationScreen extends Component {
   }
 
   getInitialState = async () => {
-    GetStoreData('CROSSED_PATHS').then(dayBin => {
-      console.log(dayBin);
+    SafePathsAPI.getIntersections().then(data => {
+      const dayBin = data.data;
       if (dayBin === null) {
         this.setState({ dataAvailable: false });
         console.log("Can't found Crossed Paths");
       } else {
-        var crossed_path_data = [];
+        const crossed_path_data = [];
         console.log('Found Crossed Paths');
         this.setState({ dataAvailable: true });
-        dayBinParsed = JSON.parse(dayBin);
-        for (var i = 0; i < dayBinParsed.length; i++) {
-          const val = dayBinParsed[i];
-          data = { x: i, y: val, fill: this.colorfill(val) };
+        for (let i = 0; i < dayBin.length; i++) {
+          const val = dayBin[i];
+          const data = {
+            x: i,
+            date: val.date,
+            y: val.count,
+            fill: this.colorfill(val.count),
+          };
           crossed_path_data.push(data);
         }
         this.setState({ data: crossed_path_data });
@@ -106,7 +111,7 @@ class NotificationScreen extends Component {
   };
 
   colorfill(data) {
-    var color = 'green';
+    let color = 'green';
     if (data > 20) {
       color = 'yellow';
     }
@@ -137,62 +142,44 @@ class NotificationScreen extends Component {
           <Text style={styles.pageTitle}>
             {languages.t('label.notification_title')}
           </Text>
-          {this.state.dataAvailable ? (
-            <>
-              <VictoryChart height={0.35 * height} dependentAxis={true}>
-                <VictoryAxis dependentAxis={true} />
+          <>
+            <VictoryChart height={0.35 * height} dependentAxis>
+              <VictoryAxis dependentAxis />
 
-                <VictoryBar
-                  alignment='start'
-                  style={{
-                    data: {
-                      fill: ({ datum }) => datum.fill,
-                    },
-                  }}
-                  data={this.state.data}
-                />
-              </VictoryChart>
-              <View style={styles.notificationsHeader}>
-                <Text style={styles.notificationsHeaderText}>
-                  {languages.t('label.notification_main_text')}
-                </Text>
-              </View>
+              <VictoryBar
+                alignment='start'
+                style={{
+                  data: {
+                    fill: ({ datum }) => datum.fill,
+                  },
+                }}
+                data={this.state.data}
+              />
+            </VictoryChart>
+            <View style={styles.notificationsHeader}>
+              <Text style={styles.notificationsHeaderText}>
+                {languages.t('label.notification_main_text')}
+              </Text>
+            </View>
 
-              <ScrollView contentContainerStyle={styles.contentContainer}>
-                {this.state.data.map(data => (
-                  <View key={data.x} style={styles.notificationView}>
-                    <Text
-                      style={[
-                        styles.notificationsText,
-                        data.y > 80
-                          ? styles.notificationsTextRed
-                          : data.y > 50
-                          ? styles.notificationsTextOrange
-                          : null,
-                      ]}>
-                      {'Day ' + data.x + ': ' + data.y + ' intersections'}
-                    </Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </>
-          ) : (
-            <>
-              <Text style={styles.mainText}>
-                {languages.t('label.notification_data_not_available')}
-              </Text>
-              <Text style={styles.mainText}>
-                {languages.t('label.notification_warning_text')}
-              </Text>
-              <TouchableOpacity
-                style={styles.buttonTouchable}
-                onPress={() => this.generate_random_intersections()}>
-                <Text style={styles.buttonText}>
-                  {languages.t('label.notification_random_data_button')}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
+            <ScrollView contentContainerStyle={styles.contentContainer}>
+              {this.state.data.map(data => (
+                <View key={data.x} style={styles.notificationView}>
+                  <Text
+                    style={[
+                      styles.notificationsText,
+                      data.y > 80
+                        ? styles.notificationsTextRed
+                        : data.y > 50
+                        ? styles.notificationsTextOrange
+                        : null,
+                    ]}>
+                    {data.date + ': ' + data.y + ' intersections'}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          </>
         </View>
       </SafeAreaView>
     );
