@@ -583,7 +583,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = edu.mit.privatekit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.posix.safepaths;
 				PRODUCT_NAME = SafePaths;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -609,7 +609,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = edu.mit.privatekit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.posix.safepaths;
 				PRODUCT_NAME = SafePaths;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
