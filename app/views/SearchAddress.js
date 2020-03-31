@@ -21,6 +21,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import _ from 'lodash';
 import { PLACES_API_KEY } from 'react-native-dotenv';
 
+import { EventRegister } from 'react-native-event-listeners';
+
 const width = Dimensions.get('window').width;
 
 const SearchAddress = ({ route }) => {
@@ -31,10 +33,12 @@ const SearchAddress = ({ route }) => {
   };
 
   const setAddress = location => {
-    if (route.label === 'Work') {
+    if (_.get(route, 'params.label', '') === 'Work') {
       setWorkLocation(location);
-    } else if (route.label === 'Home') {
+      EventRegister.emit('setHomeLocation', location);
+    } else if (_.get(route, 'params.label', '') === 'Home') {
       setHomeLocation(location);
+      EventRegister.emit('setWorkLocation', location);
     }
   };
 
@@ -61,8 +65,16 @@ const SearchAddress = ({ route }) => {
           // 'details' is provided when fetchDetails = true
           console.log('DATA: ', data);
           console.log('DETAILS: ', details);
-          if (_.get(details, 'geometry.location')) {
-            setAddress();
+          if (
+            _.get(details, 'geometry.location') &&
+            _.get(data, 'description')
+          ) {
+            const address = {
+              address: _.get(data, 'description'),
+              coordinates: _.get(details, 'geometry.location'),
+            };
+            setAddress(address);
+            backToPreviousPage();
           }
         }}
         // textInputProps={{

@@ -4,9 +4,12 @@ import { Alert, Platform, Linking } from 'react-native';
 import { PERMISSIONS, check, RESULTS, request } from 'react-native-permissions';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import SafePathsAPI from './API';
+import { EventRegister } from 'react-native-event-listeners';
 
 import PushNotification from 'react-native-push-notification';
 import UUIDGenerator from 'react-native-uuid-generator';
+
+import _ from 'lodash';
 
 let instanceCount = 0;
 let lastPointCount = 0;
@@ -15,33 +18,68 @@ let lastPointCount = 0;
 // let locationInterval = 5000;
 
 export function setHomeLocation(location) {
-  this.homeLocation = location;
   SetStoreData('HOME_LOCATION', location);
 }
 
 export function setWorkLocation(location) {
-  this.workLocation = location;
   SetStoreData('WORK_LOCATION', location);
+}
+
+export function getHomeLocation() {
+  return GetStoreData('HOME_LOCATION');
+}
+
+export function getWorkLocation() {
+  return GetStoreData('WORK_LOCATION');
 }
 
 export class LocationData {
   constructor() {
-    this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
-    // around 55 meters
-    this.tooNearToBannedLocation = 0.0005;
+    // this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
     // DEBUG: Reduce Time intervall for faster debugging
-    // this.locationInterval = 5000;
+    this.locationInterval = 5000;
+    // around 55 meters
+    this.tooNearToBannedLocation = 0.005;
     this.homeLocation = null;
     this.workLocation = null;
+
     this.getBlacklistedLocations();
+    this.homeLocationListener = EventRegister.addEventListener(
+      'setHomeLocation',
+      data => {
+        console.log(
+          'SETTING HOME LOCATION: ',
+          _.get(data, 'coordinates', { lat: null, lng: null }),
+        );
+        this.homeLocation = data;
+      },
+    );
+    this.workLocationListener = EventRegister.addEventListener(
+      'setWorkLocation',
+      data => {
+        console.log(
+          'SETTING WORK LOCATION: ',
+          _.get(data, 'coordinates', { lat: null, lng: null }),
+        );
+        this.workLocation = data;
+      },
+    );
   }
 
   getBlacklistedLocations() {
-    GetStoreData('HOME_LOCATION').then(
-      location => (this.homeLocation = location),
+    getHomeLocation().then(
+      location =>
+        (this.homeLocation = _.get(JSON.parse(location), 'coordinates', {
+          lat: null,
+          lng: null,
+        })),
     );
-    GetStoreData('WORK_LOCATION').then(
-      location => (this.workLocation = location),
+    getWorkLocation().then(
+      location =>
+        (this.workLocation = _.get(JSON.parse(location), 'coordinates', {
+          lat: null,
+          lng: null,
+        })),
     );
   }
 
@@ -121,22 +159,40 @@ export class LocationData {
         longitude: location['longitude'],
       };
       if (this.workLocation) {
+        console.log(
+          'TRYING TO UPLOAD LOCATION MATH WORK',
+          this.workLocation,
+          currentLocation,
+        );
         if (
-          Math.abs(this.workLocation.latitude - currentLocation.latitude) >
+          Math.abs(this.workLocation.lat - currentLocation.latitude) >
             this.tooNearToBannedLocation &&
-          Math.abs(this.workLocation.longitude - this.tooNearToBannedLocation) >
-            0.0005
+          Math.abs(this.workLocation.lng - currentLocation.longitude) >
+            this.tooNearToBannedLocation
         ) {
           SafePathsAPI.saveMyLocation(currentLocation);
+        } else {
+          console.log(
+            '[WARNING] TOO CLOSE TO BANNED WORK LOCATION, NOT SENDING UP',
+          );
         }
       } else if (this.homeLocation) {
+        console.log(
+          'TRYING TO UPLOAD LOCATION MATH HOME',
+          this.homeLocation,
+          currentLocation,
+        );
         if (
-          Math.abs(this.homeLocation.latitude - currentLocation.latitude) >
+          Math.abs(this.homeLocation.lat - currentLocation.latitude) >
             this.tooNearToBannedLocation &&
-          Math.abs(this.homeLocation.longitude - this.tooNearToBannedLocation) >
-            0.0005
+          Math.abs(this.homeLocation.lng - currentLocation.longitude) >
+            this.tooNearToBannedLocation
         ) {
           SafePathsAPI.saveMyLocation(currentLocation);
+        } else {
+          console.log(
+            '[WARNING] TOO CLOSE TO BANNED HOME LOCATION, NOT SENDING UP',
+          );
         }
       } else {
         SafePathsAPI.saveMyLocation(currentLocation);
@@ -149,6 +205,8 @@ export class LocationData {
 export default class LocationServices {
   static start() {
     const locationData = new LocationData();
+
+    global.window.locationData = locationData;
 
     instanceCount += 1;
     if (instanceCount > 1) {
