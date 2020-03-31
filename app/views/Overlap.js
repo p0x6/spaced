@@ -385,10 +385,7 @@ function OverlapScreen() {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={initialRegion}
-          customMapStyle={customMapStyles}
-          onPanDrag={moveToSearchArea}
-          onDoublePress={moveToSearchArea}
-          onZoom={moveToSearchArea}>
+          customMapStyle={customMapStyles}>
           {markers.map(marker => (
             <Marker
               key={marker.key}
