@@ -58,7 +58,6 @@ class API {
   }
 
   saveMyLocation(location) {
-    console.log('SAVE MY LOCATION');
     if (this.isReady && this.uuid) {
       const body = {
         uuid: this.uuid,

@@ -11,6 +11,10 @@ import UUIDGenerator from 'react-native-uuid-generator';
 
 import _ from 'lodash';
 
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import point from 'turf-point';
+import polygon from 'turf-polygon';
+
 let instanceCount = 0;
 let lastPointCount = 0;
 // let locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
@@ -39,48 +43,73 @@ export class LocationData {
     // DEBUG: Reduce Time intervall for faster debugging
     this.locationInterval = 5000;
     // around 55 meters
-    this.tooNearToBannedLocation = 0.005;
+    this.tooNearToBannedLocation = 0.00025;
     this.homeLocation = null;
     this.workLocation = null;
+    this.homePolygon = null;
+    this.workPolygon = null;
 
     this.getBlacklistedLocations();
     this.homeLocationListener = EventRegister.addEventListener(
       'setHomeLocation',
       data => {
-        console.log(
-          'SETTING HOME LOCATION: ',
-          _.get(data, 'coordinates', { lat: null, lng: null }),
-        );
-        this.homeLocation = data;
+        const coordinates = _.get(data, 'coordinates', {
+          lat: null,
+          lng: null,
+        });
+        console.log('SETTING HOME LOCATION: ', coordinates);
+        this.createLocationPolygon(coordinates, 'Home');
       },
     );
     this.workLocationListener = EventRegister.addEventListener(
       'setWorkLocation',
       data => {
-        console.log(
-          'SETTING WORK LOCATION: ',
-          _.get(data, 'coordinates', { lat: null, lng: null }),
-        );
-        this.workLocation = data;
+        const coordinates = _.get(data, 'coordinates', {
+          lat: null,
+          lng: null,
+        });
+        console.log('SETTING WORK LOCATION: ', coordinates);
+        this.createLocationPolygon(coordinates, 'Work');
       },
     );
   }
 
+  createLocationPolygon(location, label) {
+    if (location.lat && location.lng) {
+      const pt = point([location.lat, location.lng]);
+      const poly = polygon([
+        [
+          [location.lat - 0.00025, location.lng + 0.00025],
+          [location.lat - 0.00025, location.lng - 0.00025],
+          [location.lat + 0.00025, location.lng - 0.00025],
+          [location.lat + 0.00025, location.lng + 0.00025],
+          [location.lat - 0.00025, location.lng + 0.00025],
+        ],
+      ]);
+
+      if (label === 'Home') {
+        this.homeLocation = pt;
+        this.homePolygon = poly;
+      } else if (label === 'Work') {
+        this.workLocation = pt;
+        this.workPolygon = poly;
+      }
+    }
+  }
+
   getBlacklistedLocations() {
-    getHomeLocation().then(
-      location =>
-        (this.homeLocation = _.get(JSON.parse(location), 'coordinates', {
-          lat: null,
-          lng: null,
-        })),
-    );
-    getWorkLocation().then(
-      location =>
-        (this.workLocation = _.get(JSON.parse(location), 'coordinates', {
-          lat: null,
-          lng: null,
-        })),
-    );
+    getHomeLocation().then(location => {
+      const parsedLocation = JSON.parse(location);
+      if (parsedLocation.coordinates) {
+        this.createLocationPolygon(parsedLocation.coordinates, 'Home');
+      }
+    });
+    getWorkLocation().then(location => {
+      const parsedLocation = JSON.parse(location);
+      if (parsedLocation.coordinates) {
+        this.createLocationPolygon(parsedLocation.coordinates, 'Work');
+      }
+    });
   }
 
   getLocationData() {
@@ -158,46 +187,34 @@ export class LocationData {
         latitude: location['latitude'],
         longitude: location['longitude'],
       };
-      if (this.workLocation) {
+      SetStoreData('LOCATION_DATA', curated);
+      if (
+        (this.homeLocation && this.homePolygon) ||
+        (this.workLocation && this.workPolygon)
+      ) {
+        const currentLocationPoint = point([
+          currentLocation.latitude,
+          currentLocation.longitude,
+        ]);
         console.log(
-          'TRYING TO UPLOAD LOCATION MATH WORK',
-          this.workLocation,
-          currentLocation,
+          'IS CLOSE TO HOME ',
+          booleanPointInPolygon(currentLocationPoint, this.homePolygon),
+        );
+        console.log(
+          'IS CLOSE TO WORK ',
+          booleanPointInPolygon(currentLocationPoint, this.workPolygon),
         );
         if (
-          Math.abs(this.workLocation.lat - currentLocation.latitude) >
-            this.tooNearToBannedLocation &&
-          Math.abs(this.workLocation.lng - currentLocation.longitude) >
-            this.tooNearToBannedLocation
+          booleanPointInPolygon(currentLocationPoint, this.homePolygon) ||
+          booleanPointInPolygon(currentLocationPoint, this.workPolygon)
         ) {
-          SafePathsAPI.saveMyLocation(currentLocation);
+          console.log('[WARNING] TOO CLOSE BANNED AREA');
         } else {
-          console.log(
-            '[WARNING] TOO CLOSE TO BANNED WORK LOCATION, NOT SENDING UP',
-          );
-        }
-      } else if (this.homeLocation) {
-        console.log(
-          'TRYING TO UPLOAD LOCATION MATH HOME',
-          this.homeLocation,
-          currentLocation,
-        );
-        if (
-          Math.abs(this.homeLocation.lat - currentLocation.latitude) >
-            this.tooNearToBannedLocation &&
-          Math.abs(this.homeLocation.lng - currentLocation.longitude) >
-            this.tooNearToBannedLocation
-        ) {
           SafePathsAPI.saveMyLocation(currentLocation);
-        } else {
-          console.log(
-            '[WARNING] TOO CLOSE TO BANNED HOME LOCATION, NOT SENDING UP',
-          );
         }
       } else {
         SafePathsAPI.saveMyLocation(currentLocation);
       }
-      SetStoreData('LOCATION_DATA', curated);
     });
   }
 }
