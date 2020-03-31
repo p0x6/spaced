@@ -268,8 +268,8 @@ function OverlapScreen() {
       const rows = records.split('\n');
       const parsedRows = {};
 
-      for (var i = rows.length - 1; i >= 0; i--) {
-        var row = rows[i].split(',');
+      for (let i = rows.length - 1; i >= 0; i--) {
+        let row = rows[i].split(',');
         const lat = parseFloat(row[7]);
         const long = parseFloat(row[8]);
         if (!isNaN(lat) && !isNaN(long)) {
@@ -341,15 +341,29 @@ function OverlapScreen() {
   );
 
   function moveToSearchArea(location) {
-    if (location.lat && location.lng) {
-      console.log('======== moving area to searched location ======', location);
+    const safeLocation = location.lat
+      ? location
+      : _.get(location, 'nativeEvent.coordinate.latitude', null)
+      ? {
+          lat: location.nativeEvent.coordinate.latitude,
+          lng: location.nativeEvent.coordinate.longitude,
+        }
+      : null;
+    if (safeLocation) {
+      console.log(
+        '======== moving area to searched location ======',
+        safeLocation,
+      );
       setInitialRegion({
-        latitude: location.lat,
-        longitude: location.lng,
-        latitudeDelta: location.latitudeDelta || 0.01,
-        longitudeDelta: location.longitudeDelta || 0.01,
+        latitude: safeLocation.lat,
+        longitude: safeLocation.lng,
+        latitudeDelta: safeLocation.latitudeDelta || 0.01,
+        longitudeDelta: safeLocation.longitudeDelta || 0.01,
       });
-      populateMarkers();
+      populateMarkers({
+        latitude: safeLocation.lat,
+        longitude: safeLocation.lng,
+      });
     }
   }
 
