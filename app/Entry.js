@@ -13,6 +13,8 @@ import LicencesScreen from './views/Licenses';
 import NotificationScreen from './views/Notification';
 import Slider from './views/welcomeScreens/Slider';
 import { GetStoreData } from './helpers/General';
+import BlacklistPlaces from './views/BlackListPlaces';
+import SearchAddress from './views/SearchAddress';
 
 const Stack = createStackNavigator();
 
@@ -96,6 +98,16 @@ class Entry extends Component {
             <Stack.Screen
               name='OverlapScreen'
               component={OverlapScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name='BlacklistPlaces'
+              component={BlacklistPlaces}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name='SearchAddress'
+              component={SearchAddress}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

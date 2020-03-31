@@ -73,6 +73,10 @@ class LocationTracking extends Component {
     this.props.navigation.navigate('ImportScreen', {});
   }
 
+  blacklistPlaces() {
+    this.props.navigation.navigate('BlacklistPlaces', {});
+  }
+
   overlap() {
     this.props.navigation.navigate('OverlapScreen', {});
   }
@@ -222,7 +226,7 @@ class LocationTracking extends Component {
 
           <View style={styles.actionButtonsView}>
             <TouchableOpacity
-              onPress={() => this.import()}
+              onPress={() => this.blacklistPlaces()}
               style={styles.actionButtonsTouchable}>
               <Image
                 style={styles.actionButtonImage}
@@ -230,7 +234,7 @@ class LocationTracking extends Component {
                 resizeMode={'contain'}
               />
               <Text style={styles.actionButtonText}>
-                {languages.t('label.import')}
+                Set Home and Work Address
               </Text>
             </TouchableOpacity>
 

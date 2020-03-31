@@ -12,13 +12,37 @@ let instanceCount = 0;
 let lastPointCount = 0;
 // let locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
 // // DEBUG: Reduce Time intervall for faster debugging
-let locationInterval = 5000;
+// let locationInterval = 5000;
+
+export function setHomeLocation(location) {
+  this.homeLocation = location;
+  SetStoreData('HOME_LOCATION', location);
+}
+
+export function setWorkLocation(location) {
+  this.workLocation = location;
+  SetStoreData('WORK_LOCATION', location);
+}
 
 export class LocationData {
   constructor() {
     this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
+    // around 55 meters
+    this.tooNearToBannedLocation = 0.0005;
     // DEBUG: Reduce Time intervall for faster debugging
     // this.locationInterval = 5000;
+    this.homeLocation = null;
+    this.workLocation = null;
+    this.getBlacklistedLocations();
+  }
+
+  getBlacklistedLocations() {
+    GetStoreData('HOME_LOCATION').then(
+      location => (this.homeLocation = location),
+    );
+    GetStoreData('WORK_LOCATION').then(
+      location => (this.workLocation = location),
+    );
   }
 
   getLocationData() {
@@ -92,10 +116,31 @@ export class LocationData {
         time: unixtimeUTC,
       };
       curated.push(lat_lon_time);
-      SafePathsAPI.saveMyLocation({
+      const currentLocation = {
         latitude: location['latitude'],
         longitude: location['longitude'],
-      });
+      };
+      if (this.workLocation) {
+        if (
+          Math.abs(this.workLocation.latitude - currentLocation.latitude) >
+            this.tooNearToBannedLocation &&
+          Math.abs(this.workLocation.longitude - this.tooNearToBannedLocation) >
+            0.0005
+        ) {
+          SafePathsAPI.saveMyLocation(currentLocation);
+        }
+      } else if (this.homeLocation) {
+        if (
+          Math.abs(this.homeLocation.latitude - currentLocation.latitude) >
+            this.tooNearToBannedLocation &&
+          Math.abs(this.homeLocation.longitude - this.tooNearToBannedLocation) >
+            0.0005
+        ) {
+          SafePathsAPI.saveMyLocation(currentLocation);
+        }
+      } else {
+        SafePathsAPI.saveMyLocation(currentLocation);
+      }
       SetStoreData('LOCATION_DATA', curated);
     });
   }
