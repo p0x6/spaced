@@ -73,9 +73,7 @@ class LicensesScreen extends Component {
         </View>
 
         <View style={styles.main}>
-          <Text style={styles.headerTitle}>
-            {languages.t('label.private_kit')}
-          </Text>
+          <Text style={styles.headerTitle}>Spaced</Text>
 
           <View style={styles.row}>
             <Text style={styles.valueName}>Version: </Text>

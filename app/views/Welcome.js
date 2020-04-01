@@ -65,7 +65,7 @@ class Welcome extends Component {
               (styles.sectionDescription,
               { textAlign: 'center', paddingTop: 15 })
             }>
-            For more information visit the Private Kit hompage:
+            Learn more about the project Spaced is based on:
           </Text>
           <Text
             style={
