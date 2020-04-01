@@ -21,7 +21,7 @@
   [GMSServices provideAPIKey:@"AIzaSyAXvJiQXAgE2_bWdayTH_v52Tg38byutAg"];
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"SafePaths"
+                                                   moduleName:@"Spaced"
                                             initialProperties:nil];
 
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];

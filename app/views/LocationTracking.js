@@ -161,7 +161,7 @@ class LocationTracking extends Component {
               </MenuOption>
             </MenuOptions>
           </Menu>
-          <Text style={styles.headerTitle}>Safe Paths</Text>
+          <Text style={styles.headerTitle}>Spaced</Text>
 
           <View style={styles.buttonsAndLogoView}>
             {this.state.isLogging ? (

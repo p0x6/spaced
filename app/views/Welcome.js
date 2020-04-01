@@ -35,7 +35,7 @@ class Welcome extends Component {
         <View style={styles.main}>
           <View style={styles.topView}>
             <View style={styles.intro}>
-              <Text style={styles.headerTitle}>Safe Paths</Text>
+              <Text style={styles.headerTitle}>Spaced</Text>
 
               <Text style={styles.sectionDescription}>
                 Private Kit is your personal vault that nobody else can access.

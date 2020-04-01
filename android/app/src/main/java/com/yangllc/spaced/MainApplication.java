@@ -1,4 +1,4 @@
-package com.posix.safepaths;
+package com.yangllc.spaced;
 
 import android.app.Application;
 import android.content.Context;

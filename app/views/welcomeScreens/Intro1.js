@@ -16,11 +16,10 @@ const Intro1 = props => {
     <View style={styles.mainContainer}>
       <View style={styles.infoCard}>
         <Image source={welcome1} style={styles.infoCardImage} />
-        <Text style={styles.infoCardHeadText}>Safe Paths</Text>
+        <Text style={styles.infoCardHeadText}>Spaced</Text>
         <Text style={styles.infoCardBodyText}>
-          Safe Paths is a public, open-source fork of MIT Private Kit that
-          shares data with other users to create a real-time social distancing
-          tool.
+          Spaced is a public, open-source fork of MIT Private Kit that shares
+          data with other users to create a real-time social distancing tool.
         </Text>
       </View>
       <View style={styles.navigationDotsView}>

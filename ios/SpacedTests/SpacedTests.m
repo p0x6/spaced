@@ -14,11 +14,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface SafePathsTests : XCTestCase
+@interface SpacedTests : XCTestCase
 
 @end
 
-@implementation SafePathsTests
+@implementation SpacedTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL(^)(UIView *view))test
 {

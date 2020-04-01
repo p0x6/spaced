@@ -1,8 +1,8 @@
 platform :ios, '9.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-target 'SafePaths' do
-  # Pods for SafePaths
+target 'Spaced' do
+  # Pods for Spaced
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
@@ -49,7 +49,7 @@ target 'SafePaths' do
   
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
 
-  target 'SafePathsTests' do
+  target 'SpacedTests' do
     inherit! :search_paths
     # Pods for testing
   end

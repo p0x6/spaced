@@ -100,13 +100,13 @@ export class LocationData {
   getBlacklistedLocations() {
     getHomeLocation().then(location => {
       const parsedLocation = JSON.parse(location);
-      if (parsedLocation.coordinates) {
+      if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Home');
       }
     });
     getWorkLocation().then(location => {
       const parsedLocation = JSON.parse(location);
-      if (parsedLocation.coordinates) {
+      if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Work');
       }
     });
