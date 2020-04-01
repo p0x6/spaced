@@ -36,20 +36,6 @@ const BlacklistPlaces = () => {
     }
   };
 
-  const mapCallBack = (label, location) => {
-    if (label === 'Home') {
-      if (location && location !== 'null') {
-        const parsedLocation = JSON.parse(location);
-        setHomeAddress(_.get(parsedLocation, 'address', null));
-      }
-    } else if (label === 'Work') {
-      if (location && location !== 'null') {
-        const parsedLocation = JSON.parse(location);
-        setWorkAddress(_.get(parsedLocation, 'address', null));
-      }
-    }
-  };
-
   useFocusEffect(() => {
     getHomeLocation().then(location => {
       if (location && location !== 'null') {

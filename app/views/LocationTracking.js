@@ -234,7 +234,7 @@ class LocationTracking extends Component {
                 resizeMode={'contain'}
               />
               <Text style={styles.actionButtonText}>
-                Set Home and Work Address
+                Edit Banned Tracking Areas
               </Text>
             </TouchableOpacity>
 

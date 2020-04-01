@@ -33,11 +33,11 @@ const SearchAddress = ({ route }) => {
   };
 
   const setAddress = location => {
-    if (_.get(route, 'params.label', '') === 'Work') {
-      setWorkLocation(location);
-      EventRegister.emit('setHomeLocation', location);
-    } else if (_.get(route, 'params.label', '') === 'Home') {
+    if (_.get(route, 'params.label', '') === 'Home') {
       setHomeLocation(location);
+      EventRegister.emit('setHomeLocation', location);
+    } else if (_.get(route, 'params.label', '') === 'Work') {
+      setWorkLocation(location);
       EventRegister.emit('setWorkLocation', location);
     }
   };

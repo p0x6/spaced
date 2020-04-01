@@ -196,17 +196,25 @@ export class LocationData {
           currentLocation.latitude,
           currentLocation.longitude,
         ]);
-        console.log(
-          'IS CLOSE TO HOME ',
-          booleanPointInPolygon(currentLocationPoint, this.homePolygon),
-        );
-        console.log(
-          'IS CLOSE TO WORK ',
-          booleanPointInPolygon(currentLocationPoint, this.workPolygon),
-        );
+        if (this.homeLocation && this.homePolygon) {
+          console.log(
+            'IS CLOSE TO HOME ',
+            booleanPointInPolygon(currentLocationPoint, this.homePolygon),
+          );
+        }
+        if (this.workLocation && this.workPolygon) {
+          console.log(
+            'IS CLOSE TO WORK ',
+            booleanPointInPolygon(currentLocationPoint, this.workPolygon),
+          );
+        }
         if (
-          booleanPointInPolygon(currentLocationPoint, this.homePolygon) ||
-          booleanPointInPolygon(currentLocationPoint, this.workPolygon)
+          (this.homeLocation &&
+            this.homePolygon &&
+            booleanPointInPolygon(currentLocationPoint, this.homePolygon)) ||
+          (this.workLocation &&
+            this.workPolygon &&
+            booleanPointInPolygon(currentLocationPoint, this.workPolygon))
         ) {
           console.log('[WARNING] TOO CLOSE BANNED AREA');
         } else {
