@@ -33,6 +33,7 @@
 		A590ED9611860B67C13D72CD /* libPods-SpacedTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BB8E05EB6A91794343D2430 /* libPods-SpacedTests.a */; };
 		B4013ADB6F02420A88004767 /* OpenSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 07DA2C9CA83F4C21B7D133C5 /* OpenSans-LightItalic.ttf */; };
 		B6CCB74110A247D2AB228197 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6A6F5A32624649CC837BA571 /* OpenSans-Light.ttf */; };
+		C58F41802435571000FFF01F /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = C58F417F2435571000FFF01F /* AppCenter-Config.plist */; };
 		D86C551F0DF249ED8BC98C36 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CAA050CB1DAE4800AAAEAE3E /* OpenSans-Regular.ttf */; };
 		E48B0565CDD44328BEF2F063 /* OpenSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B3FC897224B6433697E4D6CD /* OpenSans-Italic.ttf */; };
 		E798329A430E40B786B42CBC /* OpenSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7932FB5F9EEA459987375700 /* OpenSans-SemiBoldItalic.ttf */; };
@@ -95,6 +96,7 @@
 		9FA39802441F3BE7A66ECEDB /* Pods-Spaced-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Spaced-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-Spaced-tvOSTests/Pods-Spaced-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		B3FC897224B6433697E4D6CD /* OpenSans-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-Italic.ttf"; path = "../app/assets/fonts/OpenSans-Italic.ttf"; sourceTree = "<group>"; };
 		BEB7CA13AC07404090279B14 /* OpenSans-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-BoldItalic.ttf"; path = "../app/assets/fonts/OpenSans-BoldItalic.ttf"; sourceTree = "<group>"; };
+		C58F417F2435571000FFF01F /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "AppCenter-Config.plist"; path = "Spaced/AppCenter-Config.plist"; sourceTree = "<group>"; };
 		C5CAF9029B3AE69C411463F3 /* Pods-SpacedTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SpacedTests.debug.xcconfig"; path = "Target Support Files/Pods-SpacedTests/Pods-SpacedTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C692EBDB3E8541C7A282FF93 /* OpenSans-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-SemiBold.ttf"; path = "../app/assets/fonts/OpenSans-SemiBold.ttf"; sourceTree = "<group>"; };
 		C92C147334A73EA6C87105F3 /* Pods-Spaced-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Spaced-tvOS.release.xcconfig"; path = "Target Support Files/Pods-Spaced-tvOS/Pods-Spaced-tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				C58F417F2435571000FFF01F /* AppCenter-Config.plist */,
 				08445F4924283AB5008754AC /* GoogleMaps.bundle */,
 				08445F4724283A46008754AC /* GoogleMapsCore.framework */,
 				08445F4524283A40008754AC /* GoogleMaps.framework */,
@@ -366,6 +369,7 @@
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				F7554FB6D2CB4E4692D5B359 /* OpenSans-Bold.ttf in Resources */,
 				EABBBE9C01934B4A9A35DE89 /* OpenSans-BoldItalic.ttf in Resources */,
+				C58F41802435571000FFF01F /* AppCenter-Config.plist in Resources */,
 				FCC9CA644CC14079861A8CFB /* OpenSans-ExtraBold.ttf in Resources */,
 				8130315107624C06A0D02817 /* OpenSans-ExtraBoldItalic.ttf in Resources */,
 				E48B0565CDD44328BEF2F063 /* OpenSans-Italic.ttf in Resources */,
