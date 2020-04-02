@@ -15,6 +15,10 @@ import Slider from './views/welcomeScreens/Slider';
 import { GetStoreData } from './helpers/General';
 import BlacklistPlaces from './views/BlackListPlaces';
 import SearchAddress from './views/SearchAddress';
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import { MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
+
+MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const Stack = createStackNavigator();
 

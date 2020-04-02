@@ -306,6 +306,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				79BCB21305F66BDB3C2F3F2F /* [CP] Copy Pods Resources */,
+				376E651E5ED8214855E5A1D2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -398,6 +399,42 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
+		376E651E5ED8214855E5A1D2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Spaced/Pods-Spaced-frameworks.sh",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework.dSYM",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/MapboxMobileEvents.framework",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/MapboxMobileEvents.framework.dSYM",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mapbox.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Mapbox.framework.dSYM",
+				"${BUILT_PRODUCTS_DIR}/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
+				"${BUILT_PRODUCTS_DIR}/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
+				"${BUILT_PRODUCTS_DIR}/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
+				"${BUILT_PRODUCTS_DIR}/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MapboxMobileEvents.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/MapboxMobileEvents.framework.dSYM",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Spaced/Pods-Spaced-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		79BCB21305F66BDB3C2F3F2F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -406,10 +443,12 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Spaced/Pods-Spaced-resources.sh",
 				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Resources/GoogleMaps.bundle",
+				"${PODS_ROOT}/MapboxMobileEvents/MapboxMobileEvents/Resources/logger.html",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMaps.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/logger.html",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

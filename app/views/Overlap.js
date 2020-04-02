@@ -17,6 +17,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import WebView from 'react-native-webview';
 import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import MapView from 'react-native-map-clustering';
+import MapboxGL from '@react-native-mapbox-gl/maps';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import colors from '../constants/colors';
@@ -32,7 +33,7 @@ import CustomCircle from '../helpers/customCircle';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import _ from 'lodash';
 import SafePathsAPI from '../services/API';
-import { PLACES_API_KEY } from 'react-native-dotenv';
+import { PLACES_API_KEY, MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
 
 const width = Dimensions.get('window').width;
 
@@ -79,6 +80,79 @@ function distance(lat1, lon1, lat2, lon2) {
     return dist * 1.609344;
   }
 }
+
+const layerStyles = {
+  singlePoint: {
+    circleColor: 'green',
+    circleOpacity: 0.84,
+    circleStrokeWidth: 2,
+    circleStrokeColor: 'white',
+    circleRadius: 5,
+    circlePitchAlignment: 'map',
+  },
+
+  clusteredPoints: {
+    circlePitchAlignment: 'map',
+
+    circleColor: [
+      'step',
+      ['get', 'point_count'],
+      '#51bbd6',
+      100,
+      '#f1f075',
+      750,
+      '#f28cb1',
+    ],
+
+    circleRadius: ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
+
+    circleOpacity: 0.84,
+    circleStrokeWidth: 2,
+    circleStrokeColor: 'white',
+  },
+
+  clusterCount: {
+    textField: '{point_count}',
+    textSize: 12,
+    textPitchAlignment: 'map',
+  },
+};
+
+const MapboxGLMapView = ({ center }) => {
+  console.log('center : ', center);
+  return (
+    <MapboxGL.MapView
+      style={styles.map}
+      styleURL='mapbox://styles/mapbox/light-v10'>
+      <MapboxGL.Camera zoomLevel={10} centerCoordinate={center} />
+
+      <MapboxGL.ShapeSource
+        id='earthquakes'
+        cluster
+        clusterRadius={50}
+        clusterMaxZoom={14}
+        url='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'>
+        <MapboxGL.SymbolLayer
+          id='pointCount'
+          style={layerStyles.clusterCount}
+        />
+
+        <MapboxGL.CircleLayer
+          id='clusteredPoints'
+          belowLayerID='pointCount'
+          filter={['has', 'point_count']}
+          style={layerStyles.clusteredPoints}
+        />
+
+        <MapboxGL.CircleLayer
+          id='singlePoint'
+          filter={['!', ['has', 'point_count']]}
+          style={layerStyles.singlePoint}
+        />
+      </MapboxGL.ShapeSource>
+    </MapboxGL.MapView>
+  );
+};
 
 const GooglePlacesInput = props => {
   return (
@@ -183,6 +257,7 @@ function OverlapScreen() {
     try {
       GetStoreData('LOCATION_DATA').then(locationArrayString => {
         const locationArray = JSON.parse(locationArrayString);
+        console.log('locationArray:', locationArray);
         if (locationArray !== null) {
           const { latitude, longitude } = locationArray.slice(-1)[0];
 
@@ -394,34 +469,39 @@ function OverlapScreen() {
         setIsSearching={setIsSearching}
       />
       {!isSearching ? (
-        <MapView
-          ref={mapView}
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          initialRegion={initialRegion}
-          customMapStyle={customMapStyles}>
-          {markers.map(marker => (
-            <Marker
-              key={marker.key}
-              coordinate={marker.coordinate}
-              title={marker.title}
-              description={marker.description}
-              tracksViewChanges={false}
-              image={greenMarker}
-            />
-          ))}
-          {circles.map(circle => (
-            <CustomCircle
-              key={circle.key}
-              center={circle.center}
-              radius={circle.radius}
-              fillColor='rgba(163, 47, 163, 0.3)'
-              zIndex={2}
-              strokeWidth={0}
-            />
-          ))}
-        </MapView>
+        <MapboxGLMapView
+          center={[initialRegion.longitude, initialRegion.latitude]}
+        />
       ) : null}
+      {/*{!isSearching ? (*/}
+      {/*  <MapView*/}
+      {/*    ref={mapView}*/}
+      {/*    provider={PROVIDER_GOOGLE}*/}
+      {/*    style={styles.map}*/}
+      {/*    initialRegion={initialRegion}*/}
+      {/*    customMapStyle={customMapStyles}>*/}
+      {/*    {markers.map(marker => (*/}
+      {/*      <Marker*/}
+      {/*        key={marker.key}*/}
+      {/*        coordinate={marker.coordinate}*/}
+      {/*        title={marker.title}*/}
+      {/*        description={marker.description}*/}
+      {/*        tracksViewChanges={false}*/}
+      {/*        image={greenMarker}*/}
+      {/*      />*/}
+      {/*    ))}*/}
+      {/*    {circles.map(circle => (*/}
+      {/*      <CustomCircle*/}
+      {/*        key={circle.key}*/}
+      {/*        center={circle.center}*/}
+      {/*        radius={circle.radius}*/}
+      {/*        fillColor='rgba(163, 47, 163, 0.3)'*/}
+      {/*        zIndex={2}*/}
+      {/*        strokeWidth={0}*/}
+      {/*      />*/}
+      {/*    ))}*/}
+      {/*  </MapView>*/}
+      {/*) : null}*/}
     </SafeAreaView>
   );
 }
