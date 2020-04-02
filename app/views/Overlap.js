@@ -125,6 +125,7 @@ const MapboxGLMapView = ({ center }) => {
       style={styles.map}
       styleURL='mapbox://styles/mapbox/light-v10'>
       <MapboxGL.Camera zoomLevel={10} centerCoordinate={center} />
+      <MapboxGL.UserLocation />
 
       <MapboxGL.ShapeSource
         id='earthquakes'
@@ -534,7 +535,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   map: {
-    flex: 11,
+    flex: 1,
     width: width,
     alignSelf: 'center',
   },
