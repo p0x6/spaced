@@ -16,6 +16,11 @@ const colors = {
   POS_BUTTON: '#32A852',
   NEG_BUTTON: '#F8262F',
   SENS_BUTTON: '#6C3794',
+
+  BACKGROUND_COLOR: '#fefefe',
+  PRIMARY_COLOR: '#a6a6a6',
+  PRIMARY_TEXT_COLOR: '#433e3e',
+  SECONDARY_TEXT_COLOR: '#585453',
 };
 
 export default colors;

@@ -16,6 +16,8 @@ import { GetStoreData } from './helpers/General';
 import BlacklistPlaces from './views/BlackListPlaces';
 import SearchAddress from './views/SearchAddress';
 
+import FirstPage from './views/newViews/FirstPage';
+
 const Stack = createStackNavigator();
 
 class Entry extends Component {
@@ -45,7 +47,7 @@ class Entry extends Component {
             {this.state.initialRouteName === 'true' ? (
               <Stack.Screen
                 name='InitialScreen'
-                component={LocationTracking}
+                component={FirstPage}
                 options={{ headerShown: false }}
               />
             ) : (
