@@ -53,7 +53,7 @@ class Entry extends Component {
             ) : (
               <Stack.Screen
                 name='InitialScreen'
-                component={Slider}
+                component={FirstPage}
                 options={{ headerShown: false }}
               />
             )}

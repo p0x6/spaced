@@ -5,8 +5,8 @@ import {
   View,
   PermissionsAndroid,
   Platform,
-  ActionSheetIOS,
 } from 'react-native';
+
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import Logo from '../../components/Logo';
@@ -22,31 +22,14 @@ class Welcome extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isFirstPage: true,
+      page: 0,
     };
   }
 
-  toggleFirstPage = () => {
+  nextPage = () => {
     this.setState({
-      isFirstPage: !this.state.isFirstPage,
+      page: this.state.page + 1,
     });
-  };
-
-  requestPermissionAndroid = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('we are here');
-        this.willParticipate();
-        this.props.navigation.navigate('OverlapScreen', {});
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
   };
 
   willParticipate = () => {
@@ -57,55 +40,66 @@ class Welcome extends Component {
 
     BackgroundGeolocation.checkStatus(({ authorization }) => {
       if (authorization === BackgroundGeolocation.AUTHORIZED) {
-        this.setState({
-          isLogging: true,
-        });
+        console.log('autorizado');
       } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
         LocationServices.stop(this.props.navigation);
         BroadcastingServices.stop(this.props.navigation);
-        this.setState({
-          isLogging: true,
-        });
+        console.log('no autorizado');
       }
     });
   };
 
+  isPage = pageNum => this.state.page === pageNum;
+
   render() {
-    const { isFirstPage } = this.state;
-    const handleClick =
-      Platform === 'ios'
-        ? this.requestPermissionIOS
-        : this.requestPermissionAndroid;
+    const { page } = this.state;
 
-    const primaryTextArray1 = [
-      'Spaced is an app that assists in social',
-      'distancing by being able to see',
-      'hotspots in the city and to see how',
-      'many people are where you want to go',
-    ];
-
-    const primaryTextArray2 = [
-      'Sharing your location enables you to',
-      'see others around you.',
+    const texts = [
+      [
+        'Spaced is an app that assists in social',
+        'distancing by being able to see',
+        'hotspots in the city and to see how',
+        'many people are where you want to go',
+      ],
+      [
+        'Less than 100KB',
+        `Private Kit's trail generator logs your device's location in under 100KB of space - less space than a single picture`,
+        'You are in charge',
+        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
+      ],
+      [
+        'The Future',
+        `The Next Step in Solving Today's and Tomorrow's Probems Enabling individuals to log their location trail offers new opportunities for researches studying pandemic tracking, refugee migration and community traffic analysis.`,
+        'Learn More http://privatekit.mit.edu',
+      ],
+      ['Sharing your location enables you to', 'see others around you.'],
     ];
 
     return (
       <SafeAreaView>
         <View style={styles.container}>
-          <Logo logo={isFirstPage ? 'SPACED' : ''} />
+          <Logo />
           <CustomText
             containerStyle={styles.primaryTextContainer}
             textStyle={styles.primaryText}
-            text={isFirstPage ? primaryTextArray1 : primaryTextArray2}
+            text={texts[page]}
           />
           <View styles={styles.buttonsContainer}>
             <Button2
-              handlePress={isFirstPage ? this.toggleFirstPage : handleClick}
-              text={isFirstPage ? 'GET STARTED' : 'ENABLE LOCATION'}
+              handlePress={
+                !this.isPage(3) ? this.nextPage : this.willParticipate
+              }
+              text={
+                this.isPage(0)
+                  ? 'GET STARTED'
+                  : !this.isPage(3)
+                  ? 'NEXT'
+                  : 'ENABLE LOCATION'
+              }
               styled={buttonStyles}
             />
 
-            {!isFirstPage && (
+            {this.isPage(3) && (
               <Button2
                 handlePress={this.toggleFirstPage}
                 text={'Not now, take me home'}
@@ -127,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BACKGROUND_COLOR,
   },
   primaryTextContainer: {
-    height: '20%',
+    height: '30%',
     paddingLeft: '10%',
   },
   buttonsContainer: {

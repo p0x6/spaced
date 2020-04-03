@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '60%',
+    height: '50%',
   },
   logoContainer: {
     display: 'flex',
