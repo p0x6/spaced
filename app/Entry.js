@@ -20,6 +20,8 @@ import { MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
+import FirstPage from './views/newViews/FirstPage';
+
 const Stack = createStackNavigator();
 
 class Entry extends Component {
@@ -53,12 +55,12 @@ class Entry extends Component {
               options={{ headerShown: false }}
             />
           ) : (
-              <Stack.Screen
-                name='InitialScreen'
-                component={Slider}
-                options={{ headerShown: false }}
-              />
-            )}
+            <Stack.Screen
+              name='InitialScreen'
+              component={FirstPage}
+              options={{ headerShown: false }}
+            />
+          )}
           <Stack.Screen
             name='Slider'
             component={Slider}

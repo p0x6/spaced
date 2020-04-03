@@ -40,6 +40,17 @@
 		EABBBE9C01934B4A9A35DE89 /* OpenSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEB7CA13AC07404090279B14 /* OpenSans-BoldItalic.ttf */; };
 		F7554FB6D2CB4E4692D5B359 /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F242CB4939FC4D66B5630776 /* OpenSans-Bold.ttf */; };
 		FCC9CA644CC14079861A8CFB /* OpenSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9B686523B4164257AD651CE2 /* OpenSans-ExtraBold.ttf */; };
+		0B08627F06464D8981E0AA98 /* DMSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 29B8E376F888424989B8A08C /* DMSans-Bold.ttf */; };
+		A2F4C539E5724F4A9117A24F /* DMSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D99161590E414B91B1B46AA8 /* DMSans-BoldItalic.ttf */; };
+		B78301D3F79A4C5197BA092E /* DMSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 600D2B74B2354AD2B18E8258 /* DMSans-Italic.ttf */; };
+		4E1A433A027B49EBBB254E65 /* DMSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2EF6652ACB004D6CB673ACCE /* DMSans-Medium.ttf */; };
+		4CAB73384ACD41EF977F65B0 /* DMSans-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C998B89D64F84155995FE8D9 /* DMSans-MediumItalic.ttf */; };
+		302469210DA344BE84BD4666 /* DMSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3A4AFA8141314333A538EF26 /* DMSans-Regular.ttf */; };
+		ABF0DEECE4324F76B6A6AB8A /* FrankRuhlLibre-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 36AD640F71434D90AB206B2E /* FrankRuhlLibre-Black.ttf */; };
+		C38EB5001D864DB492374D5C /* FrankRuhlLibre-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C915503D242042F5949E3837 /* FrankRuhlLibre-Bold.ttf */; };
+		053F1F860E2F4C8098974520 /* FrankRuhlLibre-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70BBE5548D5E427193B05517 /* FrankRuhlLibre-Light.ttf */; };
+		DF8B6ADC790841EE8E755399 /* FrankRuhlLibre-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96D5B219785C4D0690D9E619 /* FrankRuhlLibre-Medium.ttf */; };
+		57B4E9B9690C4052B03958EF /* FrankRuhlLibre-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5C096DAA8A3D41D9A74BA174 /* FrankRuhlLibre-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +119,17 @@
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		F242CB4939FC4D66B5630776 /* OpenSans-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OpenSans-Bold.ttf"; path = "../app/assets/fonts/OpenSans-Bold.ttf"; sourceTree = "<group>"; };
 		FF5770BD87365CB0125519F3 /* libPods-Spaced.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Spaced.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		29B8E376F888424989B8A08C /* DMSans-Bold.ttf */ = {isa = PBXFileReference; name = "DMSans-Bold.ttf"; path = "../app/assets/fonts/DMSans-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D99161590E414B91B1B46AA8 /* DMSans-BoldItalic.ttf */ = {isa = PBXFileReference; name = "DMSans-BoldItalic.ttf"; path = "../app/assets/fonts/DMSans-BoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		600D2B74B2354AD2B18E8258 /* DMSans-Italic.ttf */ = {isa = PBXFileReference; name = "DMSans-Italic.ttf"; path = "../app/assets/fonts/DMSans-Italic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		2EF6652ACB004D6CB673ACCE /* DMSans-Medium.ttf */ = {isa = PBXFileReference; name = "DMSans-Medium.ttf"; path = "../app/assets/fonts/DMSans-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C998B89D64F84155995FE8D9 /* DMSans-MediumItalic.ttf */ = {isa = PBXFileReference; name = "DMSans-MediumItalic.ttf"; path = "../app/assets/fonts/DMSans-MediumItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3A4AFA8141314333A538EF26 /* DMSans-Regular.ttf */ = {isa = PBXFileReference; name = "DMSans-Regular.ttf"; path = "../app/assets/fonts/DMSans-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		36AD640F71434D90AB206B2E /* FrankRuhlLibre-Black.ttf */ = {isa = PBXFileReference; name = "FrankRuhlLibre-Black.ttf"; path = "../app/assets/fonts/FrankRuhlLibre-Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C915503D242042F5949E3837 /* FrankRuhlLibre-Bold.ttf */ = {isa = PBXFileReference; name = "FrankRuhlLibre-Bold.ttf"; path = "../app/assets/fonts/FrankRuhlLibre-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		70BBE5548D5E427193B05517 /* FrankRuhlLibre-Light.ttf */ = {isa = PBXFileReference; name = "FrankRuhlLibre-Light.ttf"; path = "../app/assets/fonts/FrankRuhlLibre-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		96D5B219785C4D0690D9E619 /* FrankRuhlLibre-Medium.ttf */ = {isa = PBXFileReference; name = "FrankRuhlLibre-Medium.ttf"; path = "../app/assets/fonts/FrankRuhlLibre-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5C096DAA8A3D41D9A74BA174 /* FrankRuhlLibre-Regular.ttf */ = {isa = PBXFileReference; name = "FrankRuhlLibre-Regular.ttf"; path = "../app/assets/fonts/FrankRuhlLibre-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +212,17 @@
 				CAA050CB1DAE4800AAAEAE3E /* OpenSans-Regular.ttf */,
 				C692EBDB3E8541C7A282FF93 /* OpenSans-SemiBold.ttf */,
 				7932FB5F9EEA459987375700 /* OpenSans-SemiBoldItalic.ttf */,
+				29B8E376F888424989B8A08C /* DMSans-Bold.ttf */,
+				D99161590E414B91B1B46AA8 /* DMSans-BoldItalic.ttf */,
+				600D2B74B2354AD2B18E8258 /* DMSans-Italic.ttf */,
+				2EF6652ACB004D6CB673ACCE /* DMSans-Medium.ttf */,
+				C998B89D64F84155995FE8D9 /* DMSans-MediumItalic.ttf */,
+				3A4AFA8141314333A538EF26 /* DMSans-Regular.ttf */,
+				36AD640F71434D90AB206B2E /* FrankRuhlLibre-Black.ttf */,
+				C915503D242042F5949E3837 /* FrankRuhlLibre-Bold.ttf */,
+				70BBE5548D5E427193B05517 /* FrankRuhlLibre-Light.ttf */,
+				96D5B219785C4D0690D9E619 /* FrankRuhlLibre-Medium.ttf */,
+				5C096DAA8A3D41D9A74BA174 /* FrankRuhlLibre-Regular.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -379,6 +412,17 @@
 				D86C551F0DF249ED8BC98C36 /* OpenSans-Regular.ttf in Resources */,
 				6828C7F4BF9544B791DB8E0F /* OpenSans-SemiBold.ttf in Resources */,
 				E798329A430E40B786B42CBC /* OpenSans-SemiBoldItalic.ttf in Resources */,
+				0B08627F06464D8981E0AA98 /* DMSans-Bold.ttf in Resources */,
+				A2F4C539E5724F4A9117A24F /* DMSans-BoldItalic.ttf in Resources */,
+				B78301D3F79A4C5197BA092E /* DMSans-Italic.ttf in Resources */,
+				4E1A433A027B49EBBB254E65 /* DMSans-Medium.ttf in Resources */,
+				4CAB73384ACD41EF977F65B0 /* DMSans-MediumItalic.ttf in Resources */,
+				302469210DA344BE84BD4666 /* DMSans-Regular.ttf in Resources */,
+				ABF0DEECE4324F76B6A6AB8A /* FrankRuhlLibre-Black.ttf in Resources */,
+				C38EB5001D864DB492374D5C /* FrankRuhlLibre-Bold.ttf in Resources */,
+				053F1F860E2F4C8098974520 /* FrankRuhlLibre-Light.ttf in Resources */,
+				DF8B6ADC790841EE8E755399 /* FrankRuhlLibre-Medium.ttf in Resources */,
+				57B4E9B9690C4052B03958EF /* FrankRuhlLibre-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
