@@ -16,7 +16,7 @@ import backArrow from '../assets/images/backArrow.png';
 import languages from '../locales/languages';
 import colors from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
-import { debounce } from "debounce";
+import { debounce } from 'debounce';
 
 import { setHomeLocation, setWorkLocation } from '../services/LocationService';
 
@@ -25,23 +25,16 @@ import _ from 'lodash';
 import { PLACES_API_KEY } from 'react-native-dotenv';
 
 import { EventRegister } from 'react-native-event-listeners';
+const axios = require('axios');
 
+const SearchAddress = props => {
+  const [destination, setDestination] = useState('');
+  const [predictions, setPredictions] = useState([]);
+  const [coordinates, setCoordinates] = useState({
+    latitude: props.latitude,
+    longitude: props.longitude,
+  });
 
-const width = Dimensions.get('window').width;
-var editText = "";
-// const { navigate } = useNavigation();
-// const backToPreviousPage = () => {
-//   navigate('BlacklistPlaces', {});
-// };
-
-class SearchAddress extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      destination: "",
-      predictions: [],
-    }
-  }
   // const setAddress = location => {
   //   if (_.get(route, 'params.label', '') === 'Home') {
   //     setHomeLocation(location);
@@ -56,24 +49,24 @@ class SearchAddress extends Component {
   //   this.props.navigation.navigation('BlacklistPlaces', {});
   // };
 
-  onChangeDestination = debounce(async destination => {
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${PLACES_API_KEY}
-    &input=${destination}&location=${this.state.latitude},${this.state.longitude}&radius=2000`;
-    try {
-      const result = await fetch(apiUrl);
-      const json = await result.json();
-      console.log("json=>>", json);
+  const onChangeDestination = debounce(async destination => {
+    if (destination && destination.length > 3) {
+      const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${PLACES_API_KEY}
+    &input=${destination}&location=${coordinates.latitude},${coordinates.longitude}&radius=2000`;
+      try {
+        const result = await fetch(apiUrl);
+        const json = await result.json();
+        console.log('json=>>', json);
 
-      this.setState({
-        predictions: json.predictions
-      });
-    } catch (err) {
-      AlertHelper.show("error", "Error", err);
+        setPredictions(predictions);
+      } catch (err) {
+        AlertHelper.show('error', 'Error', err);
+      }
     }
   }, 1000);
 
-  _onRenderSearchItems = ({ item, index }) => {
-    console.log("ITEM=>>", item);
+  const onRenderSearchItems = ({ item, index }) => {
+    console.log('ITEM=>>', item);
 
     return (
       <TouchableOpacity
@@ -81,35 +74,35 @@ class SearchAddress extends Component {
         style={styles.box}
         onPress={() => {
           // this.refs.input.blur();
-          this._onDestinationSelect(item);
+          onDestinationSelect(item);
         }}
-        key={index}
-      >
-        <Text style={styles.locationTitle}
-        >{item.structured_formatting.main_text}</Text>
-        <Text style={styles.locationTitle}
-        >{item.structured_formatting.secondary_text}</Text>
-
+        key={index}>
+        <Text style={styles.locationTitle}>
+          {item.structured_formatting.main_text}
+        </Text>
+        <Text style={styles.locationTitle}>
+          {item.structured_formatting.secondary_text}
+        </Text>
       </TouchableOpacity>
     );
   };
 
-  _onDestinationSelect = item => {
+  const onDestinationSelect = item => {
     axios
       .get(
-        "https://maps.googleapis.com/maps/api/place/details/json?key=" +
-        PLACES_API_KEY +
-        "&placeid=" +
-        item.place_id
+        'https://maps.googleapis.com/maps/api/place/details/json?key=' +
+          PLACES_API_KEY +
+          '&placeid=' +
+          item.place_id,
       )
       .then(responseJson => {
-        console.log("responseJson =>>", responseJson);
+        console.log('responseJson =>>', responseJson);
 
-        if (responseJson.data.status == "OK") {
+        if (responseJson.data.status == 'OK') {
           let locationData = {
             address: `${item.structured_formatting.main_text},${item.structured_formatting.secondary_text}`,
             latitude: responseJson.data.result.geometry.location.lat,
-            longitude: responseJson.data.result.geometry.location.lng
+            longitude: responseJson.data.result.geometry.location.lng,
           };
           // this._onSetLocationData(locationData);
         }
@@ -119,104 +112,33 @@ class SearchAddress extends Component {
       });
   };
 
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.backArrowTouchable}
-            onPress={() => { this.props.navigation.navigate("LocationTrackingScreen", {}) }}
-          >
-            <Image style={styles.backArrow} source={backArrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Enter Address</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.searchInput}>
-          <TextInput
-            autoCapitalize='none'
-            blurOnSubmit
-            autoFocus
-            clearButtonMode="always"
-            placeholder={"Search location or zip code"}
-            placeholderTextColor='#454f63'
-            onChangeText={destination => {
-              this.setState({ destination });
-              this.onChangeDestination(destination);
-            }}
-          />
-        </TouchableOpacity>
-        <FlatList
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          style={{ borderTopWidth: 0.5, borderTopColor: "#BDBDBD" }}
-          data={this.state.predictions}
-          renderItem={this._onRenderSearchItems}
+  return (
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.searchInput}>
+        <TextInput
+          autoCapitalize='none'
+          blurOnSubmit
+          autoFocus
+          clearButtonMode='always'
+          placeholder={'Search location or zip code'}
+          placeholderTextColor='#454f63'
+          onChangeText={destination => {
+            setDestination(destination);
+            onChangeDestination(destination);
+          }}
         />
-        {/* <GooglePlacesAutocomplete
-        placeholder='Search'
-        minLength={2} // minimum length of text to search
-        autoFocus={false}
-        returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-        keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
-        listViewDisplayed='auto' // true/false/undefined
-        fetchDetails
-        renderDescription={row => row.description} // custom description render
-        onPress={(data, details = null) => {
-          // 'details' is provided when fetchDetails = true
-          console.log('DATA: ', data);
-          console.log('DETAILS: ', details);
-          if (
-            _.get(details, 'geometry.location') &&
-            _.get(data, 'description')
-          ) {
-            const address = {
-              address: _.get(data, 'description'),
-              coordinates: _.get(details, 'geometry.location'),
-            };
-            setAddress(address);
-            backToPreviousPage();
-          }
-        }}
-        // textInputProps={{
-        //   onFocus: () => setIsSearching(true),
-        // }}
-        query={{
-          // available options: https://developers.google.com/places/web-service/autocomplete
-          key: "Test",
-          language: 'en', // language of the results
-        }}
-        styles={{
-          textInputContainer: {
-            width: '100%',
-          },
-          description: {
-            fontWeight: 'bold',
-          },
-          predefinedPlacesDescription: {
-            color: '#1faadb',
-          },
-        }}
-        nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-        GooglePlacesDetailsQuery={{
-          // available options for GooglePlacesDetails API : https://developers.google.com/places/web-service/details
-          fields: 'geometry',
-        }}
-        debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-        renderRightButton={() => (
-          <TouchableWithoutFeedback
+      </TouchableOpacity>
+      <FlatList
+        keyboardShouldPersistTaps='handled'
+        showsVerticalScrollIndicator={false}
+        style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
+        data={predictions}
+        renderItem={onRenderSearchItems}
+      />
+    </SafeAreaView>
+  );
+};
 
-            onPress={() => {
-              Keyboard.dismiss();
-            }}>
-            <Text>X</Text>
-          </TouchableWithoutFeedback>
-        )}
-      /> */}
-      </SafeAreaView>
-    );
-  }
-}
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
@@ -247,29 +169,27 @@ const styles = StyleSheet.create({
     width: 18.48,
   },
   searchInput: {
-
-    alignSelf: "center",
-    backgroundColor: "#fff",
+    alignSelf: 'center',
+    backgroundColor: '#fff',
     padding: 20,
-    width: "95%",
+    width: '95%',
     borderRadius: 14,
     marginTop: 10,
-
   },
   locationTitle: {
-    color: "#000000",
+    color: '#000000',
     fontSize: 15,
-    fontFamily: 'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
   },
   locationDetail: {
-    color: "#000000",
+    color: '#000000',
     fontSize: 12,
-    fontFamily: 'OpenSans-Regular'
+    fontFamily: 'OpenSans-Regular',
   },
   box: {
     borderBottomWidth: 0.5,
-    borderBottomColor: "#BDBDBD",
-    padding: 15
+    borderBottomColor: '#BDBDBD',
+    padding: 15,
   },
 });
 

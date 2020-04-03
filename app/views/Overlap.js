@@ -413,7 +413,7 @@ function OverlapScreen() {
     React.useCallback(() => {
       getInitialState();
       populateMarkers();
-      return () => { };
+      return () => {};
     }, []),
   );
 
@@ -421,11 +421,11 @@ function OverlapScreen() {
     const safeLocation = location.lat
       ? location
       : _.get(location, 'nativeEvent.coordinate.latitude', null)
-        ? {
+      ? {
           lat: location.nativeEvent.coordinate.latitude,
           lng: location.nativeEvent.coordinate.longitude,
         }
-        : null;
+      : null;
     if (safeLocation) {
       console.log(
         '======== moving area to searched location ======',
@@ -466,10 +466,10 @@ function OverlapScreen() {
           {languages.t('label.overlap_title')}
         </Text>
       </View> */}
-      <GooglePlacesInput
-        notifyChange={moveToSearchArea}
-        setIsSearching={setIsSearching}
-      />
+      {/*<GooglePlacesInput*/}
+      {/*  notifyChange={moveToSearchArea}*/}
+      {/*  setIsSearching={setIsSearching}*/}
+      {/*/>*/}
       {!isSearching ? (
         <MapboxGLMapView
           center={[initialRegion.longitude, initialRegion.latitude]}
@@ -504,7 +504,6 @@ function OverlapScreen() {
       {/*    ))}*/}
       {/*  </MapView>*/}
       {/*) : null}*/}
-
     </View>
   );
 }
@@ -516,7 +515,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    position: "absolute"
+    position: 'absolute',
   },
   map: {
     width: width,

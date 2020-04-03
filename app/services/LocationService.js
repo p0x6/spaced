@@ -487,7 +487,7 @@ export default class LocationServices {
     // BackgroundGeolocation.start();
   }
 
-  static stop(nav) {
+  static stop() {
     // unregister all event listeners
     PushNotification.localNotification({
       title: 'Location Tracking Was Disabled',
@@ -496,8 +496,5 @@ export default class LocationServices {
     BackgroundGeolocation.removeAllListeners();
     BackgroundGeolocation.stop();
     instanceCount -= 1;
-    SetStoreData('PARTICIPATE', 'false').then(() =>
-      nav.navigate('LocationTrackingScreen', {}),
-    );
   }
 }

@@ -36,8 +36,8 @@ class Welcome extends Component {
       if (authorization === BackgroundGeolocation.AUTHORIZED) {
         console.log('autorizado');
       } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
-        LocationServices.stop(this.props.navigation);
-        BroadcastingServices.stop(this.props.navigation);
+        LocationServices.stop();
+        BroadcastingServices.stop();
         console.log('no autorizado');
       }
     });
@@ -81,7 +81,9 @@ class Welcome extends Component {
           <View styles={styles.buttonsContainer}>
             <Button2
               handlePress={
-                !this.isPage(3) ? this.nextPage : this.willParticipate
+                !this.isPage(3)
+                  ? this.nextPage
+                  : this.props.navigation.navigate('LocationTrackingScreen', {})
               }
               text={
                 this.isPage(0)
