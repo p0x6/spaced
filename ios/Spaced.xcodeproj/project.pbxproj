@@ -409,24 +409,24 @@
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/Mapbox.framework.dSYM",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
-				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
 				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+				"${PODS_ROOT}/Mapbox-iOS-SDK/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/MapboxMobileEvents.framework",
 				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/MapboxMobileEvents.framework.dSYM",
 				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
-				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
 				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+				"${PODS_ROOT}/NoUseFrameworks-MapboxMobileEvents/dynamic/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mapbox.framework",
 				"${DWARF_DSYM_FOLDER_PATH}/Mapbox.framework.dSYM",
 				"${BUILT_PRODUCTS_DIR}/29538FE3-EF92-3F4E-8387-E37D1ED304F4.bcsymbolmap",
-				"${BUILT_PRODUCTS_DIR}/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 				"${BUILT_PRODUCTS_DIR}/30826842-67C1-37CC-9078-660F37F80FCB.bcsymbolmap",
 				"${BUILT_PRODUCTS_DIR}/A7E43BC5-8723-3536-923A-5E436F84DCCD.bcsymbolmap",
+				"${BUILT_PRODUCTS_DIR}/A927EC5D-2159-3CDB-B093-870116C5648E.bcsymbolmap",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MapboxMobileEvents.framework",
 				"${DWARF_DSYM_FOLDER_PATH}/MapboxMobileEvents.framework.dSYM",
 			);

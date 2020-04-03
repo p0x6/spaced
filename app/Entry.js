@@ -44,78 +44,78 @@ class Entry extends Component {
   render() {
     return (
       <NavigationContainer>
-        <SafeAreaView style={{ flex: 1 }}>
-          <Stack.Navigator initialRouteName='InitialScreen'>
-            {this.state.initialRouteName === 'true' ? (
-              <Stack.Screen
-                name='InitialScreen'
-                component={LocationTracking}
-                options={{ headerShown: false }}
-              />
-            ) : (
+        {/* <SafeAreaView style={{ flex: 1 }}> */}
+        <Stack.Navigator initialRouteName='InitialScreen'>
+          {this.state.initialRouteName === 'true' ? (
+            <Stack.Screen
+              name='InitialScreen'
+              component={LocationTracking}
+              options={{ headerShown: false }}
+            />
+          ) : (
               <Stack.Screen
                 name='InitialScreen'
                 component={Slider}
                 options={{ headerShown: false }}
               />
             )}
-            <Stack.Screen
-              name='Slider'
-              component={Slider}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='WelcomeScreen'
-              component={Welcome}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='LocationTrackingScreen'
-              component={LocationTracking}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='NewsScreen'
-              component={NewsScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='ExportScreen'
-              component={ExportScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='ImportScreen'
-              component={ImportScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='LicensesScreen'
-              component={LicencesScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='NotificationScreen'
-              component={NotificationScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='OverlapScreen'
-              component={OverlapScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='BlacklistPlaces'
-              component={BlacklistPlaces}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='SearchAddress'
-              component={SearchAddress}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </SafeAreaView>
+          <Stack.Screen
+            name='Slider'
+            component={Slider}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='WelcomeScreen'
+            component={Welcome}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='LocationTrackingScreen'
+            component={LocationTracking}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='NewsScreen'
+            component={NewsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='ExportScreen'
+            component={ExportScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='ImportScreen'
+            component={ImportScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='LicensesScreen'
+            component={LicencesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='NotificationScreen'
+            component={NotificationScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='OverlapScreen'
+            component={OverlapScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='BlacklistPlaces'
+            component={BlacklistPlaces}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='SearchAddress'
+            component={SearchAddress}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+        {/* </SafeAreaView> */}
       </NavigationContainer>
     );
   }

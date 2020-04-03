@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   Linking,
   View,
@@ -28,6 +27,10 @@ import pkLogo from './../assets/images/PKLogo.png';
 
 import { GetStoreData, SetStoreData } from '../helpers/General';
 import languages from './../locales/languages';
+import OverlapScreen from './Overlap';
+import { TextInput } from 'react-native-gesture-handler';
+import SlidingUpPanel from 'rn-sliding-up-panel';
+import ToggleSwitch from 'toggle-switch-react-native'
 
 const width = Dimensions.get('window').width;
 
@@ -37,6 +40,7 @@ class LocationTracking extends Component {
 
     this.state = {
       isLogging: '',
+      panelHeight: 180,
     };
   }
 
@@ -127,166 +131,214 @@ class LocationTracking extends Component {
 
   render() {
     return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.main}>
-          {/* A modal menu. Currently only used for license info */}
-          <Menu
-            style={{
-              position: 'absolute',
-              alignSelf: 'flex-end',
-              zIndex: 10,
-            }}>
-            <MenuTrigger style={{ marginTop: 14 }}>
-              <Image
-                source={kebabIcon}
-                style={{
-                  width: 15,
-                  height: 28,
-                  padding: 14,
-                }}
-              />
-            </MenuTrigger>
-            <MenuOptions>
-              <MenuOption
-                onSelect={() => {
-                  this.licenses();
-                }}>
-                <Text style={styles.menuOptionText}>Licenses</Text>
-              </MenuOption>
-              <MenuOption
-                onSelect={() => {
-                  this.notifications();
-                }}>
-                <Text style={styles.menuOptionText}>Notifications</Text>
-              </MenuOption>
-            </MenuOptions>
-          </Menu>
-          <Text style={styles.headerTitle}>Spaced</Text>
-
-          <View style={styles.buttonsAndLogoView}>
-            {this.state.isLogging ? (
-              <>
-                <Image
-                  source={pkLogo}
-                  style={{
-                    width: 132,
-                    height: 164.4,
-                    alignSelf: 'center',
-                    marginTop: 12,
-                  }}
+      <View style={styles.container}>
+        <OverlapScreen />
+        <TouchableOpacity
+          style={styles.searchInput}
+          onPress={() => { this.props.navigation.navigate("SearchAddress", {}) }}>
+          <Text style={{ color: "#2E4874" }}>Search location or zip code</Text>
+        </TouchableOpacity>
+        <SlidingUpPanel
+          ref={c => (this._panel = c)}
+          draggableRange={{
+            top: this.state.panelHeight,
+            bottom: 80
+          }}
+          showBackdrop
+          containerStyle={styles.panelContainer}
+          backdropOpacity={0.5}
+          minimumDistanceThreshold={10}
+          friction={50}
+        >
+          <View style={{ padding: 20, backgroundColor: "#fff", borderRadius: 15, }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", }}>
+              <Text style={{ fontFamily: 'OpenSans-SemiBold', fontSize: 17, color: "#000" }}>Stop Logging my location</Text>
+              <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
+                <ToggleSwitch
+                  isOn={false}
+                  onColor="#2E4874"
+                  offColor="#2E4874"
+                  onToggle={isOn => console.log("changed to : ", isOn)}
                 />
-                <TouchableOpacity
-                  onPress={() => this.setOptOut()}
-                  style={styles.stopLoggingButtonTouchable}>
-                  <Text style={styles.stopLoggingButtonText}>
-                    {languages.t('label.stop_logging')}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => this.overlap()}
-                  style={styles.startLoggingButtonTouchable}>
-                  <Text style={styles.startLoggingButtonText}>
-                    SEARCH PLACES
-                  </Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <Image
-                  source={pkLogo}
-                  style={{
-                    width: 132,
-                    height: 164.4,
-                    alignSelf: 'center',
-                    marginTop: 12,
-                    opacity: 0.3,
-                  }}
-                />
-                <TouchableOpacity
-                  onPress={() => this.willParticipate()}
-                  style={styles.startLoggingButtonTouchable}>
-                  <Text style={styles.startLoggingButtonText}>
-                    {languages.t('label.start_logging')}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-
-            {this.state.isLogging ? (
-              <Text style={styles.sectionDescription}>
-                Data is currently being logged on your phone and shared with
-                others.
-              </Text>
-            ) : (
-              <Text style={styles.sectionDescription}>
-                {languages.t('label.not_logging_message')}
-              </Text>
-            )}
+              </View>
+            </View>
+            <Text style={{ fontFamily: 'OpenSans-Regular', fontSize: 13, color: "#2E4874" }}>Your location data is logged on</Text>
+            <View style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}></View>
+            <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 20 }}>
+              <View style={{ justifyContent: "center", alignSelf: "center" }}>
+                <View>
+                  <Text style={{ fontFamily: 'OpenSans-Regular', fontSize: 13, color: "#2E4874" }}>BlockList</Text>
+                  <Text style={{ fontFamily: 'OpenSans-Regular', fontSize: 13, color: "#2E4874" }}>location</Text>
+                </View>
+              </View>
+              <View style={{ justifyContent: "center", alignSelf: "center" }}>
+                <Text style={{ fontFamily: 'OpenSans-Regular', fontSize: 13, color: "#2E4874" }}>Activity</Text>
+                <Text style={{ fontFamily: 'OpenSans-Regular', fontSize: 13, color: "#2E4874" }}>Log</Text>
+              </View>
+            </View>
           </View>
+        </SlidingUpPanel>
+      </View>
+      // <SafeAreaView style={styles.container}>
+      //   <ScrollView contentContainerStyle={styles.main}>
+      //     {/* A modal menu. Currently only used for license info */}
+      //     <Menu
+      //       style={{
+      //         position: 'absolute',
+      //         alignSelf: 'flex-end',
+      //         zIndex: 10,
+      //       }}>
+      //       <MenuTrigger style={{ marginTop: 14 }}>
+      //         <Image
+      //           source={kebabIcon}
+      //           style={{
+      //             width: 15,
+      //             height: 28,
+      //             padding: 14,
+      //           }}
+      //         />
+      //       </MenuTrigger>
+      //       <MenuOptions>
+      //         <MenuOption
+      //           onSelect={() => {
+      //             this.licenses();
+      //           }}>
+      //           <Text style={styles.menuOptionText}>Licenses</Text>
+      //         </MenuOption>
+      //         <MenuOption
+      //           onSelect={() => {
+      //             this.notifications();
+      //           }}>
+      //           <Text style={styles.menuOptionText}>Notifications</Text>
+      //         </MenuOption>
+      //       </MenuOptions>
+      //     </Menu>
+      //     <Text style={styles.headerTitle}>Spaced</Text>
 
-          <View style={styles.actionButtonsView}>
-            <TouchableOpacity
-              onPress={() => this.blacklistPlaces()}
-              style={styles.actionButtonsTouchable}>
-              <Image
-                style={styles.actionButtonImage}
-                source={exportImage}
-                resizeMode={'contain'}
-              />
-              <Text style={styles.actionButtonText}>
-                Edit Banned Tracking Areas
-              </Text>
-            </TouchableOpacity>
+      //     <View style={styles.buttonsAndLogoView}>
+      //       {this.state.isLogging ? (
+      //         <>
+      //           <Image
+      //             source={pkLogo}
+      //             style={{
+      //               width: 132,
+      //               height: 164.4,
+      //               alignSelf: 'center',
+      //               marginTop: 12,
+      //             }}
+      //           />
+      //           <TouchableOpacity
+      //             onPress={() => this.setOptOut()}
+      //             style={styles.stopLoggingButtonTouchable}>
+      //             <Text style={styles.stopLoggingButtonText}>
+      //               {languages.t('label.stop_logging')}
+      //             </Text>
+      //           </TouchableOpacity>
+      //           <TouchableOpacity
+      //             onPress={() => this.overlap()}
+      //             style={styles.startLoggingButtonTouchable}>
+      //             <Text style={styles.startLoggingButtonText}>
+      //               SEARCH PLACES
+      //             </Text>
+      //           </TouchableOpacity>
+      //         </>
+      //       ) : (
+      //         <>
+      //           <Image
+      //             source={pkLogo}
+      //             style={{
+      //               width: 132,
+      //               height: 164.4,
+      //               alignSelf: 'center',
+      //               marginTop: 12,
+      //               opacity: 0.3,
+      //             }}
+      //           />
+      //           <TouchableOpacity
+      //             onPress={() => this.willParticipate()}
+      //             style={styles.startLoggingButtonTouchable}>
+      //             <Text style={styles.startLoggingButtonText}>
+      //               {languages.t('label.start_logging')}
+      //             </Text>
+      //           </TouchableOpacity>
+      //         </>
+      //       )}
 
-            <TouchableOpacity
-              onPress={() => this.export()}
-              style={styles.actionButtonsTouchable}>
-              <Image
-                style={[
-                  styles.actionButtonImage,
-                  { transform: [{ rotate: '180deg' }] },
-                ]}
-                source={exportImage}
-                resizeMode={'contain'}
-              />
-              <Text style={styles.actionButtonText}>
-                {languages.t('label.export')}
-              </Text>
-            </TouchableOpacity>
+      //       {this.state.isLogging ? (
+      //         <Text style={styles.sectionDescription}>
+      //           Data is currently being logged on your phone and shared with
+      //           others.
+      //         </Text>
+      //       ) : (
+      //         <Text style={styles.sectionDescription}>
+      //           {languages.t('label.not_logging_message')}
+      //         </Text>
+      //       )}
+      //     </View>
 
-            <TouchableOpacity
-              onPress={() => this.news()}
-              style={styles.actionButtonsTouchable}>
-              <Image
-                style={styles.actionButtonImage}
-                source={news}
-                resizeMode={'contain'}
-              />
-              <Text style={styles.actionButtonText}>
-                {languages.t('label.news')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+      //     <View style={styles.actionButtonsView}>
+      //       <TouchableOpacity
+      //         onPress={() => this.blacklistPlaces()}
+      //         style={styles.actionButtonsTouchable}>
+      //         <Image
+      //           style={styles.actionButtonImage}
+      //           source={exportImage}
+      //           resizeMode={'contain'}
+      //         />
+      //         <Text style={styles.actionButtonText}>
+      //           Edit Banned Tracking Areas
+      //         </Text>
+      //       </TouchableOpacity>
 
-          <View style={styles.footer}>
-            <Text
-              style={[
-                styles.sectionDescription,
-                { textAlign: 'center', paddingTop: 15 },
-              ]}>
-              {languages.t('label.url_info')}{' '}
-            </Text>
-            <Text
-              style={[
-                styles.sectionDescription,
-                { color: 'blue', textAlign: 'center', marginTop: 0 },
-              ]}
-              onPress={() => Linking.openURL('https://privatekit.mit.edu')}>
-              {languages.t('label.private_kit_url')}
-            </Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      //       <TouchableOpacity
+      //         onPress={() => this.export()}
+      //         style={styles.actionButtonsTouchable}>
+      //         <Image
+      //           style={[
+      //             styles.actionButtonImage,
+      //             { transform: [{ rotate: '180deg' }] },
+      //           ]}
+      //           source={exportImage}
+      //           resizeMode={'contain'}
+      //         />
+      //         <Text style={styles.actionButtonText}>
+      //           {languages.t('label.export')}
+      //         </Text>
+      //       </TouchableOpacity>
+
+      //       <TouchableOpacity
+      //         onPress={() => this.news()}
+      //         style={styles.actionButtonsTouchable}>
+      //         <Image
+      //           style={styles.actionButtonImage}
+      //           source={news}
+      //           resizeMode={'contain'}
+      //         />
+      //         <Text style={styles.actionButtonText}>
+      //           {languages.t('label.news')}
+      //         </Text>
+      //       </TouchableOpacity>
+      //     </View>
+
+      //     <View style={styles.footer}>
+      //       <Text
+      //         style={[
+      //           styles.sectionDescription,
+      //           { textAlign: 'center', paddingTop: 15 },
+      //         ]}>
+      //         {languages.t('label.url_info')}{' '}
+      //       </Text>
+      //       <Text
+      //         style={[
+      //           styles.sectionDescription,
+      //           { color: 'blue', textAlign: 'center', marginTop: 0 },
+      //         ]}
+      //         onPress={() => Linking.openURL('https://privatekit.mit.edu')}>
+      //         {languages.t('label.private_kit_url')}
+      //       </Text>
+      //     </View>
+      //   </ScrollView>
+      // </SafeAreaView>
     );
   }
 }
@@ -295,11 +347,7 @@ const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: colors.PRIMARY_TEXT,
-    backgroundColor: colors.WHITE,
+    alignItems: "center"
   },
   headerTitle: {
     textAlign: 'center',
@@ -405,6 +453,30 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Regular',
     fontSize: 14,
     padding: 10,
+  },
+  searchInput: {
+    zIndex: 999,
+    position: "absolute",
+    top: 0,
+    backgroundColor: "#fff",
+    padding: 20,
+    width: "95%",
+    borderRadius: 14,
+    marginTop: 50,
+    shadowColor: "#2E4874",
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.00,
+    elevation: 24,
+  },
+  panelContainer: {
+    zIndex: 9999,
+    overflow: "hidden",
+
+    margin: 15,
   },
 });
 

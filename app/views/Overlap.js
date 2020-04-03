@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   ScrollView,
   Linking,
@@ -33,9 +32,11 @@ import CustomCircle from '../helpers/customCircle';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import _ from 'lodash';
 import SafePathsAPI from '../services/API';
+import hi from '../locales/hi';
 import { PLACES_API_KEY, MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 const base64 = RNFetchBlob.base64;
 // This data source was published in the Lancet, originally mentioned in
@@ -412,7 +413,7 @@ function OverlapScreen() {
     React.useCallback(() => {
       getInitialState();
       populateMarkers();
-      return () => {};
+      return () => { };
     }, []),
   );
 
@@ -420,11 +421,11 @@ function OverlapScreen() {
     const safeLocation = location.lat
       ? location
       : _.get(location, 'nativeEvent.coordinate.latitude', null)
-      ? {
+        ? {
           lat: location.nativeEvent.coordinate.latitude,
           lng: location.nativeEvent.coordinate.longitude,
         }
-      : null;
+        : null;
     if (safeLocation) {
       console.log(
         '======== moving area to searched location ======',
@@ -454,8 +455,8 @@ function OverlapScreen() {
   // including official reports from WHO, Ministries of Health, and Chinese local, provincial, and national
   // health authorities. If additional data are available from reliable online reports, they are included.
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
+    <View style={styles.container}>
+      {/* <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.backArrowTouchable}
           onPress={backToMain}>
@@ -464,7 +465,7 @@ function OverlapScreen() {
         <Text style={styles.headerTitle}>
           {languages.t('label.overlap_title')}
         </Text>
-      </View>
+      </View> */}
       <GooglePlacesInput
         notifyChange={moveToSearchArea}
         setIsSearching={setIsSearching}
@@ -503,212 +504,145 @@ function OverlapScreen() {
       {/*    ))}*/}
       {/*  </MapView>*/}
       {/*) : null}*/}
-    </SafeAreaView>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
-    flex: 1,
-    flexDirection: 'column',
-    color: colors.PRIMARY_TEXT,
-    backgroundColor: colors.WHITE,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontFamily: 'OpenSans-Bold',
-  },
-  subHeaderTitle: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 22,
-    padding: 5,
-  },
-  main: {
-    flex: 1,
-    flexDirection: 'column',
-    textAlignVertical: 'top',
-    // alignItems: 'center',
-    padding: 15,
-    width: '96%',
-    alignSelf: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    position: "absolute"
   },
   map: {
-    flex: 1,
     width: width,
+    height: height,
     alignSelf: 'center',
-  },
-  buttonTouchable: {
-    borderRadius: 12,
-    backgroundColor: '#665eff',
-    height: 52,
-    alignSelf: 'center',
-    width: width * 0.7866,
-    marginTop: 15,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    fontFamily: 'OpenSans-Bold',
-    fontSize: 14,
-    lineHeight: 19,
-    letterSpacing: 0,
-    textAlign: 'center',
-    color: '#ffffff',
-  },
-  mainText: {
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: '400',
-    textAlignVertical: 'center',
-    padding: 20,
-  },
-  smallText: {
-    fontSize: 10,
-    lineHeight: 24,
-    fontWeight: '400',
-    textAlignVertical: 'center',
-    padding: 20,
   },
 
-  headerContainer: {
-    flexDirection: 'row',
-    height: 60,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(189, 195, 199,0.6)',
-    alignItems: 'center',
-  },
-  backArrowTouchable: {
-    width: 60,
-    height: 60,
-    paddingTop: 21,
-    paddingLeft: 20,
-  },
-  backArrow: {
-    height: 18,
-    width: 18.48,
-  },
-  sectionDescription: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 12,
-    fontFamily: 'OpenSans-Regular',
-  },
-  sectionFooter: {
-    fontSize: 12,
-    lineHeight: 24,
-    marginTop: 12,
-    fontFamily: 'OpenSans-Regular',
-  },
-  footer: {
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingBottom: 10,
-  },
+  // headerContainer: {
+  //   flexDirection: 'row',
+  //   height: 60,
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: 'rgba(189, 195, 199,0.6)',
+  //   alignItems: 'center',
+  // },
+  // backArrowTouchable: {
+  //   width: 60,
+  //   height: 60,
+  //   paddingTop: 21,
+  //   paddingLeft: 20,
+  // },
+  // backArrow: {
+  //   height: 18,
+  //   width: 18.48,
+  // },
 });
 
-const customMapStyles = [
-  {
-    featureType: 'all',
-    elementType: 'all',
-    stylers: [
-      {
-        saturation: '32',
-      },
-      {
-        lightness: '-3',
-      },
-      {
-        visibility: 'on',
-      },
-      {
-        weight: '1.18',
-      },
-    ],
-  },
-  {
-    featureType: 'administrative',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
-  {
-    featureType: 'landscape',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
-  {
-    featureType: 'landscape.man_made',
-    elementType: 'all',
-    stylers: [
-      {
-        saturation: '-70',
-      },
-      {
-        lightness: '14',
-      },
-    ],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
-  {
-    featureType: 'road',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
-  {
-    featureType: 'transit',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
-  {
-    featureType: 'water',
-    elementType: 'all',
-    stylers: [
-      {
-        saturation: '100',
-      },
-      {
-        lightness: '-14',
-      },
-    ],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-      {
-        lightness: '12',
-      },
-    ],
-  },
-];
+// const customMapStyles = [
+//   {
+//     featureType: 'all',
+//     elementType: 'all',
+//     stylers: [
+//       {
+//         saturation: '32',
+//       },
+//       {
+//         lightness: '-3',
+//       },
+//       {
+//         visibility: 'on',
+//       },
+//       {
+//         weight: '1.18',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'administrative',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'landscape',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'landscape.man_made',
+//     elementType: 'all',
+//     stylers: [
+//       {
+//         saturation: '-70',
+//       },
+//       {
+//         lightness: '14',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'poi',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'road',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'transit',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'water',
+//     elementType: 'all',
+//     stylers: [
+//       {
+//         saturation: '100',
+//       },
+//       {
+//         lightness: '-14',
+//       },
+//     ],
+//   },
+//   {
+//     featureType: 'water',
+//     elementType: 'labels',
+//     stylers: [
+//       {
+//         visibility: 'off',
+//       },
+//       {
+//         lightness: '12',
+//       },
+//     ],
+//   },
+// ];
 
 export default OverlapScreen;
