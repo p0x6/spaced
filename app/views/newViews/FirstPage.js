@@ -16,7 +16,7 @@ class Welcome extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: 3,
+      page: 0,
     };
   }
 
@@ -34,11 +34,10 @@ class Welcome extends Component {
 
     BackgroundGeolocation.checkStatus(({ authorization }) => {
       if (authorization === BackgroundGeolocation.AUTHORIZED) {
-        console.log('autorizado');
+        this.props.navigation.navigate('LocationTrackingScreen', {});
       } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
         LocationServices.stop();
         BroadcastingServices.stop();
-        console.log('no autorizado');
       }
     });
   };
@@ -74,8 +73,10 @@ class Welcome extends Component {
         <View style={styles.container}>
           <Logo />
           <CustomText
-            containerStyle={styles.primaryTextContainer}
-            textStyle={styles.primaryText}
+            containerStyle={styles.textContainer}
+            textStyle={styles.text}
+            textTitleStyle={styles.textTitle}
+            hasTitle={this.isPage(1) ? [0, 2] : this.isPage(2) ? [0] : []}
             text={texts[page]}
           />
           <View styles={styles.buttonsContainer}>
@@ -115,27 +116,35 @@ const styles = StyleSheet.create({
     padding: '3%',
     backgroundColor: colors.BACKGROUND_COLOR,
   },
-  primaryTextContainer: {
+  textContainer: {
     height: '35%',
     paddingLeft: '10%',
   },
   buttonsContainer: {
     height: '20%',
   },
-  primaryText: {
+  text: {
     color: colors.DARK_COLOR,
     fontFamily: 'FrankRuhlLbre-Black',
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 12,
   },
+  textTitle: {
+    ...this.text,
+    fontSize: 18,
+  },
 });
+
+const flexCenter = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
 
 const buttonStyles = {
   button: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...flexCenter,
     backgroundColor: colors.BLACK,
     height: 50,
     width: '100%',
@@ -151,9 +160,7 @@ const buttonStyles = {
 
 const button2Styles = {
   button: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...flexCenter,
     height: 40,
     width: '100%',
     textAlign: 'center',
