@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  PermissionsAndroid,
-  Platform,
-} from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
@@ -22,7 +16,7 @@ class Welcome extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: 0,
+      page: 3,
     };
   }
 
@@ -98,7 +92,6 @@ class Welcome extends Component {
               }
               styled={buttonStyles}
             />
-
             {this.isPage(3) && (
               <Button2
                 handlePress={this.toggleFirstPage}
@@ -121,13 +114,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.BACKGROUND_COLOR,
   },
   primaryTextContainer: {
-    height: '30%',
+    height: '35%',
     paddingLeft: '10%',
   },
   buttonsContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     height: '20%',
   },
   primaryText: {
@@ -159,11 +149,10 @@ const buttonStyles = {
 
 const button2Styles = {
   button: {
-    backgroundColor: colors.WHITE,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
+    height: 40,
     width: '100%',
     textAlign: 'center',
   },
