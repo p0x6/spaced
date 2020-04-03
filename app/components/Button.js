@@ -23,7 +23,6 @@ class Button extends React.Component<Props> {
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     width: '100%',

@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-} from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import Logo from '../../components/Logo';
@@ -56,43 +50,45 @@ class Welcome extends Component {
     const { isFirstPage } = this.state;
 
     const primaryTextArray1 = [
-      `let's flatten the`,
-      'curve by sharing',
-      'your location',
+      'Spaced is an app that assists in social',
+      'distancing by being able to see',
+      'hotspots in the city and to see how',
+      'many people are where you want to go',
     ];
 
     const primaryTextArray2 = [
-      'Sharing your location',
-      'enables you to see',
-      'others around you.',
-    ];
-
-    const secondaryTextArray = [
-      'Get realtime location data of',
-      'people around you. so you know',
-      'when to do your groceries',
+      'Sharing your location enables you to',
+      'see others around you.',
     ];
 
     return (
       <SafeAreaView>
         <View style={styles.container}>
-          <Logo logo={isFirstPage ? 'logo' : ''} />
+          <Logo logo={isFirstPage ? 'SPACED' : ''} />
           <CustomText
             containerStyle={styles.primaryTextContainer}
             textStyle={styles.primaryText}
             text={isFirstPage ? primaryTextArray1 : primaryTextArray2}
           />
-          <CustomText
-            containerStyle={styles.secondaryTextContainer}
-            textStyle={styles.secondaryText}
-            text={isFirstPage ? secondaryTextArray : []}
-          />
-          <Button2
-            handlePress={
-              isFirstPage ? this.toggleFirstPage : this.willParticipate
-            }
-            text={isFirstPage ? 'Continue' : 'Enable location'}
-          />
+          <View styles={styles.buttonsContainer}>
+            <Button2
+              handlePress={
+                isFirstPage ? this.toggleFirstPage : this.toggleFirstPage
+              }
+              text={isFirstPage ? 'GET STARTED' : 'ENABLE LOCATION'}
+              styled={buttonStyles}
+            />
+
+            {!isFirstPage && (
+              <Button2
+                handlePress={
+                  isFirstPage ? this.toggleFirstPage : this.toggleFirstPage
+                }
+                text={'Not now, take me home'}
+                styled={button2Styles}
+              />
+            )}
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -103,28 +99,62 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     display: 'flex',
-    padding: '10%',
+    margin: '3%',
     backgroundColor: colors.BACKGROUND_COLOR,
   },
   primaryTextContainer: {
-    height: '18%',
+    height: '20%',
+    paddingLeft: '10%',
   },
-  secondaryTextContainer: {
-    height: '26%',
+  buttonsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '20%',
   },
   primaryText: {
-    color: colors.PRIMARY_TEXT_COLOR,
-    fontFamily: 'FrankRuhlLibre-Black',
-    lineHeight: 26,
-    letterSpacing: 2.3,
-    fontWeight: 'bold',
-    fontSize: 24,
-  },
-  secondaryText: {
-    color: colors.SECONDARY_TEXT_COLOR,
-    letterSpacing: 1,
-    fontSize: 15,
+    color: colors.DARK_COLOR,
+    fontFamily: 'FrankRuhlLbre-Black',
+    lineHeight: 20,
+    letterSpacing: 2,
+    fontSize: 12,
   },
 });
+
+const buttonStyles = {
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.BLACK,
+    height: 50,
+    width: '100%',
+    textAlign: 'center',
+  },
+  text: {
+    color: colors.WHITE,
+    fontFamily: 'FrankRuhlLibre-Black',
+    letterSpacing: 3,
+    fontSize: 10,
+  },
+};
+
+const button2Styles = {
+  button: {
+    backgroundColor: colors.WHITE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    width: '100%',
+    textAlign: 'center',
+  },
+  text: {
+    color: colors.BLACK,
+    fontFamily: 'FrankRuhlLibre-Black',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+};
 
 export default Welcome;

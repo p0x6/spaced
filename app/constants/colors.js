@@ -18,7 +18,9 @@ const colors = {
   SENS_BUTTON: '#6C3794',
 
   BACKGROUND_COLOR: '#fefefe',
-  PRIMARY_COLOR: '#a6a6a6',
+  DARK_COLOR: '#3c5e88',
+  MEDIUM_COLOR: '#b9c4d5',
+  LIGHT_COLOR: '#e4e8ef',
   PRIMARY_TEXT_COLOR: '#433e3e',
   SECONDARY_TEXT_COLOR: '#585453',
 };

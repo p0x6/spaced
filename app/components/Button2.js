@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 
-import colors from '../constants/colors';
-
 class Button2 extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-    const { handlePress, text } = this.props;
+    const { handlePress, text, styled } = this.props;
+    const styles = StyleSheet.create(styled);
 
     return (
       <TouchableOpacity style={styles.button} onPress={handlePress}>
@@ -18,17 +17,5 @@ class Button2 extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  button: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.PRIMARY_COLOR,
-    width: '100%',
-    height: '8%',
-    textAlign: 'center',
-  },
-});
 
 export default Button2;
