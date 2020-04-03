@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+
+import colors from '../constants/colors';
 
 class CustomText extends Component {
   constructor(props) {
@@ -7,18 +9,40 @@ class CustomText extends Component {
   }
 
   render() {
-    const { text, containerStyle, textStyle } = this.props;
+    const { text, containerStyle, hasTitle } = this.props;
 
     return (
       <View style={containerStyle}>
-        {text.map((t, i) => (
-          <Text key={`primary-${i}`} style={textStyle}>
-            {t}
-          </Text>
-        ))}
+        {text.map((t, i) =>
+          hasTitle.includes(i) ? (
+            <Text key={`primary-${i}`} style={styles.textTitle}>
+              {t}
+            </Text>
+          ) : (
+            <Text key={`primary-${i}`} style={styles.text}>
+              {t}
+            </Text>
+          ),
+        )}
       </View>
     );
   }
 }
+
+const text = {
+  color: colors.DARK_COLOR,
+  fontFamily: 'FrankRuhlLbre-Black',
+  lineHeight: 20,
+  letterSpacing: 2,
+  fontSize: 12,
+};
+const styles = StyleSheet.create({
+  text,
+  textTitle: {
+    ...text,
+    paddingTop: 6,
+    fontSize: 16,
+  },
+});
 
 export default CustomText;
