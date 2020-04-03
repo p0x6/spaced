@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  PermissionsAndroid,
+  Platform,
+  ActionSheetIOS,
+} from 'react-native';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import Logo from '../../components/Logo';
@@ -25,6 +32,23 @@ class Welcome extends Component {
     });
   };
 
+  requestPermissionAndroid = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('we are here');
+        this.willParticipate();
+        this.props.navigation.navigate('OverlapScreen', {});
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   willParticipate = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
       LocationServices.start();
@@ -48,6 +72,10 @@ class Welcome extends Component {
 
   render() {
     const { isFirstPage } = this.state;
+    const handleClick =
+      Platform === 'ios'
+        ? this.requestPermissionIOS
+        : this.requestPermissionAndroid;
 
     const primaryTextArray1 = [
       'Spaced is an app that assists in social',
@@ -72,18 +100,14 @@ class Welcome extends Component {
           />
           <View styles={styles.buttonsContainer}>
             <Button2
-              handlePress={
-                isFirstPage ? this.toggleFirstPage : this.toggleFirstPage
-              }
+              handlePress={isFirstPage ? this.toggleFirstPage : handleClick}
               text={isFirstPage ? 'GET STARTED' : 'ENABLE LOCATION'}
               styled={buttonStyles}
             />
 
             {!isFirstPage && (
               <Button2
-                handlePress={
-                  isFirstPage ? this.toggleFirstPage : this.toggleFirstPage
-                }
+                handlePress={this.toggleFirstPage}
                 text={'Not now, take me home'}
                 styled={button2Styles}
               />
