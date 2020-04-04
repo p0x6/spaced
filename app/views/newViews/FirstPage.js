@@ -42,47 +42,56 @@ class Welcome extends Component {
 
   render() {
     const { page } = this.state;
-
-    const texts = [
-      [
-        'Stop the spread of COVID-19',
-        'See how populated public spaces are',
-        'Safely meet basic needs that require travel.',
-      ],
-      [
-        'You are in charge',
-        'Your location data is shared only with your consent.',
-        'You can blacklist your home and work addresses.',
-      ],
-      ['Sharing your location enables you to', 'see others around you.'],
+    const textOptions = [
+      {
+        text: [
+          'Stop the spread of COVID-19',
+          'See how populated public spaces are',
+          'Safely meet basic needs that require travel.',
+        ],
+        titleIndex: [0],
+      },
+      {
+        text: [
+          'You are in charge',
+          'Your location data is shared only with your consent.',
+          'You can blacklist your home and work addresses.',
+        ],
+        titleIndex: [0],
+      },
+      {
+        text: [
+          'Sharing your location enables you to',
+          'see others around you.',
+        ],
+        titleIndex: [],
+      },
     ];
+
+    const buttonTitles = {
+      0: 'GET STARTED',
+      2: 'ENABLE LOCATION',
+      default: 'NEXT',
+    };
 
     return (
       <SafeAreaView>
         <View style={styles.container}>
-          <Logo />
-          <CustomText
-            containerStyle={styles.textContainer}
-            textStyle={styles.text}
-            textTitleStyle={styles.textTitle}
-            hasTitle={!this.isPage(2) ? [0] : []}
-            text={texts[page]}
-          />
-          <View styles={styles.buttonsContainer}>
+          <View style={styles.logoContainer}>
+            <Logo />
+          </View>
+          <View style={styles.textContainer}>
+            <CustomText styled={textStyles} textOptions={textOptions[page]} />
+          </View>
+          <View>
             <Button2
               handlePress={
                 !this.isPage(2)
                   ? this.nextPage
                   : this.willParticipate.bind(this)
               }
-              text={
-                this.isPage(0)
-                  ? 'GET STARTED'
-                  : !this.isPage(2)
-                  ? 'NEXT'
-                  : 'ENABLE LOCATION'
-              }
-              styled={buttonStyles}
+              text={buttonTitles[page] || buttonTitles.default}
+              styled={blackButtonStyles}
             />
             {this.isPage(2) && (
               <Button2
@@ -90,7 +99,7 @@ class Welcome extends Component {
                   this.props.navigation.navigate('MainScreen', {})
                 }
                 text={'Not now, take me home'}
-                styled={button2Styles}
+                styled={whiteButtonStyles}
               />
             )}
           </View>
@@ -108,13 +117,22 @@ const styles = StyleSheet.create({
     padding: '3%',
     backgroundColor: colors.BACKGROUND_COLOR,
   },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '50%',
+  },
   textContainer: {
-    height: '35%',
-    paddingLeft: '10%',
+    height: '40%',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    marginLeft: '5%',
   },
-  buttonsContainer: {
-    height: '20%',
-  },
+});
+
+const textStyles = {
   text: {
     color: colors.DARK_COLOR,
     fontFamily: 'DMSans-Regular',
@@ -122,11 +140,16 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     fontSize: 12,
   },
-  textTitle: {
-    ...this.text,
+  title: {
+    color: colors.DARK_COLOR,
+    fontFamily: 'FrankRuhlLbre-Black',
+    lineHeight: 20,
+    letterSpacing: 2,
     fontSize: 18,
+    paddingBottom: 5,
+    paddingTop: 5,
   },
-});
+};
 
 const flexCenter = {
   display: 'flex',
@@ -134,7 +157,7 @@ const flexCenter = {
   justifyContent: 'center',
 };
 
-const buttonStyles = {
+const blackButtonStyles = {
   button: {
     ...flexCenter,
     backgroundColor: colors.BLACK,
@@ -150,7 +173,7 @@ const buttonStyles = {
   },
 };
 
-const button2Styles = {
+const whiteButtonStyles = {
   button: {
     ...flexCenter,
     height: 40,
