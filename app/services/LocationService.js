@@ -496,8 +496,8 @@ export default class LocationServices {
     BackgroundGeolocation.removeAllListeners();
     BackgroundGeolocation.stop();
     instanceCount -= 1;
-    SetStoreData('PARTICIPATE', 'false').then(() =>
-      nav.navigate('LocationTrackingScreen', {}),
-    );
+    SetStoreData('PARTICIPATE', 'false').then(() => {
+      // nav.navigate('LocationTrackingScreen', {});
+    });
   }
 }

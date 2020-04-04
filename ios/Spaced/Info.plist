@@ -67,8 +67,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CodePushDeploymentKey</key>
 	<string>Asg9MH-rN5iv7ZoX60lUnia3VzQ9OQhqQLpWs</string>
