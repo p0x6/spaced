@@ -72,27 +72,44 @@ const LocationTracking = () => {
     [],
   );
 
+  const setInitialMapCenter = location => {
+    setInitialRegion({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
+    populateMarkers({
+      latitude: location.latitude,
+      longitude: location.longitude,
+    });
+  };
+
   const getInitialState = () => {
-    try {
-      GetStoreData('LOCATION_DATA').then(locationArrayString => {
-        const locationArray = JSON.parse(locationArrayString);
-        if (locationArray !== null) {
-          const { latitude, longitude } = locationArray.slice(-1)[0];
-          setInitialRegion({
-            latitude,
-            longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+    BackgroundGeolocation.getCurrentLocation(
+      location => {
+        console.log('========== MY LOCATION ========', location);
+        setInitialRegion(location);
+      },
+      () => {
+        try {
+          GetStoreData('LOCATION_DATA').then(locationArrayString => {
+            const locationArray = JSON.parse(locationArrayString);
+            if (locationArray !== null) {
+              const { latitude, longitude } = locationArray.slice(-1)[0];
+              setInitialMapCenter({
+                latitude,
+                longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              });
+            }
           });
-          populateMarkers({
-            latitude,
-            longitude,
-          });
+        } catch (error) {
+          console.log(error);
         }
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      },
+    );
   };
 
   const handleBackPress = () => {
