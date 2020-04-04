@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
-
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import { Dimensions, SafeAreaView, StyleSheet, View } from 'react-native';
 
 import Logo from '../../components/Logo';
 import CustomText from '../../components/CustomText';
@@ -11,6 +9,8 @@ import LocationServices from '../../services/LocationService';
 import BroadcastingServices from '../../services/BroadcastingService';
 import { SetStoreData } from '../../helpers/General';
 import colors from '../../constants/colors';
+
+const width = Dimensions.get('window').width;
 
 class Welcome extends Component {
   constructor(props) {
@@ -45,21 +45,14 @@ class Welcome extends Component {
 
     const texts = [
       [
-        'Spaced is an app that assists in social',
-        'distancing by being able to see',
-        'hotspots in the city and to see how',
-        'many people are where you want to go',
+        'Stop the spread of COVID-19',
+        'See how populated public spaces are',
+        'Safely meet basic needs that require travel.',
       ],
       [
-        'Less than 100KB',
-        `Private Kit's trail generator logs your device's location in under 100KB of space - less space than a single picture`,
         'You are in charge',
-        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
-      ],
-      [
-        'The Future',
-        `The Next Step in Solving Today's and Tomorrow's Probems Enabling individuals to log their location trail offers new opportunities for researches studying pandemic tracking, refugee migration and community traffic analysis.`,
-        'Learn More http://privatekit.mit.edu',
+        'Your location data is shared only with your consent.',
+        'You can blacklist your home and work addresses.',
       ],
       ['Sharing your location enables you to', 'see others around you.'],
     ];
@@ -72,26 +65,26 @@ class Welcome extends Component {
             containerStyle={styles.textContainer}
             textStyle={styles.text}
             textTitleStyle={styles.textTitle}
-            hasTitle={this.isPage(1) ? [0, 2] : this.isPage(2) ? [0] : []}
+            hasTitle={!this.isPage(2) ? [0] : []}
             text={texts[page]}
           />
           <View styles={styles.buttonsContainer}>
             <Button2
               handlePress={
-                !this.isPage(3)
+                !this.isPage(2)
                   ? this.nextPage
                   : this.willParticipate.bind(this)
               }
               text={
                 this.isPage(0)
                   ? 'GET STARTED'
-                  : !this.isPage(3)
+                  : !this.isPage(2)
                   ? 'NEXT'
                   : 'ENABLE LOCATION'
               }
               styled={buttonStyles}
             />
-            {this.isPage(3) && (
+            {this.isPage(2) && (
               <Button2
                 handlePress={() =>
                   this.props.navigation.navigate('LocationTrackingScreen', {})
@@ -109,8 +102,9 @@ class Welcome extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
     display: 'flex',
+    height: '100%',
+    width: width,
     padding: '3%',
     backgroundColor: colors.BACKGROUND_COLOR,
   },
@@ -123,7 +117,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.DARK_COLOR,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 12,
@@ -150,7 +144,7 @@ const buttonStyles = {
   },
   text: {
     color: colors.WHITE,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     letterSpacing: 3,
     fontSize: 10,
   },
@@ -165,7 +159,7 @@ const button2Styles = {
   },
   text: {
     color: colors.BLACK,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     fontWeight: 'bold',
     fontSize: 13,
   },

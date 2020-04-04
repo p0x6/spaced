@@ -31,7 +31,7 @@ class CustomText extends Component {
 
 const text = {
   color: colors.DARK_COLOR,
-  fontFamily: 'FrankRuhlLibre-Black',
+  fontFamily: 'DMSans-Regular',
   lineHeight: 20,
   letterSpacing: 2,
   fontSize: 12,

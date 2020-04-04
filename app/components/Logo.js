@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
   logoFont: {
     fontWeight: 'bold',
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     fontSize: 30,
     marginLeft: 5,
   },
