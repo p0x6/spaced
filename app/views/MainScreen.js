@@ -14,13 +14,12 @@ import BroadcastingServices from '../services/BroadcastingService';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import { GetStoreData, SetStoreData } from '../helpers/General';
-import OverlapScreen from './MapView';
+import MapView from './MapView';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import ToggleSwitch from 'toggle-switch-react-native';
 import { useNavigation } from '@react-navigation/native';
 import SearchAddress from './SearchAddress';
 import { debounce } from 'debounce';
-import { PLACES_API_KEY } from 'react-native-dotenv';
 import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
@@ -37,11 +36,10 @@ const INITIAL_REGION = {
 
 const MainScreen = () => {
   const [isLogging, setIsLogging] = useState(false);
-  const [region, setRegion] = useState({});
-  const [markers, setMarkers] = useState([]);
-  const [initialRegion, setInitialRegion] = useState(INITIAL_REGION);
+  const [region, setRegion] = useState(INITIAL_REGION);
+  const [userMarkers, setUserMarkers] = useState({});
+  const [placeMarkers, setPlaceMarkers] = useState({});
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
   const [predictions, setSearchPredictions] = useState([]);
   const [bounds, setBounds] = useState([]);
 
@@ -51,7 +49,6 @@ const MainScreen = () => {
 
   useEffect(
     useCallback(() => {
-      console.log('Rerender MainScreen');
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
       GetStoreData('PARTICIPATE')
         .then(isParticipating => {
@@ -73,7 +70,7 @@ const MainScreen = () => {
   );
 
   const setInitialMapCenter = location => {
-    setInitialRegion({
+    setRegion({
       latitude: location.latitude,
       longitude: location.longitude,
       latitudeDelta: 0.01,
@@ -89,7 +86,7 @@ const MainScreen = () => {
     BackgroundGeolocation.getCurrentLocation(
       location => {
         console.log('========== MY LOCATION ========', location);
-        setInitialRegion(location);
+        setRegion(location);
       },
       () => {
         try {
@@ -191,31 +188,13 @@ const MainScreen = () => {
   };
 
   async function populateMarkers(passedRegion) {
-    SafePathsAPI.getPositions(passedRegion || initialRegion).then(
-      userPositions => {
-        let locationArray = _.get(userPositions, 'data', []);
-        console.log('user positions: ', locationArray);
-        if (locationArray !== null) {
-          let markers = [];
-          for (let i = 0; i < locationArray.length - 1; i += 1) {
-            const coord = locationArray[i];
-            console.log('coord: ', coord);
-            const marker = {
-              coordinate: {
-                latitude: coord['location']['latitude'],
-                longitude: coord['location']['longitude'],
-              },
-              key: i + 1,
-              color: '#f26964',
-            };
-            console.log('marker: ', marker);
-            markers.push(marker);
-          }
-          console.log('markers: ', markers);
-          setMarkers(markers);
-        }
-      },
-    );
+    SafePathsAPI.getPositions(passedRegion || region).then(userPositions => {
+      let userMarkers = _.get(userPositions, 'data.users', null);
+      let placeMarkers = _.get(userPositions, 'data.places', null);
+      console.log('---- markers -----', userMarkers, placeMarkers);
+      setUserMarkers(userMarkers);
+      setPlaceMarkers(placeMarkers);
+    });
   }
 
   function moveToSearchArea(location) {
@@ -229,16 +208,16 @@ const MainScreen = () => {
         '======== moving area to searched location ======',
         safeLocation,
       );
-      setInitialRegion({
+      setRegion({
         latitude: safeLocation.latitude,
         longitude: safeLocation.longitude,
         latitudeDelta: safeLocation.latitudeDelta || 0.01,
         longitudeDelta: safeLocation.longitudeDelta || 0.01,
       });
-      // populateMarkers({
-      //   latitude: safeLocation.latitude,
-      //   longitude: safeLocation.longitude,
-      // });
+      populateMarkers({
+        latitude: safeLocation.latitude,
+        longitude: safeLocation.longitude,
+      });
     }
   }
 
@@ -404,10 +383,12 @@ const MainScreen = () => {
 
   return (
     <View style={styles.container}>
-      <OverlapScreen
+      <MapView
         isLogging={isLogging}
         mapRef={mapRef}
-        region={initialRegion}
+        region={region}
+        userMarkers={userMarkers}
+        placeMarkers={placeMarkers}
       />
       <SearchAddress
         isSearching={isSearching}

@@ -119,7 +119,15 @@ const layerStyles = {
   },
 };
 
-const OverlapScreen = ({ isLogging, mapRef, region }) => {
+const ANNOTATION_SIZE = 15;
+
+const MapViewComponent = ({
+  isLogging,
+  mapRef,
+  region,
+  userMarkers,
+  placeMarkers,
+}) => {
   const { navigate } = useNavigation();
 
   function handleBackPress() {
@@ -133,6 +141,41 @@ const OverlapScreen = ({ isLogging, mapRef, region }) => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
   }, [region]);
+
+  // const renderAnnotations = () => {
+  //   const items = [];
+  //
+  //   const places = _.get(placeMarkers, 'features', []);
+  //
+  //   for (let i = 0; i < places.length; i++) {
+  //     const coordinate = _.get(places[i], 'geometry.coordinates', null);
+  //     const details = _.get(places[i], 'properties', null);
+  //
+  //     if (!coordinate) continue;
+  //
+  //     const title = `Lon: ${coordinate[0]} Lat: ${coordinate[1]}`;
+  //     const id = `pointAnnotation${i}`;
+  //
+  //     items.push(
+  //       <MapboxGL.PointAnnotation
+  //         key={id}
+  //         id={id}
+  //         coordinate={coordinate}
+  //         title={title}>
+  //         <View style={styles.annotationContainer} />
+  //         <MapboxGL.Callout title={`${details.name}`}>
+  //           {/*<View>*/}
+  //           {/*  <Text>*/}
+  //           {/*    {details.address}*/}
+  //           {/*  </Text>*/}
+  //           {/*</View>*/}
+  //         </MapboxGL.Callout>
+  //       </MapboxGL.PointAnnotation>,
+  //     );
+  //   }
+  //
+  //   return items;
+  // };
 
   // This map shows where your private location trail overlaps with public data from a variety of sources,
   // including official reports from WHO, Ministries of Health, and Chinese local, provincial, and national
@@ -178,6 +221,7 @@ const OverlapScreen = ({ isLogging, mapRef, region }) => {
             style={layerStyles.singlePoint}
           />
         </MapboxGL.ShapeSource>
+        {/*{renderAnnotations()}*/}
       </MapboxGL.MapView>
     </View>
   );
@@ -196,6 +240,18 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
     alignSelf: 'center',
+  },
+
+  annotationContainer: {
+    width: ANNOTATION_SIZE,
+    height: ANNOTATION_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2E4874',
+    borderRadius: ANNOTATION_SIZE / 2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#2E4874',
+    overflow: 'hidden',
   },
 
   // headerContainer: {
@@ -319,4 +375,4 @@ const styles = StyleSheet.create({
 //   },
 // ];
 
-export default memo(OverlapScreen);
+export default memo(MapViewComponent);
