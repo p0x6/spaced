@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.DARK_COLOR,
-    fontFamily: 'FrankRuhlLbre-Black',
+    fontFamily: 'FrankRuhlLibre-Black',
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 12,
