@@ -266,6 +266,8 @@ const LocationTracking = () => {
   }, 1000);
 
   const renderSearchResults = () => {
+
+
     if (isSearching) {
       return (
         <View
@@ -463,8 +465,12 @@ const styles = StyleSheet.create({
   panelContainer: {
     zIndex: 1,
     overflow: 'hidden',
-
     margin: 15,
+  },
+  box: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#BDBDBD",
+    padding: 15
   },
 });
 

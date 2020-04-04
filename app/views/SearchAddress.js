@@ -28,12 +28,26 @@ import { EventRegister } from 'react-native-event-listeners';
 const axios = require('axios');
 const testIcons = require('../assets/images/edit.png');
 
-const SearchAddress = ({
-  isSearching,
-  setIsSearching,
-  onChangeDestination,
-  isLogging,
-}) => {
+
+
+export default class SearchAddress extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    }
+  }
+
+  renderCloseButton = () => {
+
+    // if (isSearching && isLogging) {
+    return (
+      <View >
+
+      </View>
+    );
+    // }
+    // return null;
+  };
   // const setAddress = location => {
   //   if (_.get(route, 'params.label', '') === 'Home') {
   //     setHomeLocation(location);
@@ -48,39 +62,42 @@ const SearchAddress = ({
   //   this.props.navigation.navigation('BlacklistPlaces', {});
   // };
 
-  const renderCloseButton = () => {
-    if (isSearching && isLogging) {
-      return (
-        <TouchableOpacity
-          style={{ flex: 1 }}
-          onPress={() => setIsSearching(false)}>
-          <View>
-            <Text>X</Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-    return null;
-  };
+  render() {
+    return (
+      <View style={styles.container} >
 
-  return (
-    <View style={styles.container}>
-      {renderCloseButton()}
-      <TextInput
-        editable={isLogging}
-        style={isLogging ? styles.searchInput : styles.greyedOutSearchInput}
-        autoCapitalize='none'
-        blurOnSubmit
-        clearButtonMode='always'
-        placeholder={'Search location or zip code'}
-        placeholderTextColor='#454f63'
-        onFocus={() => setIsSearching(true)}
-        onChangeText={destination => {
-          onChangeDestination(destination);
-        }}
-      />
-    </View>
-  );
+        <View style={styles.searchView}>
+          {this.props.isSearching && this.props.isLogging ? <TouchableOpacity
+            onPress={() => {
+              this.props.setIsSearching(false);
+              this.clearText.clear();
+            }}>
+            <View>
+              <Text>X</Text>
+            </View>
+          </TouchableOpacity> : null}
+          {/* {this.renderCloseButton()} */}
+          <TextInput
+            ref={ref => {
+              this.clearText = ref;
+            }}
+            editable={this.props.isLogging}
+            // style={this.props.isLogging ? styles.searchInput : styles.greyedOutSearchInput}
+            style={{ paddingLeft: 10 }}
+            autoCapitalize='none'
+            blurOnSubmit
+            clearButtonMode='never'
+            placeholder={'Search location or zip code'}
+            placeholderTextColor='#454f63'
+            onFocus={() => this.props.setIsSearching(true)}
+            onChangeText={destination => {
+              this.props.onChangeDestination(destination)
+            }}
+          />
+        </View>
+      </View >
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -107,10 +124,20 @@ const styles = StyleSheet.create({
     flex: 4,
     alignSelf: 'center',
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 15,
     width: '95%',
     borderRadius: 14,
-    marginTop: 10,
+    marginTop: 32,
+    marginLeft: 10
+  },
+  searchView: {
+    backgroundColor: '#fff',
+    padding: 15,
+    width: '95%',
+    borderRadius: 14,
+    marginTop: 32,
+    marginLeft: 10,
+    flexDirection: "row"
   },
   greyedOutSearchInput: {
     width: '95%',
@@ -137,5 +164,3 @@ const styles = StyleSheet.create({
     padding: 15,
   },
 });
-
-export default SearchAddress;
