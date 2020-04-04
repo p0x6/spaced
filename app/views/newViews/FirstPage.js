@@ -29,7 +29,7 @@ class Welcome extends Component {
 
   participationCallback = () => {
     SetStoreData('PARTICIPATE', 'true').then(() =>
-      this.props.navigation.navigate('LocationTrackingScreen', {}),
+      this.props.navigation.navigate('MainScreen', {}),
     );
   };
 
@@ -87,7 +87,7 @@ class Welcome extends Component {
             {this.isPage(2) && (
               <Button2
                 handlePress={() =>
-                  this.props.navigation.navigate('LocationTrackingScreen', {})
+                  this.props.navigation.navigate('MainScreen', {})
                 }
                 text={'Not now, take me home'}
                 styled={button2Styles}

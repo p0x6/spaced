@@ -14,7 +14,7 @@ import BroadcastingServices from '../services/BroadcastingService';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import { GetStoreData, SetStoreData } from '../helpers/General';
-import OverlapScreen from './Overlap';
+import OverlapScreen from './MapView';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import ToggleSwitch from 'toggle-switch-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -35,7 +35,7 @@ const INITIAL_REGION = {
   longitudeDelta: 50,
 };
 
-const LocationTracking = () => {
+const MainScreen = () => {
   const [isLogging, setIsLogging] = useState(false);
   const [region, setRegion] = useState({});
   const [markers, setMarkers] = useState([]);
@@ -51,7 +51,7 @@ const LocationTracking = () => {
 
   useEffect(
     useCallback(() => {
-      console.log('Rerender LocationTracking');
+      console.log('Rerender MainScreen');
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
       GetStoreData('PARTICIPATE')
         .then(isParticipating => {
@@ -468,4 +468,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(LocationTracking);
+export default memo(MainScreen);

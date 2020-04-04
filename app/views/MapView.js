@@ -123,7 +123,7 @@ const OverlapScreen = ({ isLogging, mapRef, region }) => {
   const { navigate } = useNavigation();
 
   function handleBackPress() {
-    navigate('LocationTrackingScreen', {});
+    navigate('MainScreen', {});
     return true;
   }
 
@@ -155,7 +155,7 @@ const OverlapScreen = ({ isLogging, mapRef, region }) => {
         <MapboxGL.UserLocation />
 
         <MapboxGL.ShapeSource
-          id='earthquakes'
+          id='userLocations'
           cluster
           clusterRadius={50}
           clusterMaxZoom={14}

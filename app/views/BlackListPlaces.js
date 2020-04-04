@@ -21,7 +21,7 @@ const BlacklistPlaces = () => {
   const { navigate } = useNavigation();
 
   const backToMain = () => {
-    navigate('LocationTrackingScreen', {});
+    navigate('MainScreen', {});
   };
 
   const goToSearch = label => {
