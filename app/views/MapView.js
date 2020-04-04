@@ -1,86 +1,10 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
-import {
-  StyleSheet,
-  ScrollView,
-  Linking,
-  View,
-  Text,
-  Image,
-  Dimensions,
-  TouchableOpacity,
-  Keyboard,
-  TouchableWithoutFeedback,
-  BackHandler,
-} from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import WebView from 'react-native-webview';
-import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import MapView from 'react-native-map-clustering';
+import React, { useEffect, memo } from 'react';
+import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import RNFetchBlob from 'rn-fetch-blob';
-import Share from 'react-native-share';
-import colors from '../constants/colors';
-import Button from '../components/Button';
-import { GetStoreData } from '../helpers/General';
-import { convertPointsToString } from '../helpers/convertPointsToString';
-import LocationServices from '../services/LocationService';
-import greenMarker from '../assets/images/user-green.png';
-import backArrow from '../assets/images/backArrow.png';
-import languages from '../locales/languages';
-import CustomCircle from '../helpers/customCircle';
-
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import _ from 'lodash';
-import SafePathsAPI from '../services/API';
-import hi from '../locales/hi';
-import { PLACES_API_KEY, MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
-
-const base64 = RNFetchBlob.base64;
-// This data source was published in the Lancet, originally mentioned in
-// this article:
-//    https://www.thelancet.com/journals/laninf/article/PIIS1473-3099(20)30119-5/fulltext
-// The dataset is now hosted on Github due to the high demand for it.  The
-// first Google Doc holding data (https://docs.google.com/spreadsheets/d/1itaohdPiAeniCXNlntNztZ_oRvjh0HsGuJXUJWET008/edit#gid=0)
-// points to this souce but no longer holds the actual data.
-const public_data =
-  'https://raw.githubusercontent.com/beoutbreakprepared/nCoV2019/master/latest_data/latestdata.csv';
-const show_button_text = languages.t('label.show_overlap');
-const overlap_true_button_text = languages.t(
-  'label.overlap_found_button_label',
-);
-const no_overlap_button_text = languages.t(
-  'label.overlap_no_results_button_label',
-);
-const INITIAL_REGION = {
-  latitude: 36.56,
-  longitude: 20.39,
-  latitudeDelta: 50,
-  longitudeDelta: 50,
-};
-
-function distance(lat1, lon1, lat2, lon2) {
-  if (lat1 == lat2 && lon1 == lon2) {
-    return 0;
-  } else {
-    let radlat1 = (Math.PI * lat1) / 180;
-    let radlat2 = (Math.PI * lat2) / 180;
-    let theta = lon1 - lon2;
-    let radtheta = (Math.PI * theta) / 180;
-    let dist =
-      Math.sin(radlat1) * Math.sin(radlat2) +
-      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-    if (dist > 1) {
-      dist = 1;
-    }
-    dist = Math.acos(dist);
-    dist = (dist * 180) / Math.PI;
-    dist = dist * 60 * 1.1515;
-    return dist * 1.609344;
-  }
-}
 
 const layerStyles = {
   singlePoint: {
@@ -177,9 +101,6 @@ const MapViewComponent = ({
   //   return items;
   // };
 
-  // This map shows where your private location trail overlaps with public data from a variety of sources,
-  // including official reports from WHO, Ministries of Health, and Chinese local, provincial, and national
-  // health authorities. If additional data are available from reliable online reports, they are included.
   return (
     <View style={styles.container}>
       <MapboxGL.MapView
@@ -242,137 +163,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  annotationContainer: {
-    width: ANNOTATION_SIZE,
-    height: ANNOTATION_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#2E4874',
-    borderRadius: ANNOTATION_SIZE / 2,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#2E4874',
-    overflow: 'hidden',
-  },
-
-  // headerContainer: {
-  //   flexDirection: 'row',
-  //   height: 60,
-  //   borderBottomWidth: 1,
-  //   borderBottomColor: 'rgba(189, 195, 199,0.6)',
+  // annotationContainer: {
+  //   width: ANNOTATION_SIZE,
+  //   height: ANNOTATION_SIZE,
   //   alignItems: 'center',
-  // },
-  // backArrowTouchable: {
-  //   width: 60,
-  //   height: 60,
-  //   paddingTop: 21,
-  //   paddingLeft: 20,
-  // },
-  // backArrow: {
-  //   height: 18,
-  //   width: 18.48,
+  //   justifyContent: 'center',
+  //   backgroundColor: '#2E4874',
+  //   borderRadius: ANNOTATION_SIZE / 2,
+  //   borderWidth: StyleSheet.hairlineWidth,
+  //   borderColor: '#2E4874',
+  //   overflow: 'hidden',
   // },
 });
-
-// const customMapStyles = [
-//   {
-//     featureType: 'all',
-//     elementType: 'all',
-//     stylers: [
-//       {
-//         saturation: '32',
-//       },
-//       {
-//         lightness: '-3',
-//       },
-//       {
-//         visibility: 'on',
-//       },
-//       {
-//         weight: '1.18',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'administrative',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'landscape',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'landscape.man_made',
-//     elementType: 'all',
-//     stylers: [
-//       {
-//         saturation: '-70',
-//       },
-//       {
-//         lightness: '14',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'poi',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'road',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'transit',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'water',
-//     elementType: 'all',
-//     stylers: [
-//       {
-//         saturation: '100',
-//       },
-//       {
-//         lightness: '-14',
-//       },
-//     ],
-//   },
-//   {
-//     featureType: 'water',
-//     elementType: 'labels',
-//     stylers: [
-//       {
-//         visibility: 'off',
-//       },
-//       {
-//         lightness: '12',
-//       },
-//     ],
-//   },
-// ];
 
 export default memo(MapViewComponent);
