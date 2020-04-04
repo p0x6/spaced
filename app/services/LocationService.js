@@ -231,8 +231,6 @@ export default class LocationServices {
   static start() {
     const locationData = new LocationData();
 
-    global.window.locationData = locationData;
-
     instanceCount += 1;
     if (instanceCount > 1) {
       BackgroundGeolocation.start();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
   BackHandler,
+  FlatList,
+  Keyboard,
 } from 'react-native';
 import LocationServices from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
@@ -16,32 +18,82 @@ import OverlapScreen from './Overlap';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import ToggleSwitch from 'toggle-switch-react-native';
 import { useNavigation } from '@react-navigation/native';
+import SearchAddress from './SearchAddress';
+import { debounce } from 'debounce';
+import { PLACES_API_KEY } from 'react-native-dotenv';
+import MapBoxAPI from '../services/MapBoxAPI';
+import SafePathsAPI from '../services/API';
+import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+
+const INITIAL_REGION = {
+  latitude: 36.56,
+  longitude: 20.39,
+  latitudeDelta: 50,
+  longitudeDelta: 50,
+};
 
 const LocationTracking = () => {
   const [isLogging, setIsLogging] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(180);
+  const [region, setRegion] = useState({});
+  const [markers, setMarkers] = useState([]);
+  const [initialRegion, setInitialRegion] = useState(INITIAL_REGION);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [predictions, setSearchPredictions] = useState([]);
+  const [bounds, setBounds] = useState([]);
+
   const { navigate } = useNavigation();
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    GetStoreData('PARTICIPATE')
-      .then(isParticipating => {
-        if (isParticipating === 'true') {
-          setIsLogging(true);
-          willParticipate();
-        } else {
-          setIsLogging(false);
-        }
-      })
-      .catch(error => console.log(error));
+  const mapRef = useRef(null);
 
-    return BackHandler.removeEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-  }, []);
+  useEffect(
+    useCallback(() => {
+      console.log('Rerender LocationTracking');
+      BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+      GetStoreData('PARTICIPATE')
+        .then(isParticipating => {
+          if (isParticipating === 'true') {
+            setIsLogging(true);
+            willParticipate();
+            getInitialState();
+          } else {
+            setIsLogging(false);
+          }
+        })
+        .catch(error => console.log(error));
+      return BackHandler.removeEventListener(
+        'hardwareBackPress',
+        handleBackPress,
+      );
+    }),
+    [],
+  );
+
+  const getInitialState = () => {
+    try {
+      GetStoreData('LOCATION_DATA').then(locationArrayString => {
+        const locationArray = JSON.parse(locationArrayString);
+        if (locationArray !== null) {
+          const { latitude, longitude } = locationArray.slice(-1)[0];
+          setInitialRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+          populateMarkers({
+            latitude,
+            longitude,
+          });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleBackPress = () => {
     BackHandler.exitApp(); // works best when the goBack is async
@@ -60,19 +112,60 @@ const LocationTracking = () => {
 
   const notifications = () => navigate('NotificationScreen', {});
 
+  const search = (text, currentLocation, bounds) => {
+    let verifiedBounds = [];
+    let verifiedLocation = { longitude: null, latitude: null };
+    if (bounds && bounds.length === 4) {
+      verifiedBounds = bounds[1].concat(bounds[0]);
+    }
+    if (
+      currentLocation &&
+      currentLocation.longitude &&
+      currentLocation.latitude
+    ) {
+      verifiedLocation.longitude = currentLocation.longitude;
+      verifiedLocation.latitude = currentLocation.latitude;
+    }
+    MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(result => {
+      if (result && result.data && result.data.features) {
+        console.log(result.data.features);
+        setSearchPredictions(result.data.features);
+      }
+    });
+  };
+
+  const searchWithBounds = text => {
+    if (mapRef && mapRef.current.state && mapRef.current.state.isReady) {
+      mapRef.current.getVisibleBounds().then(bounds => {
+        BackgroundGeolocation.getCurrentLocation(
+          currentLocation => {
+            search(text, currentLocation, bounds);
+          },
+          () => search(text, null, bounds),
+        );
+      });
+    } else {
+      BackgroundGeolocation.getCurrentLocation(
+        currentLocation => {
+          search(text, currentLocation);
+        },
+        () => search(text),
+      );
+    }
+  };
+
   const willParticipate = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
       LocationServices.start();
       BroadcastingServices.start();
+      setIsLogging(true);
     });
 
     // Check and see if they actually authorized in the system dialog.
     // If not, stop services and set the state to !isLogging
     // Fixes tripleblindmarket/private-kit#129
     BackgroundGeolocation.checkStatus(({ authorization }) => {
-      if (authorization === BackgroundGeolocation.AUTHORIZED) {
-        setIsLogging(true);
-      } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
+      if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
         LocationServices.stop();
         BroadcastingServices.stop();
         setIsLogging(false);
@@ -80,25 +173,124 @@ const LocationTracking = () => {
     });
   };
 
+  async function populateMarkers(passedRegion) {
+    SafePathsAPI.getPositions(passedRegion || initialRegion).then(
+      userPositions => {
+        let locationArray = _.get(userPositions, 'data', []);
+        console.log('user positions: ', locationArray);
+        if (locationArray !== null) {
+          let markers = [];
+          for (let i = 0; i < locationArray.length - 1; i += 1) {
+            const coord = locationArray[i];
+            console.log('coord: ', coord);
+            const marker = {
+              coordinate: {
+                latitude: coord['location']['latitude'],
+                longitude: coord['location']['longitude'],
+              },
+              key: i + 1,
+              color: '#f26964',
+            };
+            console.log('marker: ', marker);
+            markers.push(marker);
+          }
+          console.log('markers: ', markers);
+          setMarkers(markers);
+        }
+      },
+    );
+  }
+
+  function moveToSearchArea(location) {
+    const safeLocationArray = _.get(location, 'geometry.coordinates', []);
+    const safeLocation = {
+      latitude: safeLocationArray[1],
+      longitude: safeLocationArray[0],
+    };
+    if (safeLocation) {
+      console.log(
+        '======== moving area to searched location ======',
+        safeLocation,
+      );
+      setInitialRegion({
+        latitude: safeLocation.latitude,
+        longitude: safeLocation.longitude,
+        latitudeDelta: safeLocation.latitudeDelta || 0.01,
+        longitudeDelta: safeLocation.longitudeDelta || 0.01,
+      });
+      // populateMarkers({
+      //   latitude: safeLocation.latitude,
+      //   longitude: safeLocation.longitude,
+      // });
+    }
+  }
+
   const setOptOut = () => {
-    LocationServices.stop();
-    BroadcastingServices.stop();
-    setIsLogging(false);
+    SetStoreData('PARTICIPATE', 'false').then(() => {
+      LocationServices.stop();
+      BroadcastingServices.stop();
+      setIsLogging(false);
+    });
   };
 
-  return (
-    <View style={styles.container}>
-      <OverlapScreen />
+  const changeSearchingState = state => {
+    if (state) {
+      setIsSearching(state);
+    } else {
+      setIsSearching(state);
+      Keyboard.dismiss();
+    }
+  };
+
+  const onChangeDestination = debounce(async destination => {
+    if (destination && destination.length > 3) {
+      searchWithBounds(destination);
+    }
+  }, 1000);
+
+  const renderSearchResults = () => {
+    if (isSearching) {
+      return (
+        <View
+          style={{ width: width, height: height, marginTop: 100, zIndex: 999 }}>
+          <FlatList
+            keyboardShouldPersistTaps='handled'
+            showsVerticalScrollIndicator={false}
+            style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
+            data={predictions}
+            renderItem={onRenderSearchItems}
+          />
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const onRenderSearchItems = ({ item, index }) => {
+    console.log('ITEM=>>', item);
+
+    return (
       <TouchableOpacity
-        style={styles.searchInput}
+        activeOpacity={0.8}
+        style={styles.box}
         onPress={() => {
-          navigate('SearchAddress', {});
-        }}>
-        <Text style={{ color: '#2E4874' }}>Search location or zip code</Text>
+          // this.refs.input.blur();
+          changeSearchingState(false);
+          moveToSearchArea(item);
+        }}
+        key={index}>
+        <Text numberOfLines={1} style={styles.locationTitle}>
+          {item.place_name}
+        </Text>
       </TouchableOpacity>
+    );
+  };
+
+  const renderBottomPanel = () => {
+    return (
       <SlidingUpPanel
         draggableRange={{
-          top: panelHeight,
+          top: 180,
           bottom: 80,
         }}
         showBackdrop={false}
@@ -188,6 +380,24 @@ const LocationTracking = () => {
           </View>
         </View>
       </SlidingUpPanel>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <OverlapScreen
+        isLogging={isLogging}
+        mapRef={mapRef}
+        region={initialRegion}
+      />
+      <SearchAddress
+        isSearching={isSearching}
+        setIsSearching={changeSearchingState}
+        onChangeDestination={onChangeDestination}
+        isLogging={isLogging}
+      />
+      {renderSearchResults()}
+      {renderBottomPanel()}
     </View>
   );
 };
@@ -232,11 +442,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   panelContainer: {
-    zIndex: 9999,
+    zIndex: 1,
     overflow: 'hidden',
 
     margin: 15,
   },
 });
 
-export default LocationTracking;
+export default memo(LocationTracking);

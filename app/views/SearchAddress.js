@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   TouchableWithoutFeedback,
   View,
   TextInput,
@@ -16,7 +17,6 @@ import backArrow from '../assets/images/backArrow.png';
 import languages from '../locales/languages';
 import colors from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
-import { debounce } from 'debounce';
 
 import { setHomeLocation, setWorkLocation } from '../services/LocationService';
 
@@ -26,15 +26,14 @@ import { PLACES_API_KEY } from 'react-native-dotenv';
 
 import { EventRegister } from 'react-native-event-listeners';
 const axios = require('axios');
+const testIcons = require('../assets/images/edit.png');
 
-const SearchAddress = props => {
-  const [destination, setDestination] = useState('');
-  const [predictions, setPredictions] = useState([]);
-  const [coordinates, setCoordinates] = useState({
-    latitude: props.latitude,
-    longitude: props.longitude,
-  });
-
+const SearchAddress = ({
+  isSearching,
+  setIsSearching,
+  onChangeDestination,
+  isLogging,
+}) => {
   // const setAddress = location => {
   //   if (_.get(route, 'params.label', '') === 'Home') {
   //     setHomeLocation(location);
@@ -49,130 +48,76 @@ const SearchAddress = props => {
   //   this.props.navigation.navigation('BlacklistPlaces', {});
   // };
 
-  const onChangeDestination = debounce(async destination => {
-    if (destination && destination.length > 3) {
-      const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${PLACES_API_KEY}
-    &input=${destination}&location=${coordinates.latitude},${coordinates.longitude}&radius=2000`;
-      try {
-        const result = await fetch(apiUrl);
-        const json = await result.json();
-        console.log('json=>>', json);
-
-        setPredictions(predictions);
-      } catch (err) {
-        AlertHelper.show('error', 'Error', err);
-      }
+  const renderCloseButton = () => {
+    if (isSearching && isLogging) {
+      return (
+        <TouchableOpacity
+          style={{ flex: 1 }}
+          onPress={() => setIsSearching(false)}>
+          <View>
+            <Text>X</Text>
+          </View>
+        </TouchableOpacity>
+      );
     }
-  }, 1000);
-
-  const onRenderSearchItems = ({ item, index }) => {
-    console.log('ITEM=>>', item);
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={styles.box}
-        onPress={() => {
-          // this.refs.input.blur();
-          onDestinationSelect(item);
-        }}
-        key={index}>
-        <Text style={styles.locationTitle}>
-          {item.structured_formatting.main_text}
-        </Text>
-        <Text style={styles.locationTitle}>
-          {item.structured_formatting.secondary_text}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const onDestinationSelect = item => {
-    axios
-      .get(
-        'https://maps.googleapis.com/maps/api/place/details/json?key=' +
-          PLACES_API_KEY +
-          '&placeid=' +
-          item.place_id,
-      )
-      .then(responseJson => {
-        console.log('responseJson =>>', responseJson);
-
-        if (responseJson.data.status == 'OK') {
-          let locationData = {
-            address: `${item.structured_formatting.main_text},${item.structured_formatting.secondary_text}`,
-            latitude: responseJson.data.result.geometry.location.lat,
-            longitude: responseJson.data.result.geometry.location.lng,
-          };
-          // this._onSetLocationData(locationData);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    return null;
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.searchInput}>
-        <TextInput
-          autoCapitalize='none'
-          blurOnSubmit
-          autoFocus
-          clearButtonMode='always'
-          placeholder={'Search location or zip code'}
-          placeholderTextColor='#454f63'
-          onChangeText={destination => {
-            setDestination(destination);
-            onChangeDestination(destination);
-          }}
-        />
-      </TouchableOpacity>
-      <FlatList
-        keyboardShouldPersistTaps='handled'
-        showsVerticalScrollIndicator={false}
-        style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
-        data={predictions}
-        renderItem={onRenderSearchItems}
+    <View style={styles.container}>
+      {renderCloseButton()}
+      <TextInput
+        editable={isLogging}
+        style={isLogging ? styles.searchInput : styles.greyedOutSearchInput}
+        autoCapitalize='none'
+        blurOnSubmit
+        clearButtonMode='always'
+        placeholder={'Search location or zip code'}
+        placeholderTextColor='#454f63'
+        onFocus={() => setIsSearching(true)}
+        onChangeText={destination => {
+          onChangeDestination(destination);
+        }}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
-    flex: 1,
-    flexDirection: 'column',
-    color: colors.PRIMARY_TEXT,
-    backgroundColor: colors.WHITE,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontFamily: 'OpenSans-Bold',
-  },
-  headerContainer: {
     flexDirection: 'row',
-    height: 60,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(189, 195, 199,0.6)',
-    alignItems: 'center',
-  },
-  backArrowTouchable: {
-    width: 60,
-    height: 50,
-    paddingTop: 18,
-    paddingLeft: 20,
-  },
-  backArrow: {
-    height: 18,
-    width: 18.48,
+    color: colors.PRIMARY_TEXT,
+    zIndex: 999,
+    position: 'absolute',
+    top: 0,
+    width: '95%',
+    borderRadius: 14,
+    marginTop: 10,
+    shadowColor: '#B0C6E2',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+    elevation: 24,
   },
   searchInput: {
+    flex: 4,
     alignSelf: 'center',
     backgroundColor: '#fff',
     padding: 20,
     width: '95%',
+    borderRadius: 14,
+    marginTop: 10,
+  },
+  greyedOutSearchInput: {
+    width: '95%',
+    backgroundColor: '#CAD2D3',
+    flex: 4,
+    alignSelf: 'center',
+    padding: 20,
     borderRadius: 14,
     marginTop: 10,
   },

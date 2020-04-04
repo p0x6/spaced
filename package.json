@@ -51,6 +51,7 @@
     "pluralize": "^8.0.0",
     "postinstall-postinstall": "^2.0.0",
     "prop-types": "^15.7.2",
+    "qs": "^6.9.3",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-app-intro-slider": "^3.0.0",
