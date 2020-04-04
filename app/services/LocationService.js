@@ -228,7 +228,7 @@ export class LocationData {
 }
 
 export default class LocationServices {
-  static start() {
+  static start(callback) {
     const locationData = new LocationData();
 
     instanceCount += 1;
@@ -340,6 +340,7 @@ export default class LocationServices {
 
     BackgroundGeolocation.on('start', () => {
       console.log('[INFO] BackgroundGeolocation service has been started');
+      if (callback) callback();
     });
 
     BackgroundGeolocation.on('stop', () => {

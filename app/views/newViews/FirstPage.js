@@ -18,6 +18,7 @@ class Welcome extends Component {
     this.state = {
       page: 0,
     };
+    this.participationCallback = this.participationCallback.bind(this);
   }
 
   nextPage = () => {
@@ -26,20 +27,15 @@ class Welcome extends Component {
     });
   };
 
-  willParticipate = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() => {
-      LocationServices.start();
-      BroadcastingServices.start();
-    });
+  participationCallback = () => {
+    SetStoreData('PARTICIPATE', 'true').then(() =>
+      this.props.navigation.navigate('LocationTrackingScreen', {}),
+    );
+  };
 
-    BackgroundGeolocation.checkStatus(({ authorization }) => {
-      if (authorization === BackgroundGeolocation.AUTHORIZED) {
-        this.props.navigation.navigate('LocationTrackingScreen', {});
-      } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
-        LocationServices.stop();
-        BroadcastingServices.stop();
-      }
-    });
+  willParticipate = () => {
+    LocationServices.start(this.participationCallback);
+    BroadcastingServices.start();
   };
 
   isPage = pageNum => this.state.page === pageNum;
@@ -84,7 +80,7 @@ class Welcome extends Component {
               handlePress={
                 !this.isPage(3)
                   ? this.nextPage
-                  : this.props.navigation.navigate('LocationTrackingScreen', {})
+                  : this.willParticipate.bind(this)
               }
               text={
                 this.isPage(0)
@@ -97,7 +93,9 @@ class Welcome extends Component {
             />
             {this.isPage(3) && (
               <Button2
-                handlePress={this.toggleFirstPage}
+                handlePress={() =>
+                  this.props.navigation.navigate('LocationTrackingScreen', {})
+                }
                 text={'Not now, take me home'}
                 styled={button2Styles}
               />
