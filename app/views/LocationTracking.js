@@ -345,7 +345,9 @@ const LocationTracking = () => {
               fontSize: 13,
               color: '#2E4874',
             }}>
-            {isLogging ? 'Your location data is being logged and shared' : ''}
+            {isLogging
+              ? 'Your location data is being logged and shared'
+              : 'Enable location logging in order to use the map'}
           </Text>
           <View
             style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
