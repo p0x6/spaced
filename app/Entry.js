@@ -16,11 +16,11 @@ import { GetStoreData } from './helpers/General';
 import BlacklistPlaces from './views/BlackListPlaces';
 import SearchAddress from './views/SearchAddress';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import Config from 'react-native-config';
+// import Config from 'react-native-config';
+import Config from './constants/config';
+import FirstPage from './views/newViews/FirstPage';
 
 MapboxGL.setAccessToken(Config.MAPBOX_ACCESS_TOKEN);
-
-import FirstPage from './views/newViews/FirstPage';
 
 const Stack = createStackNavigator();
 
