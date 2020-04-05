@@ -1,9 +1,5 @@
-import { MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-import LocationService from './LocationService';
-import BroadcastingServices from './BroadcastingService';
+import Config from 'react-native-config';
 const axios = require('axios');
-const qs = require('qs');
 
 class API {
   constructor() {
@@ -19,7 +15,7 @@ class API {
         autocomplete: 'true',
         proximity: [currentLocation.longitude, currentLocation.latitude] + '',
         bbox: bbox + '',
-        access_token: MAPBOX_ACCESS_TOKEN,
+        access_token: Config.MAPBOX_ACCESS_TOKEN,
       },
     });
   }

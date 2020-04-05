@@ -16,9 +16,9 @@ import { GetStoreData } from './helpers/General';
 import BlacklistPlaces from './views/BlackListPlaces';
 import SearchAddress from './views/SearchAddress';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import { MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
+import Config from 'react-native-config';
 
-MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+MapboxGL.setAccessToken(Config.MAPBOX_ACCESS_TOKEN);
 
 import FirstPage from './views/newViews/FirstPage';
 
