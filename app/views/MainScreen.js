@@ -8,6 +8,8 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
+  Image,
+  Linking,
 } from 'react-native';
 import LocationServices from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
@@ -26,6 +28,10 @@ import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+
+const linkIcon = require('../assets/images/link.png');
+const blacklistIcon = require('../assets/images/blacklist.png');
+const activitylogIcon = require('../assets/images/activitylog.png');
 
 const INITIAL_REGION = {
   latitude: 36.56,
@@ -46,6 +52,7 @@ const MainScreen = () => {
   const { navigate } = useNavigation();
 
   const mapRef = useRef(null);
+  const sliderRef = useRef(null);
 
   useEffect(
     useCallback(() => {
@@ -282,85 +289,67 @@ const MainScreen = () => {
     );
   };
 
-  const renderBottomPanel = () => {
+  const showFullPanel = () => {
+    if (sliderRef && sliderRef.current) {
+      sliderRef.current.show();
+    }
+  };
+
+  const hideFullPanel = () => {
+    if (sliderRef && sliderRef.current) {
+      sliderRef.current.hide();
+    }
+  };
+
+  const renderLocationEnabledOptions = () => {
+    if (!isLogging) return null;
+
     return (
-      <SlidingUpPanel
-        draggableRange={{
-          top: 180,
-          bottom: 80,
-        }}
-        showBackdrop={false}
-        containerStyle={styles.panelContainer}
-        minimumDistanceThreshold={10}
-        friction={50}>
-        <View style={styles.bottomDrawer}>
-          <View style={styles.ovalWrapper}>
-            <View style={styles.oval} />
-          </View>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text
+      <>
+        <View style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }} />
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginTop: 20,
+          }}>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={blacklistIcon} style={{ height: 33, width: 24 }} />
+            <View
               style={{
-                fontFamily: 'OpenSans-SemiBold',
-                fontSize: 17,
-                color: '#000',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                paddingHorizontal: 15,
               }}>
-              {isLogging
-                ? 'Stop logging my location'
-                : 'Start logging my location'}
-            </Text>
-            <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
-              <ToggleSwitch
-                isOn={isLogging}
-                onColor='#2E4874'
-                offColor='#2E4874'
-                onToggle={isOn => (isOn ? willParticipate() : setOptOut())}
-              />
-            </View>
-          </View>
-          <Text
-            style={{
-              fontFamily: 'OpenSans-Regular',
-              fontSize: 13,
-              color: '#2E4874',
-            }}>
-            {isLogging
-              ? 'Your location data is being logged and shared'
-              : 'Enable location logging in order to use the map'}
-          </Text>
-          <View
-            style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
-          />
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              marginTop: 20,
-            }}>
-            <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
-              <View>
-                <Text
-                  style={{
-                    fontFamily: 'OpenSans-Regular',
-                    fontSize: 13,
-                    color: '#2E4874',
-                  }}>
-                  BlockList
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: 'OpenSans-Regular',
-                    fontSize: 13,
-                    color: '#2E4874',
-                  }}>
-                  location
-                </Text>
-              </View>
-            </View>
-            <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
               <Text
                 style={{
-                  fontFamily: 'OpenSans-Regular',
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 13,
+                  color: '#2E4874',
+                }}>
+                BlackList
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 13,
+                  color: '#2E4874',
+                }}>
+                location
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={activitylogIcon} style={{ height: 33, width: 27 }} />
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                paddingHorizontal: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'DMSans-Medium',
                   fontSize: 13,
                   color: '#2E4874',
                 }}>
@@ -368,7 +357,7 @@ const MainScreen = () => {
               </Text>
               <Text
                 style={{
-                  fontFamily: 'OpenSans-Regular',
+                  fontFamily: 'DMSans-Medium',
                   fontSize: 13,
                   color: '#2E4874',
                 }}>
@@ -377,6 +366,172 @@ const MainScreen = () => {
             </View>
           </View>
         </View>
+      </>
+    );
+  };
+
+  const toggleLocation = isOn => {
+    if (isOn) {
+      willParticipate();
+      hideFullPanel();
+    } else {
+      setOptOut();
+      showFullPanel();
+    }
+  };
+
+  const handleLinkPress = useCallback(async url => {
+    // Checking if the link is supported for links with custom URL scheme.
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+      // by some browser in the mobile
+      await Linking.openURL(url);
+    }
+  }, []);
+
+  const renderBottomPanel = () => {
+    if (isSearching) return null;
+    return (
+      <SlidingUpPanel
+        allowDragging={isLogging}
+        ref={sliderRef}
+        draggableRange={{
+          top: isLogging ? 400 : 330,
+          bottom: 170,
+        }}
+        showBackdrop={false}
+        containerStyle={styles.panelContainer}
+        minimumDistanceThreshold={10}
+        friction={50}>
+        <>
+          <View style={styles.bottomDrawer}>
+            <View style={styles.ovalWrapper}>
+              <View style={styles.oval} />
+            </View>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text
+                style={{
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 17,
+                  color: '#000',
+                }}>
+                {isLogging
+                  ? 'Stop logging my location'
+                  : 'Start logging my location'}
+              </Text>
+              <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
+                <ToggleSwitch
+                  isOn={isLogging}
+                  onColor='#2E4874'
+                  offColor='#2E4874'
+                  onToggle={toggleLocation}
+                />
+              </View>
+            </View>
+            <Text
+              style={{
+                fontFamily: 'DMSans-Regular',
+                fontSize: 13,
+                color: '#2E4874',
+              }}>
+              {isLogging
+                ? 'Your location data is being logged and shared'
+                : 'Enable location logging in order to use the map'}
+            </Text>
+            {renderLocationEnabledOptions()}
+          </View>
+          <View style={styles.helpDrawer}>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text
+                style={{
+                  paddingTop: 10,
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 17,
+                  color: '#000',
+                }}>
+                Help & Information
+              </Text>
+            </View>
+            <View
+              style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
+            />
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'space-around',
+              }}>
+              <TouchableOpacity
+                style={{ marginTop: 10 }}
+                onPress={() =>
+                  handleLinkPress(
+                    'https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/cases-in-us.html',
+                  )
+                }>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text
+                    style={{
+                      fontFamily: 'DMSans-Medium',
+                      fontSize: 14,
+                      color: '#000',
+                    }}>
+                    Information about COVID-19 in the United States
+                  </Text>
+                  <Image
+                    source={linkIcon}
+                    style={{ width: 15, height: 15, marginLeft: 10 }}
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontFamily: 'DMSans-Regular',
+                    fontSize: 13,
+                    color: '#2E4874',
+                    paddingTop: 15,
+                  }}>
+                  Centers for Disease Control and Prevention
+                </Text>
+              </TouchableOpacity>
+              <View
+                style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
+              />
+              <TouchableOpacity
+                style={{ marginTop: 10 }}
+                onPress={() =>
+                  handleLinkPress(
+                    'https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/testing.html',
+                  )
+                }>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text
+                    style={{
+                      fontFamily: 'DMSans-Medium',
+                      fontSize: 14,
+                      color: '#000',
+                    }}>
+                    Coronavirus Self Checker
+                  </Text>
+                  <Image
+                    source={linkIcon}
+                    style={{ width: 15, height: 15, marginLeft: 10 }}
+                  />
+                </View>
+                <Text
+                  style={{
+                    fontFamily: 'DMSans-Regular',
+                    fontSize: 13,
+                    color: '#2E4874',
+                    paddingTop: 15,
+                  }}>
+                  Centers for Disease Control and Prevention
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
       </SlidingUpPanel>
     );
   };
@@ -434,6 +589,15 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   bottomDrawer: {
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+  },
+  helpDrawer: {
+    marginTop: 10,
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20,
