@@ -23,6 +23,7 @@ const colors = {
   LIGHT_COLOR: '#e4e8ef',
   PRIMARY_TEXT_COLOR: '#433e3e',
   SECONDARY_TEXT_COLOR: '#585453',
+  BLUE_TEXT_COLOR: '#425d8a',
 };
 
 export default colors;
