@@ -5,15 +5,19 @@ import {
   View,
   TextInput,
   Animated,
+  Image,
 } from 'react-native';
 import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
+
+const closeIcon = require('../assets/images/close.png');
 
 const SearchAddress = ({
   isSearching,
   setIsSearching,
   onChangeDestination,
   isLogging,
+  textInputRef,
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -35,16 +39,25 @@ const SearchAddress = ({
     }).start();
   }, []);
 
+  const exitSearch = () => {
+    if (textInputRef && textInputRef.current) {
+      textInputRef.current.clear();
+    }
+    setIsSearching(false);
+  };
+
   const renderCloseButton = () => {
     if (isSearching && isLogging) {
       return (
         <TouchableOpacity
+          style={{ alignSelf: 'center' }}
           onPress={() => {
-            setIsSearching(false);
+            exitSearch();
           }}>
-          <View>
-            <Text>X</Text>
-          </View>
+          <Image
+            source={closeIcon}
+            style={{ width: 12, height: 12, resizeMode: 'center' }}
+          />
         </TouchableOpacity>
       );
     }
@@ -63,6 +76,7 @@ const SearchAddress = ({
       <View style={styles.searchView}>
         {renderCloseButton()}
         <TextInput
+          ref={textInputRef}
           editable={isLogging}
           style={{ paddingLeft: 10 }}
           autoCapitalize='none'
@@ -97,7 +111,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.58,
     shadowRadius: 16.0,
-    elevation: 24,
+    elevation: 60,
   },
   searchInput: {
     flex: 4,
@@ -117,6 +131,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginLeft: 10,
     flexDirection: 'row',
+    alignSelf: 'center',
   },
   greyedOutSearchInput: {
     width: '95%',
