@@ -49,7 +49,7 @@ const SearchAddress = ({
       );
     }
     return null;
-  }
+  };
 
   return (
     <Animated.View
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     width: '95%',
     borderRadius: 14,
     marginTop: 32,
-    marginLeft: 10
+    marginLeft: 10,
   },
   searchView: {
     backgroundColor: '#fff',
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginTop: 32,
     marginLeft: 10,
-    flexDirection: "row"
+    flexDirection: 'row',
   },
   greyedOutSearchInput: {
     width: '95%',
