@@ -10,6 +10,7 @@ import {
   Keyboard,
   Image,
   Linking,
+  Animated,
 } from 'react-native';
 import LocationServices from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
@@ -25,6 +26,7 @@ import { debounce } from 'debounce';
 import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
+import Modal from './Modal';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -47,6 +49,8 @@ const MainScreen = () => {
   const [placeMarkers, setPlaceMarkers] = useState({});
   const [isSearching, setIsSearching] = useState(false);
   const [predictions, setSearchPredictions] = useState([]);
+  const [modal, setModal] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(true);
   const [bounds, setBounds] = useState([]);
 
   const { navigate } = useNavigation();
@@ -63,6 +67,8 @@ const MainScreen = () => {
             setIsLogging(true);
             willParticipate();
             getInitialState();
+            showFullPanel({ toValue: 170, velocity: -0.8 });
+            setTimeout(() => setIsAnimating(false), 2000);
           } else {
             setIsLogging(false);
           }
@@ -252,10 +258,18 @@ const MainScreen = () => {
   }, 1000);
 
   const renderSearchResults = () => {
+
+
     if (isSearching) {
       return (
         <View
-          style={{ width: width, height: height, marginTop: 100, zIndex: 999 }}>
+          style={{
+            position: 'absolute',
+            width: width,
+            height: height,
+            marginTop: 100,
+            zIndex: 2,
+          }}>
           <FlatList
             keyboardShouldPersistTaps='handled'
             showsVerticalScrollIndicator={false}
@@ -289,9 +303,9 @@ const MainScreen = () => {
     );
   };
 
-  const showFullPanel = () => {
+  const showFullPanel = (options = { toValue: null, velocity: null }) => {
     if (sliderRef && sliderRef.current) {
-      sliderRef.current.show();
+      sliderRef.current.show(options);
     }
   };
 
@@ -313,7 +327,9 @@ const MainScreen = () => {
             justifyContent: 'space-around',
             marginTop: 20,
           }}>
-          <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{ flexDirection: 'row' }}
+            onPress={() => setModal('blacklist')}>
             <Image source={blacklistIcon} style={{ height: 33, width: 24 }} />
             <View
               style={{
@@ -327,7 +343,7 @@ const MainScreen = () => {
                   fontSize: 13,
                   color: '#2E4874',
                 }}>
-                BlackList
+                Blacklist
               </Text>
               <Text
                 style={{
@@ -338,8 +354,10 @@ const MainScreen = () => {
                 location
               </Text>
             </View>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ flexDirection: 'row' }}
+            onPress={() => setModal('activity')}>
             <Image source={activitylogIcon} style={{ height: 33, width: 27 }} />
             <View
               style={{
@@ -364,7 +382,7 @@ const MainScreen = () => {
                 Log
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </>
     );
@@ -376,7 +394,7 @@ const MainScreen = () => {
       hideFullPanel();
     } else {
       setOptOut();
-      showFullPanel();
+      showFullPanel({ toValue: 330 });
     }
   };
 
@@ -392,14 +410,14 @@ const MainScreen = () => {
   }, []);
 
   const renderBottomPanel = () => {
-    if (isSearching) return null;
+    if (isSearching || modal) return null;
     return (
       <SlidingUpPanel
         allowDragging={isLogging}
         ref={sliderRef}
         draggableRange={{
           top: isLogging ? 400 : 330,
-          bottom: 170,
+          bottom: isAnimating ? 0 : 170,
         }}
         showBackdrop={false}
         containerStyle={styles.panelContainer}
@@ -536,6 +554,36 @@ const MainScreen = () => {
     );
   };
 
+  const renderBlacklistModal = () => {
+    if (modal !== 'blacklist') return null;
+    return (
+      <Modal exitModal={() => setModal(null)}>
+        <Text>Blacklist Modal</Text>
+      </Modal>
+    );
+  };
+
+  const renderActivityModal = () => {
+    if (modal !== 'activity') return null;
+    return (
+      <Modal exitModal={() => setModal(null)}>
+        <Text>Activity Modal</Text>
+      </Modal>
+    );
+  };
+
+  const renderSearchInput = () => {
+    if (modal) return null;
+    return (
+      <SearchAddress
+        isSearching={isSearching}
+        setIsSearching={changeSearchingState}
+        onChangeDestination={onChangeDestination}
+        isLogging={isLogging}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -545,12 +593,9 @@ const MainScreen = () => {
         userMarkers={userMarkers}
         placeMarkers={placeMarkers}
       />
-      <SearchAddress
-        isSearching={isSearching}
-        setIsSearching={changeSearchingState}
-        onChangeDestination={onChangeDestination}
-        isLogging={isLogging}
-      />
+      {renderSearchInput()}
+      {renderBlacklistModal()}
+      {renderActivityModal()}
       {renderSearchResults()}
       {renderBottomPanel()}
     </View>
@@ -564,7 +609,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchInput: {
-    zIndex: 999,
+    zIndex: 3,
     position: 'absolute',
     top: 0,
     backgroundColor: '#fff',
@@ -608,8 +653,12 @@ const styles = StyleSheet.create({
   panelContainer: {
     zIndex: 1,
     overflow: 'hidden',
-
     margin: 15,
+  },
+  box: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#BDBDBD",
+    padding: 15
   },
 });
 

@@ -4,8 +4,9 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  Animated,
 } from 'react-native';
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
 
 const SearchAddress = ({
@@ -14,12 +15,33 @@ const SearchAddress = ({
   onChangeDestination,
   isLogging,
 }) => {
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  const searchOpacity = opacity.interpolate({
+    inputRange: [0, 0.8, 1],
+    outputRange: [0, 0, 1],
+  });
+
+  const searchTranslationY = opacity.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
+
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const renderCloseButton = () => {
     if (isSearching && isLogging) {
       return (
         <TouchableOpacity
-          style={{ flex: 1 }}
-          onPress={() => setIsSearching(false)}>
+          onPress={() => {
+            setIsSearching(false);
+          }}>
           <View>
             <Text>X</Text>
           </View>
@@ -27,25 +49,33 @@ const SearchAddress = ({
       );
     }
     return null;
-  };
+  }
 
   return (
-    <View style={styles.container}>
-      {renderCloseButton()}
-      <TextInput
-        editable={isLogging}
-        style={isLogging ? styles.searchInput : styles.greyedOutSearchInput}
-        autoCapitalize='none'
-        blurOnSubmit
-        clearButtonMode='always'
-        placeholder={'Search location or zip code'}
-        placeholderTextColor='#454f63'
-        onFocus={() => setIsSearching(true)}
-        onChangeText={destination => {
-          onChangeDestination(destination);
-        }}
-      />
-    </View>
+    <Animated.View
+      style={[
+        {
+          opacity: searchOpacity,
+          transform: [{ translateY: searchTranslationY }],
+        },
+        styles.container,
+      ]}>
+      <View style={styles.searchView}>
+        {renderCloseButton()}
+        <TextInput
+          editable={isLogging}
+          style={{ paddingLeft: 10 }}
+          autoCapitalize='none'
+          blurOnSubmit
+          placeholder={'Search location or zip code'}
+          placeholderTextColor='#454f63'
+          onFocus={() => setIsSearching(true)}
+          onChangeText={destination => {
+            onChangeDestination(destination);
+          }}
+        />
+      </View>
+    </Animated.View>
   );
 };
 
@@ -73,10 +103,20 @@ const styles = StyleSheet.create({
     flex: 4,
     alignSelf: 'center',
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 15,
     width: '95%',
     borderRadius: 14,
-    marginTop: 10,
+    marginTop: 32,
+    marginLeft: 10
+  },
+  searchView: {
+    backgroundColor: '#fff',
+    padding: 15,
+    width: '95%',
+    borderRadius: 14,
+    marginTop: 32,
+    marginLeft: 10,
+    flexDirection: "row"
   },
   greyedOutSearchInput: {
     width: '95%',
