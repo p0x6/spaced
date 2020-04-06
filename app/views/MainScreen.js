@@ -33,9 +33,15 @@ import SafePathsAPI from '../services/API';
 import _ from 'lodash';
 import Modal from './Modal';
 import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
-import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
+import {
+  VictoryAxis,
+  VictoryBar,
+  VictoryChart,
+  VictoryTheme,
+} from 'victory-native';
 import languages from '../locales/languages';
 import colors from '../constants/colors';
+import moment from 'moment';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -653,79 +659,185 @@ const MainScreen = () => {
   const renderActivityModal = () => {
     if (modal !== 'activity') return null;
 
-    const getDate = date => {
-      const dates = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-      const dateObj = new Date(date);
-      return dates[dateObj.getUTCDay()];
-    };
     const sampleData = [
       {
-        count: 11,
-        date: '2020-03-30',
+        count: 10,
+        date: '2020-3-24',
+      },
+      {
+        count: 4,
+        date: '2020-3-25',
+      },
+      {
+        count: 8,
+        date: '2020-3-26',
+      },
+      {
+        count: 2,
+        date: '2020-3-27',
+      },
+      {
+        count: 9,
+        date: '2020-3-28',
       },
     ];
+
     return (
       <Modal exitModal={() => setModal(null)}>
-        <>
-          <View style={{ flexDirection: 'row' }}>
-            <Image source={activitylogIcon} style={{ height: 33, width: 27 }} />
+        <View
+          style={{
+            width: '100%',
+            paddingBottom: 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              width: '100%',
+            }}>
+            <Image
+              source={activitylogIcon}
+              style={{
+                width: 25,
+                height: 30,
+                resizeMode: 'stretch',
+                marginRight: 16,
+              }}
+            />
+            <Text style={{ fontSize: 14, color: colors.BLACK }}>
+              Activity{'\n'}Log
+            </Text>
+          </View>
+          <View style={{ marginTop: 20, width: '100%' }}>
+            <Text
+              style={{
+                color: colors.BLUE_TEXT_COLOR,
+                fontFamily: 'DMSans-Regular',
+                fontSize: 16,
+                letterSpacing: 1,
+              }}>
+              Shows the number of people you had contact with
+            </Text>
+          </View>
+          <View style={{ marginTop: 20, width: '100%' }}>
+            <Text
+              style={{
+                color: colors.BLUE_TEXT_COLOR,
+                fontFamily: 'DMSans-Bold',
+                fontSize: 16,
+                letterSpacing: 1,
+              }}>
+              This week 3/30
+            </Text>
+          </View>
+          <View style={{}}>
+            <VictoryChart
+              domainPadding={{ x: 32 }}
+              height={216}
+              padding={{ left: 24, right: 24, top: 24, bottom: 36 }}>
+              <VictoryAxis
+                orientation='right'
+                dependentAxis
+                style={{
+                  axis: { stroke: 'transparent' },
+                  grid: {
+                    stroke: ({ tick }) => (tick === 6 ? '#999' : '#ccc'),
+                    strokeDasharray: ({ tick }) => (tick === 6 ? [8, 4] : null),
+                  },
+                  tickLabels: { fontSize: 12, dx: -20, dy: -4, fill: '#aaa' },
+                }}
+              />
+              <VictoryAxis
+                style={{
+                  axis: { stroke: '#ccc' },
+                  tickLabels: { fontSize: 12 },
+                }}
+                tickFormat={t =>
+                  t
+                    ? `${moment(t, 'YYYY-M-D')
+                        .format('ddd')
+                        .charAt(0)}`
+                    : ''
+                }
+              />
+              <VictoryBar
+                alignment='middle'
+                barWidth={28}
+                cornerRadius={{ topLeft: 4, topRight: 4 }}
+                height={100}
+                style={{
+                  data: {
+                    fill: ({ datum }) =>
+                      datum.count <= 4
+                        ? '#aaff66'
+                        : datum.count <= 8
+                        ? '#ff950d'
+                        : '#ff6666',
+                  },
+                }}
+                data={sampleData}
+                x='date'
+                y='count'
+              />
+            </VictoryChart>
+          </View>
+          <View style={{ width: '100%', height: 44 }}>
             <View
               style={{
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                paddingHorizontal: 10,
+                backgroundColor: 'rgba(175, 186, 205, 0.27)',
+                position: 'absolute',
+                padding: 12,
+                left: -12,
+                right: -12,
               }}>
               <Text
                 style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
+                  color: colors.BLUE_TEXT_COLOR,
+                  fontFamily: 'DMSans-Bold',
+                  fontSize: 16,
+                  letterSpacing: 1,
                 }}>
-                Activity
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
-                }}>
-                Log
+                Intersections today
               </Text>
             </View>
           </View>
-          <Text>Shows the number of people you had contact with</Text>
-
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              marginTop: 24,
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                color: '#777',
+                fontFamily: 'DMSans-Bold',
+                fontSize: 18,
+                marginRight: 40,
+              }}>
+              {moment(sampleData[0].date, 'YYYY-M-D').format('dddd M/DD')}
+            </Text>
+            <Text
+              style={{
+                color: colors.BLUE_TEXT_COLOR,
+                fontFamily: 'DMSans-Bold',
+                fontSize: 36,
+              }}>
+              {sampleData[0].count.toString()}
+            </Text>
+          </View>
+        </View>
+        {/* <>
           <View style={styles.main}>
             <>
-              <VictoryChart height={0.35 * height} dependentAxis>
-                <VictoryAxis dependentAxis />
-                <VictoryAxis
-                  dependentAxis={false}
-                  tickFormat={t => `${getDate(t)}`}
-                />
-
-                <VictoryBar
-                  alignment='start'
-                  labels={({ datum }) => datum.count}
-                  data={sampleData}
-                  x='date'
-                  y='count'
-                />
-              </VictoryChart>
-              <View style={styles.notificationsHeader}>
-                <Text style={styles.notificationsHeaderText}>
-                  Intersections today
-                </Text>
-              </View>
-              <View style={styles.notificationView}>
-                <Text>{sampleData[0].date}</Text>
-                <Text style={styles.notificationsText}>
-                  {sampleData[0].count}
-                </Text>
-              </View>
+              
             </>
           </View>
-        </>
+        </> */}
       </Modal>
     );
   };
@@ -837,18 +949,6 @@ const styles = StyleSheet.create({
     color: '#435d8b',
     fontSize: 16,
     fontFamily: 'DMSans-Bold',
-  },
-  notificationView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-  },
-  notificationsText: {
-    color: '#435d8b',
-    fontSize: 16,
-    fontFamily: 'DMSans-Regular',
   },
 });
 
