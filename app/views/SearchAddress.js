@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.58,
     shadowRadius: 16.0,
-    elevation: 24,
+    elevation: 60,
   },
   searchInput: {
     flex: 4,
