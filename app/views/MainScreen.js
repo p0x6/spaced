@@ -9,22 +9,11 @@ import {
   FlatList,
   Keyboard,
   Image,
-  Linking,
-  Animated,
-  ScrollView,
-  SafeAreaView,
 } from 'react-native';
-import LocationServices, {
-  setHomeLocation,
-  setWorkLocation,
-} from '../services/LocationService';
-import BroadcastingServices from '../services/BroadcastingService';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
-import { GetStoreData, SetStoreData } from '../helpers/General';
+import { GetStoreData } from '../helpers/General';
 import MapView from './MapView';
-import SlidingUpPanel from 'rn-sliding-up-panel';
-import ToggleSwitch from 'toggle-switch-react-native';
 import { useNavigation } from '@react-navigation/native';
 import SearchAddress from './SearchAddress';
 import { debounce } from 'debounce';
@@ -32,16 +21,13 @@ import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
 import Modal from './Modal';
-import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
-import languages from '../locales/languages';
-import colors from '../constants/colors';
+import BottomPanel from './BottomPanel';
+import BlacklistModal from './modals/BlacklistModal';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-const linkIcon = require('../assets/images/link.png');
-const blacklistIcon = require('../assets/images/blacklist.png');
 const activitylogIcon = require('../assets/images/activitylog.png');
 
 const INITIAL_REGION = {
@@ -59,10 +45,7 @@ const MainScreen = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [modal, setModal] = useState(null);
-  const [isAnimating, setIsAnimating] = useState(true);
   const [bounds, setBounds] = useState([]);
-
-  const { navigate } = useNavigation();
 
   const mapRef = useRef(null);
   const sliderRef = useRef(null);
@@ -74,13 +57,7 @@ const MainScreen = () => {
       GetStoreData('PARTICIPATE')
         .then(isParticipating => {
           if (isParticipating === 'true') {
-            setIsLogging(true);
-            willParticipate();
             getInitialState();
-            showFullPanel({ toValue: 170, velocity: -0.8 });
-            setTimeout(() => setIsAnimating(false), 2000);
-          } else {
-            setIsLogging(false);
           }
         })
         .catch(error => console.log(error));
@@ -137,18 +114,6 @@ const MainScreen = () => {
     return true;
   };
 
-  const toExport = () => navigate('ExportScreen', {});
-
-  const toImport = () => navigate('ImportScreen', {});
-
-  const blacklistPlaces = () => navigate('BlacklistPlaces', {});
-
-  const toNews = () => navigate('NewsScreen', {});
-
-  const licenses = () => navigate('LicensesScreen', {});
-
-  const notifications = () => navigate('NotificationScreen', {});
-
   const search = (text, currentLocation, bounds) => {
     let verifiedBounds = [];
     let verifiedLocation = { longitude: null, latitude: null };
@@ -190,25 +155,6 @@ const MainScreen = () => {
     }
   };
 
-  const willParticipate = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() => {
-      // LocationServices.start();
-      BroadcastingServices.start();
-      setIsLogging(true);
-    });
-
-    // Check and see if they actually authorized in the system dialog.
-    // If not, stop services and set the state to !isLogging
-    // Fixes tripleblindmarket/private-kit#129
-    BackgroundGeolocation.checkStatus(({ authorization }) => {
-      if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
-        LocationServices.stop();
-        BroadcastingServices.stop();
-        setIsLogging(false);
-      }
-    });
-  };
-
   async function populateMarkers(passedRegion) {
     SafePathsAPI.getPositions(passedRegion || region).then(userPositions => {
       let userMarkers = _.get(userPositions, 'data.users', null);
@@ -242,14 +188,6 @@ const MainScreen = () => {
       });
     }
   }
-
-  const setOptOut = () => {
-    SetStoreData('PARTICIPATE', 'false').then(() => {
-      LocationServices.stop();
-      BroadcastingServices.stop();
-      setIsLogging(false);
-    });
-  };
 
   const changeSearchingState = state => {
     if (state) {
@@ -312,341 +250,28 @@ const MainScreen = () => {
     );
   };
 
-  const showFullPanel = (options = { toValue: null, velocity: null }) => {
-    if (sliderRef && sliderRef.current) {
-      sliderRef.current.show(options);
-    }
-  };
-
-  const hideFullPanel = () => {
-    if (sliderRef && sliderRef.current) {
-      sliderRef.current.hide();
-    }
-  };
-
-  const renderLocationEnabledOptions = () => {
-    if (!isLogging) return null;
-
-    return (
-      <>
-        <View style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }} />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            marginTop: 20,
-          }}>
-          <TouchableOpacity
-            style={{ flexDirection: 'row' }}
-            onPress={() => setModal('blacklist')}>
-            <Image source={blacklistIcon} style={{ height: 33, width: 24 }} />
-            <View
-              style={{
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                paddingHorizontal: 15,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
-                }}>
-                Blacklist
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
-                }}>
-                location
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ flexDirection: 'row' }}
-            onPress={() => setModal('activity')}>
-            <Image source={activitylogIcon} style={{ height: 33, width: 27 }} />
-            <View
-              style={{
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                paddingHorizontal: 10,
-              }}>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
-                }}>
-                Activity
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 13,
-                  color: '#2E4874',
-                }}>
-                Log
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </>
-    );
-  };
-
-  const toggleLocation = isOn => {
-    if (isOn) {
-      willParticipate();
-      hideFullPanel();
-    } else {
-      setOptOut();
-      showFullPanel({ toValue: 330 });
-    }
-  };
-
-  const handleLinkPress = useCallback(async url => {
-    // Checking if the link is supported for links with custom URL scheme.
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      // Opening the link with some app, if the URL scheme is "http" the web link should be opened
-      // by some browser in the mobile
-      await Linking.openURL(url);
-    }
-  }, []);
-
   const renderBottomPanel = () => {
-    if (isSearching || modal) return null;
     return (
-      <SlidingUpPanel
-        allowDragging={isLogging}
-        ref={sliderRef}
-        draggableRange={{
-          top: isLogging ? 400 : 330,
-          bottom: isAnimating ? 0 : 170,
-        }}
-        showBackdrop={false}
-        containerStyle={styles.panelContainer}
-        minimumDistanceThreshold={10}
-        friction={50}>
-        <>
-          <View style={styles.bottomDrawer}>
-            <View style={styles.ovalWrapper}>
-              <View style={styles.oval} />
-            </View>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text
-                style={{
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 17,
-                  color: '#000',
-                }}>
-                {isLogging
-                  ? 'Stop logging my location'
-                  : 'Start logging my location'}
-              </Text>
-              <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
-                <ToggleSwitch
-                  isOn={isLogging}
-                  onColor='#2E4874'
-                  offColor='#2E4874'
-                  onToggle={toggleLocation}
-                />
-              </View>
-            </View>
-            <Text
-              style={{
-                fontFamily: 'DMSans-Regular',
-                fontSize: 13,
-                color: '#2E4874',
-              }}>
-              {isLogging
-                ? 'Your location data is being logged and shared'
-                : 'Enable location logging in order to use the map'}
-            </Text>
-            {renderLocationEnabledOptions()}
-          </View>
-          <View style={styles.helpDrawer}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text
-                style={{
-                  paddingTop: 10,
-                  fontFamily: 'DMSans-Medium',
-                  fontSize: 17,
-                  color: '#000',
-                }}>
-                Help & Information
-              </Text>
-            </View>
-            <View
-              style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
-            />
-            <View
-              style={{
-                flexDirection: 'column',
-                justifyContent: 'space-around',
-              }}>
-              <TouchableOpacity
-                style={{ marginTop: 10 }}
-                onPress={() =>
-                  handleLinkPress(
-                    'https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/cases-in-us.html',
-                  )
-                }>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text
-                    style={{
-                      fontFamily: 'DMSans-Medium',
-                      fontSize: 14,
-                      color: '#000',
-                    }}>
-                    Information about COVID-19 in the United States
-                  </Text>
-                  <Image
-                    source={linkIcon}
-                    style={{ width: 15, height: 15, marginLeft: 10 }}
-                  />
-                </View>
-                <Text
-                  style={{
-                    fontFamily: 'DMSans-Regular',
-                    fontSize: 13,
-                    color: '#2E4874',
-                    paddingTop: 15,
-                  }}>
-                  Centers for Disease Control and Prevention
-                </Text>
-              </TouchableOpacity>
-              <View
-                style={{ height: 0.3, backgroundColor: 'gray', marginTop: 15 }}
-              />
-              <TouchableOpacity
-                style={{ marginTop: 10 }}
-                onPress={() =>
-                  handleLinkPress(
-                    'https://www.cdc.gov/coronavirus/2019-ncov/symptoms-testing/testing.html',
-                  )
-                }>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text
-                    style={{
-                      fontFamily: 'DMSans-Medium',
-                      fontSize: 14,
-                      color: '#000',
-                    }}>
-                    Coronavirus Self Checker
-                  </Text>
-                  <Image
-                    source={linkIcon}
-                    style={{ width: 15, height: 15, marginLeft: 10 }}
-                  />
-                </View>
-                <Text
-                  style={{
-                    fontFamily: 'DMSans-Regular',
-                    fontSize: 13,
-                    color: '#2E4874',
-                    paddingTop: 15,
-                  }}>
-                  Centers for Disease Control and Prevention
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </>
-      </SlidingUpPanel>
+      <BottomPanel
+        isLogging={isLogging}
+        setIsLogging={setIsLogging}
+        isSearching={isSearching}
+        modal={modal}
+        setModal={setModal}
+        sliderRef={sliderRef}
+      />
     );
   };
 
   const renderBlacklistModal = () => {
-    const [homeAddress, setHomeAddress] = useState(null);
-    const [homeCoords, setHomeCoords] = useState(null);
-    const [workAddress, setWorkAddress] = useState(null);
-    const [workCoords, setWorkCoords] = useState(null);
-    const [inputtingControl, setInputtingControl] = useState(null);
-
-    if (modal !== 'blacklist') return null;
-
-    const setAddress = (control, text) => {
-      if (control === 'Home') {
-        setHomeAddress(text);
-      } else if (control === 'Work') {
-        setWorkAddress(text);
-      }
-    };
-
-    const setCoords = (control, geometry) => {
-      const coords = {
-        lat:
-          geometry && geometry.coordinates && geometry.coordinates.length
-            ? geometry.coordinates[0]
-            : null,
-        lng:
-          geometry && geometry.coordinates && geometry.coordinates.length
-            ? geometry.coordinates[1]
-            : null,
-      };
-
-      if (control === 'Home') {
-        setHomeCoords(coords);
-      } else if (control === 'Work') {
-        setWorkCoords(coords);
-      }
-    };
-
-    const onChangeText = (control, text) => {
-      setAddress(control, text);
-
-      if (text.length > 0) {
-        setInputtingControl(control);
-      } else {
-        setInputtingControl(null);
-        return;
-      }
-
-      search(text, null, null);
-    };
-
-    const onPressClose = control => {
-      setAddress(control, null);
-      setInputtingControl(null);
-    };
-
-    const onPressItem = (control, item) => {
-      setAddress(control, item.place_name);
-      setCoords(control, item.geometry);
-      setSearchedResult([]);
-    };
-
-    const onSubmitEditing = control => {};
-
-    const closeModal = () => {
-      if (homeCoords && homeCoords.lat && homeCoords.lng)
-        setHomeLocation({ address: homeAddress, coordinates: homeCoords });
-      if (workCoords && workCoords.lat && workCoords.lng)
-        setWorkLocation({ address: workAddress, coordinates: workCoords });
-      setModal(null);
-    };
-
     return (
-      <Modal exitModal={closeModal}>
-        <BlacklistPlacesPanel
-          home={homeAddress}
-          work={workAddress}
-          type='All'
-          searchedResult={searchedResult}
-          inputtingControl={inputtingControl}
-          onChangeText={(control, text) => onChangeText(control, text)}
-          onPressClose={control => onPressClose(control)}
-          onPressItem={(control, item) => onPressItem(control, item)}
-          onSubmitEditing={control => onSubmitEditing(control)}
-        />
-      </Modal>
+      <BlacklistModal
+        modal={modal}
+        setModal={setModal}
+        search={search}
+        searchedResult={searchedResult}
+        setSearchedResult={setSearchedResult}
+      />
     );
   };
 
@@ -766,53 +391,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-  },
-  searchInput: {
-    zIndex: 3,
-    position: 'absolute',
-    top: 0,
-    backgroundColor: '#fff',
-    padding: 20,
-    width: '95%',
-    borderRadius: 14,
-    marginTop: 10,
-    shadowColor: '#B0C6E2',
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.58,
-    shadowRadius: 16.0,
-    elevation: 24,
-  },
-  ovalWrapper: { alignItems: 'center', width: '100%', paddingBottom: 7 },
-  oval: {
-    width: 40,
-    height: 7,
-    backgroundColor: '#CAD2D3',
-    borderRadius: 40,
-  },
-  bottomDrawer: {
-    paddingTop: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 15,
-  },
-  helpDrawer: {
-    marginTop: 10,
-    paddingTop: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 15,
-  },
-  panelContainer: {
-    zIndex: 1,
-    overflow: 'hidden',
-    margin: 15,
   },
   box: {
     borderBottomWidth: 0.5,
