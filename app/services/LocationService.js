@@ -55,9 +55,7 @@ export class LocationData {
       data => {
         const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING HOME LOCATION: ', coordinates);
-        if (coordinates && coordinates.length === 2) {
-          this.createLocationPolygon(coordinates, 'Home');
-        }
+        this.createLocationPolygon(coordinates, 'Home');
       },
     );
     this.workLocationListener = EventRegister.addEventListener(
@@ -65,9 +63,7 @@ export class LocationData {
       data => {
         const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING WORK LOCATION: ', coordinates);
-        if (coordinates && coordinates.length === 2) {
-          this.createLocationPolygon(coordinates, 'Work');
-        }
+        this.createLocationPolygon(coordinates, 'Work');
       },
     );
   }
@@ -93,6 +89,14 @@ export class LocationData {
       } else if (label === 'Work') {
         this.workLocation = pt;
         this.workPolygon = poly;
+      }
+    } else {
+      if (label === 'Home') {
+        this.homeLocation = null;
+        this.homePolygon = null;
+      } else if (label === 'Work') {
+        this.workLocation = null;
+        this.workPolygon = null;
       }
     }
   }

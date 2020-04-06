@@ -86,6 +86,26 @@ const BlacklistModal = ({
   const onPressClose = control => {
     setAddress(control, null);
     setInputtingControl(null);
+
+    if (control === 'Home') {
+      setHomeLocation({
+        address: null,
+        coordinates: [],
+      });
+      EventRegister.emit('setHomeLocation', {
+        address: null,
+        coordinates: [],
+      });
+    } else if (control === 'Work') {
+      setWorkLocation({
+        address: null,
+        coordinates: [],
+      });
+      EventRegister.emit('setWorkLocation', {
+        address: null,
+        coordinates: [],
+      });
+    }
   };
 
   const onPressItem = (control, item) => {
