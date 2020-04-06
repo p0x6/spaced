@@ -10,27 +10,19 @@ class Logo extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.logoContainer}>
-          <Text style={[styles.lightColor, styles.logoFont]}>S</Text>
-          <Text style={[styles.mediumColor, styles.logoFont]}>P</Text>
-          <Text style={[styles.darkColor, styles.logoFont]}>A</Text>
-          <Text style={[styles.darkColor, styles.logoFont]}>C</Text>
-          <Text style={[styles.mediumColor, styles.logoFont]}>E</Text>
-          <Text style={[styles.lightColor, styles.logoFont]}>D</Text>
-        </View>
+      <View style={styles.logoContainer}>
+        <Text style={[styles.lightColor, styles.logoFont]}>S</Text>
+        <Text style={[styles.mediumColor, styles.logoFont]}>P</Text>
+        <Text style={[styles.darkColor, styles.logoFont]}>A</Text>
+        <Text style={[styles.darkColor, styles.logoFont]}>C</Text>
+        <Text style={[styles.mediumColor, styles.logoFont]}>E</Text>
+        <Text style={[styles.lightColor, styles.logoFont]}>D</Text>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '55%',
-  },
   logoContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -39,7 +31,7 @@ const styles = StyleSheet.create({
   },
   logoFont: {
     fontWeight: 'bold',
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     fontSize: 30,
     marginLeft: 5,
   },

@@ -15,7 +15,7 @@ class Welcome extends Component {
       .then(isParticipating => {
         console.log(isParticipating);
         if (isParticipating == 'true') {
-          this.props.navigation.navigate('LocationTrackingScreen', {});
+          this.props.navigation.navigate('MainScreen', {});
         }
       })
       .catch(error => console.log(error));
@@ -25,7 +25,7 @@ class Welcome extends Component {
 
   willParticipate() {
     SetStoreData('PARTICIPATE', 'true').then(() =>
-      this.props.navigation.navigate('LocationTrackingScreen', {}),
+      this.props.navigation.navigate('MainScreen', {}),
     );
   }
 

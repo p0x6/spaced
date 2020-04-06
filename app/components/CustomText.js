@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import colors from '../constants/colors';
-
 class CustomText extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-    const { text, containerStyle, hasTitle } = this.props;
+    const { textOptions, styled } = this.props;
+    const { text, titleIndex } = textOptions;
+    const styles = StyleSheet.create(styled);
 
     return (
-      <View style={containerStyle}>
+      <View style={styles.textContainer}>
         {text.map((t, i) =>
-          hasTitle.includes(i) ? (
-            <Text key={`primary-${i}`} style={styles.textTitle}>
+          titleIndex.includes(i) ? (
+            <Text key={`primary-${i}`} style={styles.title}>
               {t}
             </Text>
           ) : (
@@ -28,21 +28,4 @@ class CustomText extends Component {
     );
   }
 }
-
-const text = {
-  color: colors.DARK_COLOR,
-  fontFamily: 'FrankRuhlLibre-Black',
-  lineHeight: 20,
-  letterSpacing: 2,
-  fontSize: 12,
-};
-const styles = StyleSheet.create({
-  text,
-  textTitle: {
-    ...text,
-    paddingTop: 6,
-    fontSize: 16,
-  },
-});
-
 export default CustomText;

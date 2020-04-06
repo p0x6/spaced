@@ -6,7 +6,7 @@ class API {
   constructor() {
     this.instance = axios.create({
       baseURL: 'https://safe-path.herokuapp.com/api/v0',
-      timeout: 1000,
+      timeout: 10000,
     });
     this.isReady = false;
     this.uuid = null;
@@ -36,10 +36,12 @@ class API {
     if (this.isReady && this.uuid) {
       return this.instance.get('/get-user-positions', {
         params: {
-          radius: 2000,
+          radius: 100,
           latitude: searchLocation.latitude,
           longitude: searchLocation.longitude,
           uuid: this.uuid,
+          //TODO: replace this with different dynamic one
+          placeType: 'grocery_or_supermarket',
         },
       });
     }

@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native';
-import LocationTracking from './views/LocationTracking';
+import MainScreen from './views/MainScreen';
 import Welcome from './views/Welcome';
 import NewsScreen from './views/News';
 import ExportScreen from './views/Export';
 import ImportScreen from './views/Import';
-import OverlapScreen from './views/Overlap';
+import OverlapScreen from './views/MapView';
 import LicencesScreen from './views/Licenses';
 import NotificationScreen from './views/Notification';
 import Slider from './views/welcomeScreens/Slider';
@@ -16,9 +16,9 @@ import { GetStoreData } from './helpers/General';
 import BlacklistPlaces from './views/BlackListPlaces';
 import SearchAddress from './views/SearchAddress';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import { MAPBOX_ACCESS_TOKEN } from 'react-native-dotenv';
+import Config from 'react-native-config';
 
-MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+MapboxGL.setAccessToken(Config.MAPBOX_ACCESS_TOKEN);
 
 import FirstPage from './views/newViews/FirstPage';
 
@@ -51,7 +51,7 @@ class Entry extends Component {
           {this.state.initialRouteName === 'true' ? (
             <Stack.Screen
               name='InitialScreen'
-              component={LocationTracking}
+              component={MainScreen}
               options={{ headerShown: false }}
             />
           ) : (
@@ -72,8 +72,8 @@ class Entry extends Component {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name='LocationTrackingScreen'
-            component={LocationTracking}
+            name='MainScreen'
+            component={MainScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

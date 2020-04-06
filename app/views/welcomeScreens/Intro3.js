@@ -51,7 +51,7 @@ const Intro2 = props => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => props.navigation.navigate('LocationTrackingScreen')}
+          onPress={() => props.navigation.navigate('MainScreen')}
           style={styles.primaryButtonTouchable}>
           <Text style={styles.primaryButtonText}>
             {languages.t('label.start')}

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
-
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import { Dimensions, SafeAreaView, StyleSheet, View } from 'react-native';
 
 import Logo from '../../components/Logo';
 import CustomText from '../../components/CustomText';
@@ -12,12 +10,15 @@ import BroadcastingServices from '../../services/BroadcastingService';
 import { SetStoreData } from '../../helpers/General';
 import colors from '../../constants/colors';
 
+const width = Dimensions.get('window').width;
+
 class Welcome extends Component {
   constructor(props) {
     super(props);
     this.state = {
       page: 0,
     };
+    this.participationCallback = this.participationCallback.bind(this);
   }
 
   nextPage = () => {
@@ -26,80 +27,79 @@ class Welcome extends Component {
     });
   };
 
-  willParticipate = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() => {
-      LocationServices.start();
-      BroadcastingServices.start();
-    });
+  participationCallback = () => {
+    SetStoreData('PARTICIPATE', 'true').then(() =>
+      this.props.navigation.navigate('MainScreen', {}),
+    );
+  };
 
-    BackgroundGeolocation.checkStatus(({ authorization }) => {
-      if (authorization === BackgroundGeolocation.AUTHORIZED) {
-        this.props.navigation.navigate('LocationTrackingScreen', {});
-      } else if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
-        LocationServices.stop();
-        BroadcastingServices.stop();
-      }
-    });
+  willParticipate = () => {
+    LocationServices.start(this.participationCallback);
+    BroadcastingServices.start();
   };
 
   isPage = pageNum => this.state.page === pageNum;
 
   render() {
     const { page } = this.state;
-
-    const texts = [
-      [
-        'Spaced is an app that assists in social',
-        'distancing by being able to see',
-        'hotspots in the city and to see how',
-        'many people are where you want to go',
-      ],
-      [
-        'Less than 100KB',
-        `Private Kit's trail generator logs your device's location in under 100KB of space - less space than a single picture`,
-        'You are in charge',
-        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
-      ],
-      [
-        'The Future',
-        `The Next Step in Solving Today's and Tomorrow's Probems Enabling individuals to log their location trail offers new opportunities for researches studying pandemic tracking, refugee migration and community traffic analysis.`,
-        'Learn More http://privatekit.mit.edu',
-      ],
-      ['Sharing your location enables you to', 'see others around you.'],
+    const textOptions = [
+      {
+        text: [
+          'Stop the spread of COVID-19',
+          'See how populated public spaces are',
+          'Safely meet basic needs that require travel.',
+        ],
+        titleIndex: [0],
+      },
+      {
+        text: [
+          'You are in charge',
+          'Your location data is shared only with your consent.',
+          'You can blacklist your home and work addresses.',
+        ],
+        titleIndex: [0],
+      },
+      {
+        text: [
+          'Sharing your location enables you to',
+          'see others around you.',
+        ],
+        titleIndex: [],
+      },
     ];
+
+    const buttonTitles = {
+      0: 'GET STARTED',
+      2: 'ENABLE LOCATION',
+      default: 'NEXT',
+    };
 
     return (
       <SafeAreaView>
         <View style={styles.container}>
-          <Logo />
-          <CustomText
-            containerStyle={styles.textContainer}
-            textStyle={styles.text}
-            textTitleStyle={styles.textTitle}
-            hasTitle={this.isPage(1) ? [0, 2] : this.isPage(2) ? [0] : []}
-            text={texts[page]}
-          />
-          <View styles={styles.buttonsContainer}>
+          <View style={styles.logoContainer}>
+            <Logo />
+          </View>
+          <View style={styles.textContainer}>
+            <CustomText styled={textStyles} textOptions={textOptions[page]} />
+          </View>
+          <View>
             <Button2
               handlePress={
-                !this.isPage(3)
+                !this.isPage(2)
                   ? this.nextPage
-                  : this.props.navigation.navigate('LocationTrackingScreen', {})
+                  : this.willParticipate.bind(this)
               }
-              text={
-                this.isPage(0)
-                  ? 'GET STARTED'
-                  : !this.isPage(3)
-                  ? 'NEXT'
-                  : 'ENABLE LOCATION'
-              }
-              styled={buttonStyles}
+              text={buttonTitles[page] || buttonTitles.default}
+              styled={blackButtonStyles}
             />
-            {this.isPage(3) && (
+            {this.isPage(2) && (
               <Button2
-                handlePress={this.toggleFirstPage}
+                handlePress={() =>
+                  this.props.navigation.navigate('MainScreen', {})
+                }
                 text={'Not now, take me home'}
-                styled={button2Styles}
+                styled={whiteButtonStyles}
               />
             )}
           </View>
@@ -111,30 +111,45 @@ class Welcome extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
     display: 'flex',
+    height: '100%',
+    width: width,
     padding: '3%',
     backgroundColor: colors.BACKGROUND_COLOR,
   },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '50%',
+  },
   textContainer: {
-    height: '35%',
-    paddingLeft: '10%',
+    height: '40%',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    marginLeft: '5%',
   },
-  buttonsContainer: {
-    height: '20%',
-  },
+});
+
+const textStyles = {
   text: {
     color: colors.DARK_COLOR,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 12,
   },
-  textTitle: {
-    ...this.text,
+  title: {
+    color: colors.DARK_COLOR,
+    fontFamily: 'FrankRuhlLibre-Black',
+    lineHeight: 20,
+    letterSpacing: 2,
     fontSize: 18,
+    paddingBottom: 5,
+    paddingTop: 5,
   },
-});
+};
 
 const flexCenter = {
   display: 'flex',
@@ -142,7 +157,7 @@ const flexCenter = {
   justifyContent: 'center',
 };
 
-const buttonStyles = {
+const blackButtonStyles = {
   button: {
     ...flexCenter,
     backgroundColor: colors.BLACK,
@@ -152,13 +167,13 @@ const buttonStyles = {
   },
   text: {
     color: colors.WHITE,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     letterSpacing: 3,
     fontSize: 10,
   },
 };
 
-const button2Styles = {
+const whiteButtonStyles = {
   button: {
     ...flexCenter,
     height: 40,
@@ -167,7 +182,7 @@ const button2Styles = {
   },
   text: {
     color: colors.BLACK,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Regular',
     fontWeight: 'bold',
     fontSize: 13,
   },

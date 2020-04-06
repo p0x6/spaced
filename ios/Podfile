@@ -52,6 +52,8 @@ target 'Spaced' do
   pod 'NoUseFrameworks-MapboxMobileEvents',  :podspec => '../node_modules/@react-native-mapbox-gl/maps/ios/NoUseFrameworks-MapboxMobileEvents/NoUseFrameworks-MapboxMobileEvents.podspec.json'
   pod 'react-native-mapbox-gl', :path => '../node_modules/@react-native-mapbox-gl/maps'
 
+  pod 'react-native-config', :path => '../node_modules/react-native-config'
+
   target 'SpacedTests' do
     inherit! :search_paths
     # Pods for testing
