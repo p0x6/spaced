@@ -53,37 +53,37 @@ export class LocationData {
     this.homeLocationListener = EventRegister.addEventListener(
       'setHomeLocation',
       data => {
-        const coordinates = _.get(data, 'coordinates', {
-          lat: null,
-          lng: null,
-        });
+        const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING HOME LOCATION: ', coordinates);
-        this.createLocationPolygon(coordinates, 'Home');
+        if (coordinates && coordinates.length === 2) {
+          this.createLocationPolygon(coordinates, 'Home');
+        }
       },
     );
     this.workLocationListener = EventRegister.addEventListener(
       'setWorkLocation',
       data => {
-        const coordinates = _.get(data, 'coordinates', {
-          lat: null,
-          lng: null,
-        });
+        const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING WORK LOCATION: ', coordinates);
-        this.createLocationPolygon(coordinates, 'Work');
+        if (coordinates && coordinates.length === 2) {
+          this.createLocationPolygon(coordinates, 'Work');
+        }
       },
     );
   }
 
   createLocationPolygon(location, label) {
-    if (location.lat && location.lng) {
-      const pt = point([location.lat, location.lng]);
+    if (location && location.length === 2) {
+      const pt = point(location);
+      const lng = location[0];
+      const lat = location[1];
       const poly = polygon([
         [
-          [location.lat - 0.00025, location.lng + 0.00025],
-          [location.lat - 0.00025, location.lng - 0.00025],
-          [location.lat + 0.00025, location.lng - 0.00025],
-          [location.lat + 0.00025, location.lng + 0.00025],
-          [location.lat - 0.00025, location.lng + 0.00025],
+          [lng - 0.00025, lat + 0.00025],
+          [lng - 0.00025, lat - 0.00025],
+          [lng + 0.00025, lat - 0.00025],
+          [lng + 0.00025, lat + 0.00025],
+          [lng - 0.00025, lat + 0.00025],
         ],
       ]);
 
@@ -100,12 +100,14 @@ export class LocationData {
   getBlacklistedLocations() {
     getHomeLocation().then(location => {
       const parsedLocation = JSON.parse(location);
+      console.log('BLACKLIST HOME:', location);
       if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Home');
       }
     });
     getWorkLocation().then(location => {
       const parsedLocation = JSON.parse(location);
+      console.log('BLACKLIST Work:', location);
       if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Work');
       }
@@ -193,8 +195,8 @@ export class LocationData {
         (this.workLocation && this.workPolygon)
       ) {
         const currentLocationPoint = point([
-          currentLocation.latitude,
           currentLocation.longitude,
+          currentLocation.latitude,
         ]);
         if (this.homeLocation && this.homePolygon) {
           console.log(
@@ -230,6 +232,7 @@ export class LocationData {
 export default class LocationServices {
   static start(callback) {
     const locationData = new LocationData();
+    global.window.locationData = locationData;
 
     instanceCount += 1;
     if (instanceCount > 1) {

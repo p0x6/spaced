@@ -1,10 +1,14 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect, useCallback } from 'react';
 import {
   setHomeLocation,
   setWorkLocation,
+  getHomeLocation,
+  getWorkLocation,
 } from '../../services/LocationService';
+import { EventRegister } from 'react-native-event-listeners';
 import Modal from '../Modal';
 import BlacklistPlacesPanel from '../../components/BlacklistPlacesPanel';
+import _ from 'lodash';
 
 const BlacklistModal = ({
   modal,
@@ -18,6 +22,24 @@ const BlacklistModal = ({
   const [workAddress, setWorkAddress] = useState(null);
   const [workCoords, setWorkCoords] = useState(null);
   const [inputtingControl, setInputtingControl] = useState(null);
+
+  useEffect(
+    useCallback(() => {
+      getHomeLocation().then(location => {
+        if (location && location !== 'null') {
+          const parsedLocation = JSON.parse(location);
+          setHomeAddress(_.get(parsedLocation, 'address', null));
+        }
+      });
+      getWorkLocation().then(location => {
+        if (location && location !== 'null') {
+          const parsedLocation = JSON.parse(location);
+          setWorkAddress(_.get(parsedLocation, 'address', null));
+        }
+      });
+    }),
+    [],
+  );
 
   if (modal !== 'blacklist') return null;
 
@@ -69,16 +91,31 @@ const BlacklistModal = ({
   const onPressItem = (control, item) => {
     setAddress(control, item.place_name);
     setCoords(control, item.geometry);
+    if (control === 'Home') {
+      setHomeLocation({
+        address: item.place_name,
+        coordinates: item.geometry.coordinates,
+      });
+      EventRegister.emit('setHomeLocation', {
+        address: item.place_name,
+        coordinates: item.geometry.coordinates,
+      });
+    } else if (control === 'Work') {
+      setWorkLocation({
+        address: item.place_name,
+        coordinates: item.geometry.coordinates,
+      });
+      EventRegister.emit('setWorkLocation', {
+        address: item.place_name,
+        coordinates: item.geometry.coordinates,
+      });
+    }
     setSearchedResult([]);
   };
 
   const onSubmitEditing = control => {};
 
   const closeModal = () => {
-    if (homeCoords && homeCoords.lat && homeCoords.lng)
-      setHomeLocation({ address: homeAddress, coordinates: homeCoords });
-    if (workCoords && workCoords.lat && workCoords.lng)
-      setWorkLocation({ address: workAddress, coordinates: workCoords });
     setModal(null);
   };
 
