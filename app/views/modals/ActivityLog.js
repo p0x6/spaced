@@ -4,8 +4,8 @@ import { Image, Text, View } from 'react-native';
 import colors from '../../constants/colors';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import moment from 'moment';
-import SafePathsAPI from '../../services/API';
-import _ from 'lodash';
+// import SafePathsAPI from '../../services/API';
+// import _ from 'lodash';
 
 const activitylogIcon = require('../../assets/images/activitylog.png');
 
@@ -13,40 +13,52 @@ const ActivityLog = ({ modal, setModal }) => {
   const [interactions, setInteractions] = useState([]);
 
   useEffect(() => {
-    SafePathsAPI.getIntersections().then(data => {
-      const userInteractions = _.get(data, 'data', []);
-      setInteractions(userInteractions.reverse());
-    });
+    // SafePathsAPI.getIntersections().then(data => {
+    //   const userInteractions = _.get(data, 'data', []);
+    //   setInteractions(userInteractions.reverse());
+    // });
+
+    setInteractions(
+      [
+        {
+          count: 10,
+          date: moment()
+            .subtract(5, 'days')
+            .format('YYYY-MM-DD'),
+        },
+        {
+          count: 4,
+          date: moment()
+            .subtract(4, 'days')
+            .format('YYYY-MM-DD'),
+        },
+        {
+          count: 8,
+          date: moment()
+            .subtract(3, 'days')
+            .format('YYYY-MM-DD'),
+        },
+        {
+          count: 2,
+          date: moment()
+            .subtract(2, 'days')
+            .format('YYYY-MM-DD'),
+        },
+        {
+          count: 9,
+          date: moment()
+            .subtract(1, 'days')
+            .format('YYYY-MM-DD'),
+        },
+        {
+          count: 11,
+          date: moment().format('YYYY-MM-DD'),
+        },
+      ].reverse(),
+    );
   }, [modal]);
 
   if (modal !== 'activity' || interactions.length < 1) return null;
-
-  // const sampleData = [
-  //   {
-  //     count: 10,
-  //     date: '2020-04-06',
-  //   },
-  //   {
-  //     count: 4,
-  //     date: '2020-04-05',
-  //   },
-  //   {
-  //     count: 8,
-  //     date: '2020-04-04',
-  //   },
-  //   {
-  //     count: 2,
-  //     date: '2020-04-03',
-  //   },
-  //   {
-  //     count: 9,
-  //     date: '2020-04-02',
-  //   },
-  //   {
-  //     count: 9,
-  //     date: '2020-04-01',
-  //   },
-  // ].reverse();
 
   return (
     <Modal exitModal={() => setModal(null)}>
