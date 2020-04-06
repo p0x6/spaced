@@ -35,6 +35,22 @@ const SearchAddress = ({
     }).start();
   }, []);
 
+  const renderCloseButton = () => {
+    if (isSearching && isLogging) {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            setIsSearching(false);
+          }}>
+          <View>
+            <Text>X</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+    return null;
+  }
+
   return (
     <Animated.View
       style={[
@@ -44,20 +60,21 @@ const SearchAddress = ({
         },
         styles.container,
       ]}>
-      {renderCloseButton()}
-      <TextInput
-        editable={isLogging}
-        style={isLogging ? styles.searchInput : styles.greyedOutSearchInput}
-        autoCapitalize='none'
-        blurOnSubmit
-        clearButtonMode='always'
-        placeholder={'Search location or zip code'}
-        placeholderTextColor='#454f63'
-        onFocus={() => setIsSearching(true)}
-        onChangeText={destination => {
-          onChangeDestination(destination);
-        }}
-      />
+      <View style={styles.searchView}>
+        {renderCloseButton()}
+        <TextInput
+          editable={isLogging}
+          style={{ paddingLeft: 10 }}
+          autoCapitalize='none'
+          blurOnSubmit
+          placeholder={'Search location or zip code'}
+          placeholderTextColor='#454f63'
+          onFocus={() => setIsSearching(true)}
+          onChangeText={destination => {
+            onChangeDestination(destination);
+          }}
+        />
+      </View>
     </Animated.View>
   );
 };
@@ -111,3 +128,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
+
+export default SearchAddress;
