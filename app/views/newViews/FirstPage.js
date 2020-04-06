@@ -28,9 +28,10 @@ class Welcome extends Component {
   };
 
   participationCallback = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() =>
-      this.props.navigation.navigate('MainScreen', {}),
-    );
+    SetStoreData('PARTICIPATE', 'true').then(() => {
+      console.log('saved participate');
+      this.props.navigation.navigate('BlacklistPlaces', {});
+    });
   };
 
   willParticipate = () => {

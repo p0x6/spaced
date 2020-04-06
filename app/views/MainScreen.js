@@ -177,7 +177,7 @@ const MainScreen = () => {
 
   const willParticipate = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
-      LocationServices.start();
+      // LocationServices.start();
       BroadcastingServices.start();
       setIsLogging(true);
     });
