@@ -66,6 +66,7 @@ const MainScreen = () => {
 
   const mapRef = useRef(null);
   const sliderRef = useRef(null);
+  const textInputRef = useRef(null);
 
   useEffect(
     useCallback(() => {
@@ -273,16 +274,18 @@ const MainScreen = () => {
             position: 'absolute',
             width: width,
             height: height,
-            marginTop: 100,
             zIndex: 2,
+            backgroundColor: 'white',
           }}>
-          <FlatList
-            keyboardShouldPersistTaps='handled'
-            showsVerticalScrollIndicator={false}
-            style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
-            data={searchedResult}
-            renderItem={onRenderSearchItems}
-          />
+          <View style={{ marginTop: 130 }}>
+            <FlatList
+              keyboardShouldPersistTaps='handled'
+              showsVerticalScrollIndicator={false}
+              style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
+              data={searchedResult}
+              renderItem={onRenderSearchItems}
+            />
+          </View>
         </View>
       );
     }
@@ -729,6 +732,7 @@ const MainScreen = () => {
     if (modal) return null;
     return (
       <SearchAddress
+        textInputRef={textInputRef}
         isSearching={isSearching}
         setIsSearching={changeSearchingState}
         onChangeDestination={onChangeDestination}
