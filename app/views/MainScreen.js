@@ -280,7 +280,7 @@ const MainScreen = () => {
             keyboardShouldPersistTaps='handled'
             showsVerticalScrollIndicator={false}
             style={{ borderTopWidth: 0.5, borderTopColor: '#BDBDBD' }}
-            data={predictions}
+            data={searchedResult}
             renderItem={onRenderSearchItems}
           />
         </View>
