@@ -11,6 +11,8 @@ import {
   Image,
   Linking,
   Animated,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import LocationServices from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
@@ -27,6 +29,9 @@ import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
 import Modal from './Modal';
+import languages from '../locales/languages';
+import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
+import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -563,9 +568,80 @@ const MainScreen = () => {
 
   const renderActivityModal = () => {
     if (modal !== 'activity') return null;
+
+    const getDate = date => {
+      const dates = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+      const dateObj = new Date(date);
+      return dates[dateObj.getUTCDay()];
+    };
+    const sampleData = [
+      {
+        count: 11,
+        date: '2020-03-30',
+      },
+    ];
     return (
       <Modal exitModal={() => setModal(null)}>
-        <Text>Activity Modal</Text>
+        <>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={activitylogIcon} style={{ height: 33, width: 27 }} />
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                paddingHorizontal: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 13,
+                  color: '#2E4874',
+                }}>
+                Activity
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'DMSans-Medium',
+                  fontSize: 13,
+                  color: '#2E4874',
+                }}>
+                Log
+              </Text>
+            </View>
+          </View>
+          <Text>Shows the number of people you had contact with</Text>
+
+          <View style={styles.main}>
+            <>
+              <VictoryChart height={0.35 * height} dependentAxis>
+                <VictoryAxis dependentAxis />
+                <VictoryAxis
+                  dependentAxis={false}
+                  tickFormat={t => `${getDate(t)}`}
+                />
+
+                <VictoryBar
+                  alignment='start'
+                  labels={({ datum }) => datum.count}
+                  data={sampleData}
+                  x='date'
+                  y='count'
+                />
+              </VictoryChart>
+              <View style={styles.notificationsHeader}>
+                <Text style={styles.notificationsHeaderText}>
+                  Intersections today
+                </Text>
+              </View>
+              <View style={styles.notificationView}>
+                <Text>{sampleData[0].date}</Text>
+                <Text style={styles.notificationsText}>
+                  {sampleData[0].count}
+                </Text>
+              </View>
+            </>
+          </View>
+        </>
       </Modal>
     );
   };
@@ -653,6 +729,38 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
 
     margin: 15,
+  },
+
+  // activity
+  main: {
+    flex: 1,
+    paddingVertical: 20,
+    width: '100%',
+  },
+  notificationsHeader: {
+    backgroundColor: 'rgba(175, 186, 205, 0.27)',
+    width: width * 0.95,
+    marginLeft: -Math.abs(width * 0.03),
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  notificationsHeaderText: {
+    marginLeft: Math.abs(width * 0.03),
+    color: '#435d8b',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+  },
+  notificationView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+  notificationsText: {
+    color: '#435d8b',
+    fontSize: 16,
+    fontFamily: 'DMSans-Regular',
   },
 });
 
