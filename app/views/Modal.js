@@ -1,10 +1,10 @@
 import React, { memo, useEffect, useRef, useCallback } from 'react';
 import {
-  Text,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
   Animated,
+  Image,
 } from 'react-native';
 
 const width = Dimensions.get('window').width;
@@ -57,7 +57,10 @@ const Modal = props => {
         width: width * 0.95,
       }}>
       <TouchableOpacity style={styles.exit} onPress={() => exit()}>
-        <Text>X</Text>
+        <Image
+          source={require('../assets/images/close.png')}
+          style={{ width: 12, height: 12, resizeMode: 'center' }}
+        />
       </TouchableOpacity>
       {props.children}
     </Animated.View>

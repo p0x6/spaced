@@ -12,7 +12,10 @@ import {
   Linking,
   Animated,
 } from 'react-native';
-import LocationServices from '../services/LocationService';
+import LocationServices, {
+  setHomeLocation,
+  setWorkLocation,
+} from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
@@ -27,6 +30,7 @@ import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
 import Modal from './Modal';
+import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -48,7 +52,7 @@ const MainScreen = () => {
   const [userMarkers, setUserMarkers] = useState({});
   const [placeMarkers, setPlaceMarkers] = useState({});
   const [isSearching, setIsSearching] = useState(false);
-  const [predictions, setSearchPredictions] = useState([]);
+  const [searchedResult, setSearchedResult] = useState([]);
   const [modal, setModal] = useState(null);
   const [isAnimating, setIsAnimating] = useState(true);
   const [bounds, setBounds] = useState([]);
@@ -155,8 +159,7 @@ const MainScreen = () => {
     }
     MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(result => {
       if (result && result.data && result.data.features) {
-        console.log(result.data.features);
-        setSearchPredictions(result.data.features);
+        setSearchedResult(result.data.features);
       }
     });
   };
@@ -183,7 +186,7 @@ const MainScreen = () => {
 
   const willParticipate = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
-      LocationServices.start();
+      // LocationServices.start();
       BroadcastingServices.start();
       setIsLogging(true);
     });
@@ -258,8 +261,6 @@ const MainScreen = () => {
   }, 1000);
 
   const renderSearchResults = () => {
-
-
     if (isSearching) {
       return (
         <View
@@ -555,10 +556,86 @@ const MainScreen = () => {
   };
 
   const renderBlacklistModal = () => {
+    const [homeAddress, setHomeAddress] = useState(null);
+    const [homeCoords, setHomeCoords] = useState(null);
+    const [workAddress, setWorkAddress] = useState(null);
+    const [workCoords, setWorkCoords] = useState(null);
+    const [inputtingControl, setInputtingControl] = useState(null);
+
     if (modal !== 'blacklist') return null;
+
+    const setAddress = (control, text) => {
+      if (control === 'Home') {
+        setHomeAddress(text);
+      } else if (control === 'Work') {
+        setWorkAddress(text);
+      }
+    };
+
+    const setCoords = (control, geometry) => {
+      const coords = {
+        lat:
+          geometry && geometry.coordinates && geometry.coordinates.length
+            ? geometry.coordinates[0]
+            : null,
+        lng:
+          geometry && geometry.coordinates && geometry.coordinates.length
+            ? geometry.coordinates[1]
+            : null,
+      };
+
+      if (control === 'Home') {
+        setHomeCoords(coords);
+      } else if (control === 'Work') {
+        setWorkCoords(coords);
+      }
+    };
+
+    const onChangeText = (control, text) => {
+      setAddress(control, text);
+
+      if (text.length > 0) {
+        setInputtingControl(control);
+      } else {
+        setInputtingControl(null);
+        return;
+      }
+
+      search(text, null, null);
+    };
+
+    const onPressClose = control => {
+      setAddress(control, null);
+      setInputtingControl(null);
+    };
+
+    const onPressItem = (control, item) => {
+      setAddress(control, item.place_name);
+      setCoords(control, item.geometry);
+      setSearchedResult([]);
+    };
+
+    const onSubmitEditing = control => {
+      if (control === 'Home') {
+        setHomeLocation({ address: homeAddress, coordinates: homeCoords });
+      } else if (control === 'Work') {
+        setWorkLocation({ address: workAddress, coordinates: workCoords });
+      }
+    };
+
     return (
       <Modal exitModal={() => setModal(null)}>
-        <Text>Blacklist Modal</Text>
+        <BlacklistPlacesPanel
+          home={homeAddress}
+          work={workAddress}
+          type='All'
+          searchedResult={searchedResult}
+          inputtingControl={inputtingControl}
+          onChangeText={(control, text) => onChangeText(control, text)}
+          onPressClose={control => onPressClose(control)}
+          onPressItem={(control, item) => onPressItem(control, item)}
+          onSubmitEditing={control => onSubmitEditing(control)}
+        />
       </Modal>
     );
   };
@@ -657,8 +734,8 @@ const styles = StyleSheet.create({
   },
   box: {
     borderBottomWidth: 0.5,
-    borderBottomColor: "#BDBDBD",
-    padding: 15
+    borderBottomColor: '#BDBDBD',
+    padding: 15,
   },
 });
 

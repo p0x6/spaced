@@ -20,7 +20,6 @@ import {
 } from '../services/LocationService';
 import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
 import _ from 'lodash';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapBoxAPI from '../services/MapBoxAPI';
 
 const BlacklistPlaces = () => {
@@ -82,7 +81,6 @@ const BlacklistPlaces = () => {
     MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(
       result => {
         if (result && result.data && result.data.features) {
-          console.log(result.data.features);
           setSearchedResult(result.data.features);
         }
       },
