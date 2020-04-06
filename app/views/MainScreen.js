@@ -14,7 +14,6 @@ import BackgroundGeolocation from '@mauron85/react-native-background-geolocation
 
 import { GetStoreData } from '../helpers/General';
 import MapView from './MapView';
-import { useNavigation } from '@react-navigation/native';
 import SearchAddress from './SearchAddress';
 import { debounce } from 'debounce';
 import MapBoxAPI from '../services/MapBoxAPI';
