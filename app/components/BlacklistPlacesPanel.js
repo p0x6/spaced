@@ -25,7 +25,16 @@ interface Props {
 
 class BlacklistPlacesPanel extends Component<Props> {
   renderCloseButton(control) {
-    if (this.props.inputtingControl !== control) return;
+    if (
+      control === 'Home' &&
+      (!this.props.home || this.props.home.length === 0)
+    )
+      return;
+    if (
+      control === 'Work' &&
+      (!this.props.work || this.props.work.length === 0)
+    )
+      return;
 
     return (
       <View style={styles.closeButtonContainer}>
@@ -183,7 +192,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#f9f9f9',
     borderRadius: 4,
-    height: 36,
+    height: 40,
     marginTop: 16,
   },
   markContainer: {

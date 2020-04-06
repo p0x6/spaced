@@ -620,16 +620,18 @@ const MainScreen = () => {
       setSearchedResult([]);
     };
 
-    const onSubmitEditing = control => {
-      if (control === 'Home') {
+    const onSubmitEditing = control => {};
+
+    const closeModal = () => {
+      if (homeCoords && homeCoords.lat && homeCoords.lng)
         setHomeLocation({ address: homeAddress, coordinates: homeCoords });
-      } else if (control === 'Work') {
+      if (workCoords && workCoords.lat && workCoords.lng)
         setWorkLocation({ address: workAddress, coordinates: workCoords });
-      }
+      setModal(null);
     };
 
     return (
-      <Modal exitModal={() => setModal(null)}>
+      <Modal exitModal={closeModal}>
         <BlacklistPlacesPanel
           home={homeAddress}
           work={workAddress}
