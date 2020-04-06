@@ -4,8 +4,9 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  Animated,
 } from 'react-native';
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
 
 const SearchAddress = ({
@@ -14,6 +15,26 @@ const SearchAddress = ({
   onChangeDestination,
   isLogging,
 }) => {
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  const searchOpacity = opacity.interpolate({
+    inputRange: [0, 0.8, 1],
+    outputRange: [0, 0, 1],
+  });
+
+  const searchTranslationY = opacity.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
+
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const renderCloseButton = () => {
     if (isSearching && isLogging) {
       return (
@@ -30,7 +51,14 @@ const SearchAddress = ({
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        {
+          opacity: searchOpacity,
+          transform: [{ translateY: searchTranslationY }],
+        },
+        styles.container,
+      ]}>
       {renderCloseButton()}
       <TextInput
         editable={isLogging}
@@ -45,7 +73,7 @@ const SearchAddress = ({
           onChangeDestination(destination);
         }}
       />
-    </View>
+    </Animated.View>
   );
 };
 
