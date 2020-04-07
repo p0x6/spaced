@@ -140,7 +140,7 @@ const textStyles = {
   },
   title: {
     color: colors.DARK_COLOR,
-    fontFamily: 'FrankRuhlLibre-Black',
+    fontFamily: 'DMSans-Bold',
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 18,
