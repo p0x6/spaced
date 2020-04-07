@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { Dimensions, SafeAreaView, StyleSheet, View } from 'react-native';
 
-import Logo from '../../components/Logo';
-import CustomText from '../../components/CustomText';
-import Button2 from '../../components/Button2';
+import Logo from '../components/Logo';
+import CustomText from '../components/CustomText';
+import Button2 from '../components/Button2';
 
-import LocationServices from '../../services/LocationService';
-import BroadcastingServices from '../../services/BroadcastingService';
-import { SetStoreData } from '../../helpers/General';
-import colors from '../../constants/colors';
+import LocationServices from '../services/LocationService';
+import BroadcastingServices from '../services/BroadcastingService';
+import { SetStoreData } from '../helpers/General';
+import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
 

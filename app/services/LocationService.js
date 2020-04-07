@@ -39,11 +39,11 @@ export function getWorkLocation() {
 
 export class LocationData {
   constructor() {
-    // this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
+    this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
     // DEBUG: Reduce Time intervall for faster debugging
-    this.locationInterval = 5000;
+    // this.locationInterval = 5000;
     // around 55 meters
-    this.tooNearToBannedLocation = 0.00025;
+    this.degreesFromBannedLocation = 0.00025;
     this.homeLocation = null;
     this.workLocation = null;
     this.homePolygon = null;
@@ -75,11 +75,11 @@ export class LocationData {
       const lat = location[1];
       const poly = polygon([
         [
-          [lng - 0.00025, lat + 0.00025],
-          [lng - 0.00025, lat - 0.00025],
-          [lng + 0.00025, lat - 0.00025],
-          [lng + 0.00025, lat + 0.00025],
-          [lng - 0.00025, lat + 0.00025],
+          [lng - 0.00025, lat + this.degreesFromBannedLocation],
+          [lng - 0.00025, lat - this.degreesFromBannedLocation],
+          [lng + 0.00025, lat - this.degreesFromBannedLocation],
+          [lng + 0.00025, lat + this.degreesFromBannedLocation],
+          [lng - 0.00025, lat + this.degreesFromBannedLocation],
         ],
       ]);
 
