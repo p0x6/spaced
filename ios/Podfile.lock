@@ -21,6 +21,8 @@ PODS:
     - AppCenter/Core (= 3.1.0)
   - Base64 (1.1.2)
   - boost-for-react-native (1.63.0)
+  - BVLinearGradient (2.5.6):
+    - React
   - CodePush (6.2.0):
     - Base64 (~> 1.1)
     - JWT (~> 3.0.0-beta.7)
@@ -239,6 +241,8 @@ PODS:
   - React-jsinspector (0.61.5)
   - react-native-background-timer (2.2.0):
     - React
+  - react-native-config (1.0.0):
+    - React
   - react-native-google-maps (0.27.1):
     - Google-Maps-iOS-Utils (= 2.1.0)
     - GoogleMaps (= 3.5.0)
@@ -328,6 +332,7 @@ DEPENDENCIES:
   - appcenter-analytics (from `../node_modules/appcenter-analytics/ios`)
   - appcenter-core (from `../node_modules/appcenter/ios`)
   - appcenter-crashes (from `../node_modules/appcenter-crashes/ios`)
+  - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - CodePush (from `../node_modules/react-native-code-push`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -350,6 +355,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-background-timer (from `../node_modules/react-native-background-timer`)
+  - react-native-config (from `../node_modules/react-native-config`)
   - react-native-google-maps (from `../node_modules/react-native-maps`)
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
   - react-native-maps (from `../node_modules/react-native-maps`)
@@ -404,6 +410,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/appcenter/ios"
   appcenter-crashes:
     :path: "../node_modules/appcenter-crashes/ios"
+  BVLinearGradient:
+    :path: "../node_modules/react-native-linear-gradient"
   CodePush:
     :path: "../node_modules/react-native-code-push"
   DoubleConversion:
@@ -440,6 +448,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-background-timer:
     :path: "../node_modules/react-native-background-timer"
+  react-native-config:
+    :path: "../node_modules/react-native-config"
   react-native-google-maps:
     :path: "../node_modules/react-native-maps"
   react-native-mapbox-gl:
@@ -502,7 +512,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  "@mauron85_react-native-background-geolocation": 70177f5ccd8844497a2f5f0a23c77ee4c4608d42
+  "@mauron85_react-native-background-geolocation": fa34ab82e94212be16ef6e75c32bcb707b0a1524
   AppCenter: a1c30c47b7882a04a615ffa5ab26c007326436d8
   appcenter-analytics: 46b4bb2832834a198ba6c4058b4eb335386c1063
   appcenter-core: 765878f5c300907bb70dbb8e956c5a74df7ca23d
@@ -510,7 +520,8 @@ SPEC CHECKSUMS:
   AppCenterReactNativeShared: a18a3da01dd569fbfbdd264c8c43491af6efa88d
   Base64: cecfb41a004124895a7bcee567a89bae5a89d49b
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  CodePush: 187dbff5571da2045869ef5d342568fb5a13d387
+  BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
+  CodePush: 3285d39e9865e0a37a415417402bf568ce49268a
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
   FBReactNativeSpec: 118d0d177724c2d67f08a59136eb29ef5943ec75
@@ -522,7 +533,7 @@ SPEC CHECKSUMS:
   Mapbox-iOS-SDK: 1b7cb0e739247d20ef75f5f14aa6ce34e1f0660f
   MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
   NoUseFrameworks-MapboxMobileEvents: 9f38e28109d86a738b88f8f946ebc1441a3a78ac
-  Permission-LocationAlways: 3b72f964c0cb5a93b3fee0954f502af959347676
+  Permission-LocationAlways: 738e3b24333d52c87361804bb0a1641de014c405
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -532,14 +543,15 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
-  react-native-background-timer: 53c0e028a95d58b1f4498ef7ce152b6c6b337595
+  react-native-background-timer: 1f7d560647b40e6a60b01c452ba29c54bf581fc4
+  react-native-config: 7db9b96479164dfd7b2be68eb9079e08279511c4
   react-native-google-maps: 0a989abda71059db2caa98b9dacca7a8f38a47d0
   react-native-mapbox-gl: c740c0e97fe18f8280433bfabaa6a9d1f751b79f
   react-native-maps: f4b89da81626ad7f151a8bfcb79733295d31ce5c
-  react-native-safe-area-context: 870aba8339684c9b888d42103580b687ff3f0d0c
-  react-native-uuid-generator: 997d9848f07081ce7200a05b76e3f8c7b309963c
-  react-native-viewpager: 118e65d8c65c56fe48d12a35cdcf1fe7e027a366
-  react-native-webview: d3cf75764f98fd433f1222f5a7ca8e355ada2a15
+  react-native-safe-area-context: d288138da2c800caa111f9352e9333f186a06ead
+  react-native-uuid-generator: 82ffa2a1cac94242ebed52c4dedc5044d3412717
+  react-native-viewpager: a7b438ca32c57b2614ece2a123e7fe116f743131
+  react-native-webview: 160ac8d6bb974e2933f2de6bb7464a8e934ff31d
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
   React-RCTBlob: d89293cc0236d9cb0933d85e430b0bbe81ad1d72
@@ -551,20 +563,20 @@ SPEC CHECKSUMS:
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
-  RNCMaskedView: c8b53164b85ecf94c9a44d67082df0f03c1f74cc
-  RNCPushNotificationIOS: de54f074e577e684c0619d4271a5b451e8a37ee1
+  RNCAsyncStorage: e0dd7c8a36543b4ef84969acd9f8aceba3a92dc2
+  RNCMaskedView: dd13f9f7b146a9ad82f9b7eb6c9b5548fcf6e990
+  RNCPushNotificationIOS: ec3e8c17cda6a92a0bb97a53ec5ecf5771d94d21
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
   RNI18n: e2f7e76389fcc6e84f2c8733ea89b92502351fd8
-  RNPermissions: 8afd37dbc1be65748363c6a90caffd1806567651
+  RNPermissions: 1008d3511fee0e25739cf81c4af0d1b2248f1053
   RNScreens: 254da4b84f25971cbb30ed3ddc84131f23cac812
   RNShare: c19dbe4a7224098cd3cfc4d3b92c886ca817b3f0
   RNSVG: 7e16ddfc6e00d5aa69c9eb83e699bcce5dcb85d4
-  RNZipArchive: f06fe0dcfb9e2fa7437fc7f6c03d5400952f2d57
+  RNZipArchive: ab51bc004a31657f34010254a9182014c6a81217
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 8e974a9a9cab0a061a41269240cb18e13d3a32fb
+PODFILE CHECKSUM: 51a9c878b8478ee4676619bfeb532867e3cecf4c
 
 COCOAPODS: 1.9.1

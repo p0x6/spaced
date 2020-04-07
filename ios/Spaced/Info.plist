@@ -53,6 +53,17 @@
 		<string>OpenSans-Regular.ttf</string>
 		<string>OpenSans-SemiBold.ttf</string>
 		<string>OpenSans-SemiBoldItalic.ttf</string>
+		<string>FrankRuhlLibre-Black.ttf</string>
+		<string>FrankRuhlLibre-Bold.ttf</string>
+		<string>FrankRuhlLibre-Light.ttf</string>
+		<string>FrankRuhlLibre-Medium.ttf</string>
+		<string>FrankRuhlLibre-Regular.ttf</string>
+		<string>DMSans-Bold.ttf</string>
+		<string>DMSans-BoldItalic.ttf</string>
+		<string>DMSans-Italic.ttf</string>
+		<string>DMSans-Medium.ttf</string>
+		<string>DMSans-MediumItalic.ttf</string>
+		<string>DMSans-Regular.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

@@ -39,11 +39,11 @@ export function getWorkLocation() {
 
 export class LocationData {
   constructor() {
-    // this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
+    this.locationInterval = 60000 * 5; // Time (in milliseconds) between location information polls.  E.g. 60000*5 = 5 minutes
     // DEBUG: Reduce Time intervall for faster debugging
-    this.locationInterval = 5000;
+    // this.locationInterval = 5000;
     // around 55 meters
-    this.tooNearToBannedLocation = 0.00025;
+    this.degreesFromBannedLocation = 0.00025;
     this.homeLocation = null;
     this.workLocation = null;
     this.homePolygon = null;
@@ -53,10 +53,7 @@ export class LocationData {
     this.homeLocationListener = EventRegister.addEventListener(
       'setHomeLocation',
       data => {
-        const coordinates = _.get(data, 'coordinates', {
-          lat: null,
-          lng: null,
-        });
+        const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING HOME LOCATION: ', coordinates);
         this.createLocationPolygon(coordinates, 'Home');
       },
@@ -64,10 +61,7 @@ export class LocationData {
     this.workLocationListener = EventRegister.addEventListener(
       'setWorkLocation',
       data => {
-        const coordinates = _.get(data, 'coordinates', {
-          lat: null,
-          lng: null,
-        });
+        const coordinates = _.get(data, 'coordinates', []);
         console.log('SETTING WORK LOCATION: ', coordinates);
         this.createLocationPolygon(coordinates, 'Work');
       },
@@ -75,15 +69,17 @@ export class LocationData {
   }
 
   createLocationPolygon(location, label) {
-    if (location.lat && location.lng) {
-      const pt = point([location.lat, location.lng]);
+    if (location && location.length === 2) {
+      const pt = point(location);
+      const lng = location[0];
+      const lat = location[1];
       const poly = polygon([
         [
-          [location.lat - 0.00025, location.lng + 0.00025],
-          [location.lat - 0.00025, location.lng - 0.00025],
-          [location.lat + 0.00025, location.lng - 0.00025],
-          [location.lat + 0.00025, location.lng + 0.00025],
-          [location.lat - 0.00025, location.lng + 0.00025],
+          [lng - 0.00025, lat + this.degreesFromBannedLocation],
+          [lng - 0.00025, lat - this.degreesFromBannedLocation],
+          [lng + 0.00025, lat - this.degreesFromBannedLocation],
+          [lng + 0.00025, lat + this.degreesFromBannedLocation],
+          [lng - 0.00025, lat + this.degreesFromBannedLocation],
         ],
       ]);
 
@@ -94,18 +90,28 @@ export class LocationData {
         this.workLocation = pt;
         this.workPolygon = poly;
       }
+    } else {
+      if (label === 'Home') {
+        this.homeLocation = null;
+        this.homePolygon = null;
+      } else if (label === 'Work') {
+        this.workLocation = null;
+        this.workPolygon = null;
+      }
     }
   }
 
   getBlacklistedLocations() {
     getHomeLocation().then(location => {
       const parsedLocation = JSON.parse(location);
+      console.log('BLACKLIST HOME:', location);
       if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Home');
       }
     });
     getWorkLocation().then(location => {
       const parsedLocation = JSON.parse(location);
+      console.log('BLACKLIST Work:', location);
       if (parsedLocation && parsedLocation.coordinates) {
         this.createLocationPolygon(parsedLocation.coordinates, 'Work');
       }
@@ -193,8 +199,8 @@ export class LocationData {
         (this.workLocation && this.workPolygon)
       ) {
         const currentLocationPoint = point([
-          currentLocation.latitude,
           currentLocation.longitude,
+          currentLocation.latitude,
         ]);
         if (this.homeLocation && this.homePolygon) {
           console.log(
@@ -228,9 +234,8 @@ export class LocationData {
 }
 
 export default class LocationServices {
-  static start() {
+  static start(callback) {
     const locationData = new LocationData();
-
     global.window.locationData = locationData;
 
     instanceCount += 1;
@@ -268,9 +273,9 @@ export default class LocationServices {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 5,
       distanceFilter: 5,
-      notificationTitle: 'Private Kit Enabled',
+      notificationTitle: 'Spaced Enabled',
       notificationText:
-        'Private Kit is securely storing your GPS coordinates once every five minutes on this device.',
+        'Spaced is securely storing your GPS coordinates once every five minutes on this device.',
       debug: false, // when true, it beeps every time a loc is read
       startOnBoot: true,
       stopOnTerminate: false,
@@ -342,6 +347,7 @@ export default class LocationServices {
 
     BackgroundGeolocation.on('start', () => {
       console.log('[INFO] BackgroundGeolocation service has been started');
+      if (callback) callback();
     });
 
     BackgroundGeolocation.on('stop', () => {
@@ -358,7 +364,7 @@ export default class LocationServices {
         setTimeout(
           () =>
             Alert.alert(
-              'Private Kit requires access to location information',
+              'Spaced requires access to location information',
               'Would you like to open app settings?',
               [
                 {
@@ -405,7 +411,7 @@ export default class LocationServices {
     BackgroundGeolocation.on('stop', () => {
       PushNotification.localNotification({
         title: 'Location Tracking Was Disabled',
-        message: 'Private Kit requires location services.',
+        message: 'Spaced requires location services.',
       });
       console.log('[INFO] stop');
     });
@@ -434,7 +440,7 @@ export default class LocationServices {
         setTimeout(
           () =>
             Alert.alert(
-              'Private Kit requires location services to be enabled',
+              'Spaced requires location services to be enabled',
               'Would you like to open location settings?',
               [
                 {
@@ -462,7 +468,7 @@ export default class LocationServices {
         setTimeout(
           () =>
             Alert.alert(
-              'Private Kit requires access to location information',
+              'Spaced requires access to location information',
               'Would you like to open app settings?',
               [
                 {
@@ -487,11 +493,11 @@ export default class LocationServices {
     // BackgroundGeolocation.start();
   }
 
-  static stop(nav) {
+  static stop() {
     // unregister all event listeners
     PushNotification.localNotification({
       title: 'Location Tracking Was Disabled',
-      message: 'Private Kit requires location services.',
+      message: 'Spaced requires location services.',
     });
     BackgroundGeolocation.removeAllListeners();
     BackgroundGeolocation.stop();

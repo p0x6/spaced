@@ -1,148 +1,142 @@
 import {
-  Dimensions,
-  Image,
-  Keyboard,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
+  TextInput,
+  Animated,
+  Image,
 } from 'react-native';
-import React, { useState } from 'react';
-import backArrow from '../assets/images/backArrow.png';
-import languages from '../locales/languages';
+import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
-import { useNavigation } from '@react-navigation/native';
 
-import { setHomeLocation, setWorkLocation } from '../services/LocationService';
+const closeIcon = require('../assets/images/close.png');
 
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import _ from 'lodash';
-import { PLACES_API_KEY } from 'react-native-dotenv';
+const SearchAddress = ({
+  isSearching,
+  setIsSearching,
+  onChangeDestination,
+  isLogging,
+  textInputRef,
+}) => {
+  const opacity = useRef(new Animated.Value(0)).current;
 
-import { EventRegister } from 'react-native-event-listeners';
+  const searchOpacity = opacity.interpolate({
+    inputRange: [0, 0.8, 1],
+    outputRange: [0, 0, 1],
+  });
 
-const width = Dimensions.get('window').width;
+  const searchTranslationY = opacity.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
 
-const SearchAddress = ({ route }) => {
-  const { navigate } = useNavigation();
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
-  const backToPreviousPage = () => {
-    navigate('BlacklistPlaces', {});
+  const exitSearch = () => {
+    if (textInputRef && textInputRef.current) {
+      textInputRef.current.clear();
+    }
+    setIsSearching(false);
   };
 
-  const setAddress = location => {
-    if (_.get(route, 'params.label', '') === 'Home') {
-      setHomeLocation(location);
-      EventRegister.emit('setHomeLocation', location);
-    } else if (_.get(route, 'params.label', '') === 'Work') {
-      setWorkLocation(location);
-      EventRegister.emit('setWorkLocation', location);
+  const renderCloseButton = () => {
+    if (isSearching && isLogging) {
+      return (
+        <TouchableOpacity
+          style={{
+            alignSelf: 'center',
+            padding: 4,
+            marginLeft: 12,
+            marginRight: 8,
+          }}
+          onPress={() => {
+            exitSearch();
+          }}>
+          <Image
+            source={closeIcon}
+            style={{ width: 12, height: 12, resizeMode: 'center' }}
+          />
+        </TouchableOpacity>
+      );
     }
+    return null;
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.backArrowTouchable}
-          onPress={backToPreviousPage}>
-          <Image style={styles.backArrow} source={backArrow} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Enter Address</Text>
+    <Animated.View
+      style={[
+        {
+          opacity: searchOpacity,
+          transform: [{ translateY: searchTranslationY }],
+        },
+        styles.container,
+      ]}>
+      <View style={styles.searchView}>
+        {renderCloseButton()}
+        <TextInput
+          ref={textInputRef}
+          style={[
+            styles.searchInput,
+            isSearching && isLogging ? null : { marginLeft: 16 },
+          ]}
+          editable={isLogging}
+          autoCapitalize='none'
+          blurOnSubmit
+          placeholder={'Search location or zip code'}
+          placeholderTextColor='#454f63'
+          onFocus={() => setIsSearching(true)}
+          onChangeText={destination => {
+            onChangeDestination(destination);
+          }}
+        />
       </View>
-      <GooglePlacesAutocomplete
-        placeholder='Search'
-        minLength={2} // minimum length of text to search
-        autoFocus={false}
-        returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-        keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
-        listViewDisplayed='auto' // true/false/undefined
-        fetchDetails
-        renderDescription={row => row.description} // custom description render
-        onPress={(data, details = null) => {
-          // 'details' is provided when fetchDetails = true
-          console.log('DATA: ', data);
-          console.log('DETAILS: ', details);
-          if (
-            _.get(details, 'geometry.location') &&
-            _.get(data, 'description')
-          ) {
-            const address = {
-              address: _.get(data, 'description'),
-              coordinates: _.get(details, 'geometry.location'),
-            };
-            setAddress(address);
-            backToPreviousPage();
-          }
-        }}
-        // textInputProps={{
-        //   onFocus: () => setIsSearching(true),
-        // }}
-        query={{
-          // available options: https://developers.google.com/places/web-service/autocomplete
-          key: PLACES_API_KEY,
-          language: 'en', // language of the results
-        }}
-        styles={{
-          textInputContainer: {
-            width: '100%',
-          },
-          description: {
-            fontWeight: 'bold',
-          },
-          predefinedPlacesDescription: {
-            color: '#1faadb',
-          },
-        }}
-        nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-        GooglePlacesDetailsQuery={{
-          // available options for GooglePlacesDetails API : https://developers.google.com/places/web-service/details
-          fields: 'geometry',
-        }}
-        debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-        renderRightButton={() => (
-          <TouchableWithoutFeedback
-            onPress={() => {
-              Keyboard.dismiss();
-            }}>
-            <Text>X</Text>
-          </TouchableWithoutFeedback>
-        )}
-      />
-    </SafeAreaView>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
-    flex: 1,
-    flexDirection: 'column',
-    color: colors.PRIMARY_TEXT,
-    backgroundColor: colors.WHITE,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontFamily: 'OpenSans-Bold',
-  },
-  headerContainer: {
     flexDirection: 'row',
-    height: 60,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(189, 195, 199,0.6)',
-    alignItems: 'center',
+    color: colors.PRIMARY_TEXT,
+    zIndex: 999,
+    position: 'absolute',
+    top: 0,
+    width: '95%',
+    borderRadius: 14,
+    marginTop: 10,
+    shadowColor: '#B0C6E2',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+    elevation: 60,
   },
-  backArrowTouchable: {
-    width: 60,
-    height: 60,
-    paddingTop: 21,
-    paddingLeft: 20,
+  searchView: {
+    backgroundColor: '#fff',
+    width: '95%',
+    borderRadius: 14,
+    marginTop: 32,
+    marginLeft: 10,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    height: 48,
   },
-  backArrow: {
-    height: 18,
-    width: 18.48,
+  searchInput: {
+    flex: 1,
+    alignSelf: 'center',
+    marginRight: 16,
+    fontSize: 14,
+    fontFamily: 'DMSans-Regular',
   },
 });
 
