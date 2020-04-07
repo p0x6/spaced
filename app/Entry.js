@@ -11,7 +11,7 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import Config from 'react-native-config';
 import Onboarding from './views/Onboarding';
 
-MapboxGL.setAccessToken(Config.MAPBOX_ACCESS_TOKEN);
+MapboxGL.setAccessToken(Config.RN_MAPBOX_ACCESS_TOKEN);
 
 const Stack = createStackNavigator();
 
