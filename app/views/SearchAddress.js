@@ -133,18 +133,10 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    marginRight: 16,
-    fontSize: 16,
-    fontFamily: 'OpenSans-Regular',
-  },
-  greyedOutSearchInput: {
-    width: '95%',
-    backgroundColor: '#CAD2D3',
-    flex: 4,
     alignSelf: 'center',
-    padding: 20,
-    borderRadius: 14,
-    marginTop: 10,
+    marginRight: 16,
+    fontSize: 14,
+    fontFamily: 'DMSans-Regular',
   },
 });
 

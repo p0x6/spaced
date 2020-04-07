@@ -84,9 +84,6 @@ const BlacklistModal = ({
   };
 
   const onPressClose = control => {
-    setAddress(control, null);
-    setInputtingControl(null);
-
     if (control === 'Home') {
       setHomeLocation({
         address: null,
@@ -106,6 +103,8 @@ const BlacklistModal = ({
         coordinates: [],
       });
     }
+    setAddress(control, null);
+    setInputtingControl(null);
   };
 
   const onPressItem = (control, item) => {
