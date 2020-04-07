@@ -24,9 +24,8 @@ interface Props {
 class BlacklistPlacesPanel extends Component<Props> {
   constructor(props) {
     super(props);
-
-    this.control = { Home: null, Work: null };
   }
+
   renderCloseButton(control) {
     if (
       control === 'Home' &&
@@ -112,7 +111,6 @@ class BlacklistPlacesPanel extends Component<Props> {
           </View>
           <View style={styles.inputContainer}>
             <TextInput
-              ref={ref => (this.control[control] = ref)}
               placeholder='Search Address'
               style={styles.inputText}
               returnKeyLabel='Go'
