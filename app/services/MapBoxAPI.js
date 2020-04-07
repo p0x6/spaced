@@ -1,5 +1,4 @@
-// import Config from 'react-native-config';
-import Config from '../constants/config';
+import Config from 'react-native-config';
 const axios = require('axios');
 
 class API {

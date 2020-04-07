@@ -44,6 +44,7 @@ const MainScreen = () => {
   const [placeMarkers, setPlaceMarkers] = useState({});
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const [modal, setModal] = useState(null);
   const [bounds, setBounds] = useState([]);
 
@@ -56,8 +57,9 @@ const MainScreen = () => {
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
       GetStoreData('PARTICIPATE')
         .then(isParticipating => {
-          if (isParticipating === 'true') {
+          if (isParticipating === 'true' && isInitialRender) {
             getInitialState();
+            setIsInitialRender(false);
           }
         })
         .catch(error => console.log(error));
@@ -85,7 +87,6 @@ const MainScreen = () => {
   const getInitialState = () => {
     BackgroundGeolocation.getCurrentLocation(
       location => {
-        console.log('========== MY LOCATION ========', location);
         setRegion(location);
       },
       () => {
