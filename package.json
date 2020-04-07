@@ -1,6 +1,6 @@
 {
-  "name": "privatekit",
-  "version": "0.5.11",
+  "name": "Spaced",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "install:pod": "cd ios && pod install",
