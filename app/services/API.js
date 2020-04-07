@@ -1,0 +1,81 @@
+const axios = require('axios');
+import { GetStoreData, SetStoreData } from '../helpers/General';
+import UUIDGenerator from 'react-native-uuid-generator';
+
+class API {
+  constructor() {
+    this.instance = axios.create({
+      baseURL: 'https://safe-path.herokuapp.com/api/v0',
+      timeout: 10000,
+    });
+    this.isReady = false;
+    this.uuid = null;
+    this.getUUID();
+  }
+
+  getUUID() {
+    try {
+      GetStoreData('uuid').then(myUUID => {
+        if (!myUUID) {
+          UUIDGenerator.getRandomUUID(uuid => {
+            this.uuid = uuid;
+            this.isReady = true;
+            SetStoreData('uuid', uuid);
+          });
+          return;
+        }
+        this.isReady = true;
+        this.uuid = myUUID;
+      });
+    } catch (e) {
+      console.log(e, 'did not get UUID');
+    }
+  }
+
+  getPositions(searchLocation) {
+    if (this.isReady && this.uuid) {
+      return this.instance.get('/get-user-positions', {
+        params: {
+          radius: 100,
+          latitude: searchLocation.latitude,
+          longitude: searchLocation.longitude,
+          uuid: this.uuid,
+          //TODO: replace this with different dynamic one
+          placeType: 'grocery_or_supermarket',
+        },
+      });
+    }
+    this.getUUID();
+  }
+
+  getIntersections() {
+    if (this.isReady && this.uuid) {
+      return this.instance.get('/get-intersection', {
+        params: {
+          uuid: this.uuid,
+        },
+      });
+    }
+    this.getUUID();
+  }
+
+  saveMyLocation(location) {
+    if (this.isReady && this.uuid) {
+      const body = {
+        uuid: this.uuid,
+        coordinates: {
+          longitude: location.longitude,
+          latitude: location.latitude,
+        },
+      };
+      console.log('UPLOADING LOCATION', body);
+      this.instance.post('/save-my-location', body);
+    } else {
+      this.getUUID();
+    }
+  }
+}
+
+const SafePathsAPI = new API();
+
+export default SafePathsAPI;

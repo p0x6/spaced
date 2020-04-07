@@ -57,3 +57,9 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+yarn.lock
+.vscode/launch.json
+ios/Podfile.lock
+
+# api
+.env
