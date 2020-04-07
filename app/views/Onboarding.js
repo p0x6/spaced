@@ -76,36 +76,32 @@ class Welcome extends Component {
     };
 
     return (
-      <SafeAreaView>
-        <View style={styles.container}>
-          <View style={styles.logoContainer}>
-            <Logo />
-          </View>
-          <View style={styles.textContainer}>
-            <CustomText styled={textStyles} textOptions={textOptions[page]} />
-          </View>
-          <View>
-            <Button2
-              handlePress={
-                !this.isPage(2)
-                  ? this.nextPage
-                  : this.willParticipate.bind(this)
-              }
-              text={buttonTitles[page] || buttonTitles.default}
-              styled={blackButtonStyles}
-            />
-            {this.isPage(2) && (
-              <Button2
-                handlePress={() =>
-                  this.props.navigation.navigate('MainScreen', {})
-                }
-                text={'Not now, take me home'}
-                styled={whiteButtonStyles}
-              />
-            )}
-          </View>
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
+          <Logo />
         </View>
-      </SafeAreaView>
+        <View style={styles.textContainer}>
+          <CustomText styled={textStyles} textOptions={textOptions[page]} />
+        </View>
+        <View>
+          <Button2
+            handlePress={
+              !this.isPage(2) ? this.nextPage : this.willParticipate.bind(this)
+            }
+            text={buttonTitles[page] || buttonTitles.default}
+            styled={blackButtonStyles}
+          />
+          {this.isPage(2) && (
+            <Button2
+              handlePress={() =>
+                this.props.navigation.navigate('MainScreen', {})
+              }
+              text={'Not now, take me home'}
+              styled={whiteButtonStyles}
+            />
+          )}
+        </View>
+      </View>
     );
   }
 }
