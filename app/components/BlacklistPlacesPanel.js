@@ -6,7 +6,6 @@ import {
   View,
   Image,
   TextInput,
-  FlatList,
 } from 'react-native';
 import colors from '../constants/colors';
 
@@ -79,7 +78,7 @@ class BlacklistPlacesPanel extends Component<Props> {
 
     return (
       <View style={styles.resultsContainer}>
-        <FlatList
+        {/* <FlatList
           keyboardShouldPersistTaps='handled'
           showsVerticalScrollIndicator={false}
           data={this.props.searchedResult}
@@ -87,7 +86,17 @@ class BlacklistPlacesPanel extends Component<Props> {
             this.renderSearchItems(this, item, index, control)
           }
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+        /> */}
+        {/* <View style={{flexWrap: 'nowrap'}}> */}
+        {this.props.searchedResult.map((item, index) => {
+          return (
+            <View>
+              {this.renderSearchItems(this, item, index, control)}
+              <View style={styles.separator} />
+            </View>
+          );
+        })}
+        {/* </View> */}
       </View>
     );
   }
@@ -109,6 +118,13 @@ class BlacklistPlacesPanel extends Component<Props> {
               returnKeyLabel='Go'
               returnKeyType='go'
               value={value}
+              autoCorrect={false}
+              onFocus={() => {
+                const lastIndex = (value || '').length;
+                this.control[control].setNativeProps({
+                  selection: { start: lastIndex, end: lastIndex },
+                });
+              }}
               onBlur={() =>
                 this.control[control].setNativeProps({
                   selection: { start: 0, end: 0 },
