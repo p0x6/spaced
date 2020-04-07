@@ -17,7 +17,7 @@ class API {
           ? [currentLocation.longitude, currentLocation.latitude] + ''
           : undefined,
       bbox: bbox + '',
-      access_token: Config.RN_MAPBOX_ACCESS_TOKEN,
+      access_token: Config.MAPBOX_ACCESS_TOKEN,
     };
     return this.instance.get(`/geocoding/v5/mapbox.places/${text}.json`, {
       params,
