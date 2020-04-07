@@ -8,7 +8,6 @@ import {
   TextInput,
   FlatList,
 } from 'react-native';
-// import { SearchBar } from 'react-native-elements';
 import colors from '../constants/colors';
 
 interface Props {
@@ -24,6 +23,11 @@ interface Props {
 }
 
 class BlacklistPlacesPanel extends Component<Props> {
+  constructor(props) {
+    super(props);
+
+    this.control = { Home: null, Work: null };
+  }
   renderCloseButton(control) {
     if (
       control === 'Home' &&
@@ -99,15 +103,16 @@ class BlacklistPlacesPanel extends Component<Props> {
           </View>
           <View style={styles.inputContainer}>
             <TextInput
+              ref={ref => (this.control[control] = ref)}
               placeholder='Search Address'
               style={styles.inputText}
               returnKeyLabel='Go'
               returnKeyType='go'
               value={value}
-              selection={
-                this.props.inputtingControl === control
-                  ? undefined
-                  : { start: 0, end: 0 }
+              onBlur={() =>
+                this.control[control].setNativeProps({
+                  selection: { start: 0, end: 0 },
+                })
               }
               onChangeText={text => this.props.onChangeText(control, text)}
               onSubmitEditing={() => this.props.onSubmitEditing(control)}
