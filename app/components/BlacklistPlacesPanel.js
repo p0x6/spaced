@@ -104,6 +104,11 @@ class BlacklistPlacesPanel extends Component<Props> {
               returnKeyLabel='Go'
               returnKeyType='go'
               value={value}
+              selection={
+                this.props.inputtingControl === control
+                  ? undefined
+                  : { start: 0, end: 0 }
+              }
               onChangeText={text => this.props.onChangeText(control, text)}
               onSubmitEditing={() => this.props.onSubmitEditing(control)}
             />
