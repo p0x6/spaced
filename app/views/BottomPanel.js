@@ -25,6 +25,7 @@ const BottomPanel = ({
   sliderRef,
   isLogging,
   setIsLogging,
+  getInitialState,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
 
@@ -39,6 +40,8 @@ const BottomPanel = ({
             setTimeout(() => setIsAnimating(false), 2000);
           } else {
             setIsLogging(false);
+            showFullPanel({ toValue: 330, velocity: -0.98 });
+            setTimeout(() => setIsAnimating(false), 3000);
           }
         })
         .catch(error => console.log(error));
@@ -51,6 +54,8 @@ const BottomPanel = ({
       BroadcastingServices.start();
       setIsLogging(true);
     });
+
+    getInitialState();
 
     // Check and see if they actually authorized in the system dialog.
     // If not, stop services and set the state to !isLogging

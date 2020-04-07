@@ -259,6 +259,7 @@ const MainScreen = () => {
         modal={modal}
         setModal={setModal}
         sliderRef={sliderRef}
+        getInitialState={getInitialState}
       />
     );
   };
