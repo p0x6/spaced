@@ -3,20 +3,30 @@ import { StyleSheet, View, Text } from 'react-native';
 
 import colors from '../constants/colors';
 
+const LOGO_TEXT = 'SPACED';
 class Logo extends Component {
   constructor(props) {
     super(props);
   }
 
+  renderCharacter(index) {
+    const opacity = (12 - index) / 12;
+    const marginRight = 1 * Math.pow(2, index);
+    console.log(index, opacity);
+
+    return (
+      <Text style={[styles.logoFont, { opacity, marginRight }]}>
+        {LOGO_TEXT.charAt(index)}
+      </Text>
+    );
+  }
+
   render() {
     return (
       <View style={styles.logoContainer}>
-        <Text style={[styles.lightColor, styles.logoFont]}>S</Text>
-        <Text style={[styles.mediumColor, styles.logoFont]}>P</Text>
-        <Text style={[styles.darkColor, styles.logoFont]}>A</Text>
-        <Text style={[styles.darkColor, styles.logoFont]}>C</Text>
-        <Text style={[styles.mediumColor, styles.logoFont]}>E</Text>
-        <Text style={[styles.lightColor, styles.logoFont]}>D</Text>
+        {LOGO_TEXT.split('').map((ch, idx) => {
+          return this.renderCharacter(idx);
+        })}
       </View>
     );
   }
@@ -30,19 +40,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   logoFont: {
+    color: '#546c98',
     fontWeight: 'bold',
     fontFamily: 'DMSans-Regular',
     fontSize: 30,
-    marginLeft: 5,
-  },
-  lightColor: {
-    color: colors.LIGHT_COLOR,
-  },
-  mediumColor: {
-    color: colors.MEDIUM_COLOR,
-  },
-  darkColor: {
-    color: colors.DARK_COLOR,
   },
 });
 
