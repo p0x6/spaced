@@ -10,6 +10,7 @@ import { GetStoreData } from './helpers/General';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import Config from 'react-native-config';
 import Onboarding from './views/Onboarding';
+import OnboardingBlacklist from './views/OnboardingBlacklist';
 
 MapboxGL.setAccessToken(Config.MAPBOX_ACCESS_TOKEN);
 
@@ -69,6 +70,11 @@ class Entry extends Component {
           <Stack.Screen
             name='LicensesScreen'
             component={LicencesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='OnboardingBlacklist'
+            component={OnboardingBlacklist}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,43 +6,171 @@ import {
   View,
   Image,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import colors from '../constants/colors';
+import _ from 'lodash';
+import {
+  getHomeLocation,
+  getWorkLocation,
+  setHomeLocation,
+  setWorkLocation,
+} from '../services/LocationService';
+import { EventRegister } from 'react-native-event-listeners';
+import { useNavigation } from '@react-navigation/native';
+import MapBoxAPI from '../services/MapBoxAPI';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
-interface Props {
-  home?: string;
-  work?: string;
-  type?: string;
-  searchedResult?: any;
-  inputtingControl?: string;
-  onChangeText?: (control, text) => void;
-  onPressClose?: control => void;
-  onPressItem?: (control, item) => void;
-  onSubmitEditing?: control => void;
-}
+const BlacklistPlacesPanel = ({ isOnboarding }) => {
+  const [searchedResult, setSearchedResult] = useState([]);
+  const [homeAddress, setHomeAddress] = useState(null);
+  const [workAddress, setWorkAddress] = useState(null);
+  const [inputtingControl, setInputtingControl] = useState(null);
+  const [searchType, setSearchType] = useState(isOnboarding ? 'Home' : 'All');
+  const [currentLocation, setCurrentLocation] = useState(null);
 
-class BlacklistPlacesPanel extends Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+  const { navigate } = useNavigation();
 
-  renderCloseButton(control) {
+  const search = (text, currentLocation, bounds) => {
+    let verifiedBounds = [];
+    let verifiedLocation = { longitude: null, latitude: null };
+    if (bounds && bounds.length === 4) {
+      verifiedBounds = bounds[1].concat(bounds[0]);
+    }
     if (
-      control === 'Home' &&
-      (!this.props.home || this.props.home.length === 0)
-    )
+      currentLocation &&
+      currentLocation.longitude &&
+      currentLocation.latitude
+    ) {
+      verifiedLocation.longitude = currentLocation.longitude;
+      verifiedLocation.latitude = currentLocation.latitude;
+    }
+    MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(
+      result => {
+        if (result && result.data && result.data.features) {
+          console.log(result.data.features);
+          setSearchedResult(result.data.features);
+        }
+      },
+      err => console.log("Can't Mapbox API search", err),
+    );
+  };
+
+  useEffect(
+    useCallback(() => {
+      getCurrentLocation();
+      if (!isOnboarding) {
+        getHomeLocation().then(location => {
+          if (location && location !== 'null') {
+            const parsedLocation = JSON.parse(location);
+            setHomeAddress(_.get(parsedLocation, 'address', null));
+          }
+        });
+        getWorkLocation().then(location => {
+          if (location && location !== 'null') {
+            const parsedLocation = JSON.parse(location);
+            setWorkAddress(_.get(parsedLocation, 'address', null));
+          }
+        });
+      }
+    }),
+    [],
+  );
+
+  const getCurrentLocation = () => {
+    BackgroundGeolocation.getCurrentLocation(location => {
+      setCurrentLocation(location);
+    });
+  };
+
+  const setAddress = (control, text) => {
+    if (control === 'Home') {
+      setHomeAddress(text);
+    } else if (control === 'Work') {
+      setWorkAddress(text);
+    }
+  };
+
+  const onChangeText = (control, text) => {
+    setAddress(control, text);
+
+    if (text.length > 0) {
+      setInputtingControl(control);
+    } else {
+      setInputtingControl(null);
       return;
-    if (
-      control === 'Work' &&
-      (!this.props.work || this.props.work.length === 0)
-    )
+    }
+
+    search(text, currentLocation, null);
+  };
+
+  const onPressItem = (control, item) => {
+    Keyboard.dismiss();
+    const placeName = _.get(item, 'place_name', '').split(',')[0];
+    setAddress(control, placeName);
+    if (control === 'Home') {
+      setHomeLocation({
+        address: placeName,
+        coordinates: item.geometry.coordinates,
+      });
+      EventRegister.emit('setHomeLocation', {
+        address: placeName,
+        coordinates: item.geometry.coordinates,
+      });
+    } else if (control === 'Work') {
+      setWorkLocation({
+        address: placeName,
+        coordinates: item.geometry.coordinates,
+      });
+      EventRegister.emit('setWorkLocation', {
+        address: placeName,
+        coordinates: item.geometry.coordinates,
+      });
+    }
+
+    setSearchedResult([]);
+
+    if (searchType === 'Home' && isOnboarding) {
+      setSearchType('Work');
+    } else if (searchType === 'Work') {
+      navigate('MainScreen', {});
+    }
+  };
+
+  const onLocationClear = control => {
+    if (control === 'Home') {
+      setHomeLocation({
+        address: null,
+        coordinates: [],
+      });
+      EventRegister.emit('setHomeLocation', {
+        address: null,
+        coordinates: [],
+      });
+    } else if (control === 'Work') {
+      setWorkLocation({
+        address: null,
+        coordinates: [],
+      });
+      EventRegister.emit('setWorkLocation', {
+        address: null,
+        coordinates: [],
+      });
+    }
+    setAddress(control, null);
+  };
+
+  const renderCloseButton = control => {
+    if (control === 'Home' && (!homeAddress || homeAddress.length === 0))
+      return;
+    if (control === 'Work' && (!workAddress || workAddress.length === 0))
       return;
 
     return (
       <View style={styles.closeButtonContainer}>
         <TouchableOpacity
           style={styles.closeButton}
-          onPress={() => this.props.onPressClose(control)}>
+          onPress={() => onLocationClear(control)}>
           <Image
             source={require('../assets/images/blue_close.png')}
             style={styles.pinClose}
@@ -50,58 +178,47 @@ class BlacklistPlacesPanel extends Component<Props> {
         </TouchableOpacity>
       </View>
     );
-  }
+  };
 
-  renderSearchItems(ref, item, index, control) {
+  const renderSearchItems = (ref, item, index, control) => {
     return (
       <TouchableOpacity
         key={index.toString()}
         activeOpacity={0.8}
         style={styles.itemButton}
-        onPress={() => ref.props.onPressItem(control, item)}>
+        onPress={() => onPressItem(control, item)}>
         <Text numberOfLines={1} style={styles.locationTitle}>
           {item.place_name}
         </Text>
       </TouchableOpacity>
     );
-  }
+  };
 
-  renderAddedPanel(control) {
-    if (this.props.inputtingControl !== control) return;
+  const renderAddedPanel = control => {
+    if (inputtingControl !== control) return;
     if (
-      (this.props.inputtingControl === 'Home' && !this.props.home) ||
-      (this.props.inputtingControl === 'Work' && !this.props.work) ||
-      this.props.searchedResult.length === 0
+      (inputtingControl === 'Home' && !homeAddress) ||
+      (inputtingControl === 'Work' && !workAddress) ||
+      searchedResult.length === 0
     )
       return;
 
     return (
       <View style={styles.resultsContainer}>
-        {/* <FlatList
-          keyboardShouldPersistTaps='handled'
-          showsVerticalScrollIndicator={false}
-          data={this.props.searchedResult}
-          renderItem={({ item, index }) =>
-            this.renderSearchItems(this, item, index, control)
-          }
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        /> */}
-        {/* <View style={{flexWrap: 'nowrap'}}> */}
-        {this.props.searchedResult.map((item, index) => {
+        {searchedResult.map((item, index) => {
           return (
             <View>
-              {this.renderSearchItems(this, item, index, control)}
+              {renderSearchItems(this, item, index, control)}
               <View style={styles.separator} />
             </View>
           );
         })}
-        {/* </View> */}
       </View>
     );
-  }
+  };
 
-  renderContent(control) {
-    const value = control === 'Home' ? this.props.home : this.props.work;
+  const renderContent = control => {
+    const value = control === 'Home' ? homeAddress : workAddress;
 
     return (
       <View style={styles.addedContainer}>
@@ -117,53 +234,58 @@ class BlacklistPlacesPanel extends Component<Props> {
               returnKeyType='go'
               value={value}
               autoCorrect={false}
-              onChangeText={text => this.props.onChangeText(control, text)}
-              onSubmitEditing={() => this.props.onSubmitEditing(control)}
+              onChangeText={text => onChangeText(control, text)}
             />
           </View>
-          {this.renderCloseButton(control)}
+          {renderCloseButton(control)}
         </View>
-        {this.renderAddedPanel(control)}
+        {renderAddedPanel(control)}
       </View>
     );
-  }
+  };
 
-  renderHome() {
-    if (this.props.type === 'All' || this.props.type === 'Home') {
-      return this.renderContent('Home');
+  const renderHome = () => {
+    if (searchType === 'All' || searchType === 'Home') {
+      return renderContent('Home');
     }
     return null;
-  }
+  };
 
-  renderWork() {
-    if (this.props.type === 'All' || this.props.type === 'Work') {
-      return this.renderContent('Work');
+  const renderWork = () => {
+    if (searchType === 'All' || searchType === 'Work') {
+      return renderContent('Work');
     }
     return null;
-  }
+  };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.labelContainer}>
-          <Image
-            source={require('../assets/images/blacklist.png')}
-            style={styles.pinImage}
-          />
-          <Text style={styles.labelText}>Blacklist{'\n'}location</Text>
-        </View>
-        <View style={styles.commentTextContainer}>
-          <Text style={styles.commentText}>
-            You can blacklist a location like home or office, so that others
-            don't see your location.
-          </Text>
-        </View>
-        {this.renderHome()}
-        {this.renderWork()}
+  const renderDescriptionText = () => {
+    switch (searchType) {
+      case 'Home':
+        return 'You can blacklist your home location so that others will not be able to see you within a big radius of your home';
+      case 'Work':
+        return 'You can also blacklist your work location as well so you will not be tracked at work';
+      default:
+        return "You can blacklist a location like home or office, so that others don't see your location.";
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.labelContainer}>
+        <Image
+          source={require('../assets/images/blacklist.png')}
+          style={styles.pinImage}
+        />
+        <Text style={styles.labelText}>Blacklist{'\n'}location</Text>
       </View>
-    );
-  }
-}
+      <View style={styles.commentTextContainer}>
+        <Text style={styles.commentText}>{renderDescriptionText()}</Text>
+      </View>
+      {renderHome()}
+      {renderWork()}
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -255,4 +377,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BlacklistPlacesPanel;
+export default memo(BlacklistPlacesPanel);
