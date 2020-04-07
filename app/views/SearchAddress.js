@@ -50,7 +50,12 @@ const SearchAddress = ({
     if (isSearching && isLogging) {
       return (
         <TouchableOpacity
-          style={{ alignSelf: 'center' }}
+          style={{
+            alignSelf: 'center',
+            padding: 4,
+            marginLeft: 12,
+            marginRight: 8,
+          }}
           onPress={() => {
             exitSearch();
           }}>
@@ -77,8 +82,11 @@ const SearchAddress = ({
         {renderCloseButton()}
         <TextInput
           ref={textInputRef}
+          style={[
+            styles.searchInput,
+            isSearching && isLogging ? null : { marginLeft: 16 },
+          ]}
           editable={isLogging}
-          style={{ paddingLeft: 10 }}
           autoCapitalize='none'
           blurOnSubmit
           placeholder={'Search location or zip code'}
@@ -113,25 +121,21 @@ const styles = StyleSheet.create({
     shadowRadius: 16.0,
     elevation: 60,
   },
-  searchInput: {
-    flex: 4,
-    alignSelf: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
-    width: '95%',
-    borderRadius: 14,
-    marginTop: 32,
-    marginLeft: 10,
-  },
   searchView: {
     backgroundColor: '#fff',
-    padding: 15,
     width: '95%',
     borderRadius: 14,
     marginTop: 32,
     marginLeft: 10,
     flexDirection: 'row',
     alignSelf: 'center',
+    height: 48,
+  },
+  searchInput: {
+    flex: 1,
+    marginRight: 16,
+    fontSize: 16,
+    fontFamily: 'OpenSans-Regular',
   },
   greyedOutSearchInput: {
     width: '95%',
