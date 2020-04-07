@@ -35,7 +35,7 @@ const Modal = props => {
   const exit = useCallback(() => {
     Animated.timing(opacity, {
       toValue: 0,
-      duration: 400,
+      duration: 250,
       useNativeDriver: true,
     }).start(exitModal);
   });
