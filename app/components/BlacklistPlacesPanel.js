@@ -119,17 +119,6 @@ class BlacklistPlacesPanel extends Component<Props> {
               returnKeyType='go'
               value={value}
               autoCorrect={false}
-              onFocus={() => {
-                const lastIndex = (value || '').length;
-                this.control[control].setNativeProps({
-                  selection: { start: lastIndex, end: lastIndex },
-                });
-              }}
-              onBlur={() =>
-                this.control[control].setNativeProps({
-                  selection: { start: 0, end: 0 },
-                })
-              }
               onChangeText={text => this.props.onChangeText(control, text)}
               onSubmitEditing={() => this.props.onSubmitEditing(control)}
             />

@@ -108,24 +108,25 @@ const BlacklistModal = ({
   };
 
   const onPressItem = (control, item) => {
-    setAddress(control, item.place_name);
+    const placeName = _.get(item, 'place_name', '').split(',')[0];
+    setAddress(control, placeName);
     setCoords(control, item.geometry);
     if (control === 'Home') {
       setHomeLocation({
-        address: item.place_name,
+        address: placeName,
         coordinates: item.geometry.coordinates,
       });
       EventRegister.emit('setHomeLocation', {
-        address: item.place_name,
+        address: placeName,
         coordinates: item.geometry.coordinates,
       });
     } else if (control === 'Work') {
       setWorkLocation({
-        address: item.place_name,
+        address: placeName,
         coordinates: item.geometry.coordinates,
       });
       EventRegister.emit('setWorkLocation', {
-        address: item.place_name,
+        address: placeName,
         coordinates: item.geometry.coordinates,
       });
     }
