@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@bam.tech/react-native-component-map-clustering": "^1.1.1",
+    "@mapbox/mapbox-sdk": "^0.10.0",
     "@mauron85/react-native-background-geolocation": "^0.6.3",
     "@react-native-community/async-storage": "^1.8.1",
     "@react-native-community/cli-platform-ios": "^3.0.0",
@@ -40,6 +41,7 @@
     "@react-navigation/native": "5.0.9",
     "@react-navigation/stack": "5.1.1",
     "@turf/boolean-point-in-polygon": "^6.0.1",
+    "@turf/helpers": "^6.1.4",
     "appcenter": "3.0.1",
     "appcenter-analytics": "3.0.1",
     "appcenter-crashes": "3.0.1",

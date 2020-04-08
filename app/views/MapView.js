@@ -1,12 +1,23 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useState } from 'react';
 import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import { lineString as makeLineString } from '@turf/helpers';
+import MapboxDirectionsFactory from '@mapbox/mapbox-sdk/services/directions';
+import Config from 'react-native-config';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+const accessToken = Config.MAPBOX_ACCESS_TOKEN;
+const directionsClient = MapboxDirectionsFactory({ accessToken });
 
 const layerStyles = {
+  route: {
+    lineColor: '#1D1D1D',
+    lineCap: MapboxGL.LineJoin.Round,
+    lineWidth: 3,
+    lineOpacity: 0.84,
+  },
   singlePoint: {
     circleColor: 'green',
     circleOpacity: 0.84,
@@ -53,6 +64,33 @@ const MapViewComponent = ({
   placeMarkers,
 }) => {
   const { navigate } = useNavigation();
+  let [userLocation, setUserLocation] = useState();
+  let [route, setRoute] = useState();
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+      const reqOptions = {
+        waypoints: [
+          { coordinates: [-74.0059717, 40.712775] },
+          { coordinates: [-73.968285, 40.785091] },
+        ],
+        profile: 'walking',
+        geometries: 'geojson',
+      };
+      const res = await directionsClient.getDirections(reqOptions).send();
+      const newRoute = makeLineString(res.body.routes[0].geometry.coordinates);
+      setRoute(newRoute);
+    };
+    fetchRoute();
+  }, []);
+
+  const onUserLocationUpdate = newUserLocation => {
+    console.log('----- NEW LOCAGION ------', newUserLocation);
+    setUserLocation([
+      newUserLocation.coords.longitude,
+      newUserLocation.coords.latitude,
+    ]);
+  };
 
   function handleBackPress() {
     navigate('MainScreen', {});
@@ -116,7 +154,15 @@ const MapViewComponent = ({
           centerCoordinate={[region.longitude, region.latitude]}
           animationMode={'flyTo'}
         />
-        <MapboxGL.UserLocation />
+        <MapboxGL.UserLocation
+        // onUpdate={newUserLocation =>
+        //   onUserLocationUpdate(newUserLocation)
+        // }
+        />
+
+        <MapboxGL.ShapeSource id='routeSource' shape={route}>
+          <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
+        </MapboxGL.ShapeSource>
 
         <MapboxGL.ShapeSource
           id='userLocations'
