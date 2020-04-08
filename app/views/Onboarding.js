@@ -25,13 +25,13 @@ const Onboarding = () => {
       console.log('saved participate');
       getHomeLocation().then(location => {
         const parsedLocation = JSON.parse(location);
-        if (parsedLocation.address) {
+        if (parsedLocation && parsedLocation.address) {
           console.log('HAS HOME LOCATION', location);
           navigate('MainScreen', {});
         } else {
           getWorkLocation().then(location => {
             const parsedLocation = JSON.parse(location);
-            if (parsedLocation.address) {
+            if (parsedLocation && parsedLocation.address) {
               console.log('HAS WORK LOCATION', location);
               navigate('MainScreen', {});
             } else {
