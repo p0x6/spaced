@@ -7267,6 +7267,13 @@ react-native-maps@0.27.1:
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.27.1.tgz#2f10cd417bb2fd938c9e015b1c9b6d9b1a44b97f"
   integrity sha512-HygBkZBecTnIVRYrSiLRAvu4OmXOYso/A7c6Cy73HkOh9CgGV8Ap5eBea24tvmFGptjj5Hg8AJ94/YbmWK1Okw==
 
+react-native-particles@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/react-native-particles/-/react-native-particles-0.0.8.tgz#332a3ee1aa540c35845650fd6d7e5ff8ce6054bc"
+  integrity sha512-N24j7oFX/myRrriZRigl9XeF3rfCY1NQ9wTpaIgSgbQpDxPrVuoO2NOuTYrXSyi41jpXEg7fN64HpkI8MQXrYg==
+  dependencies:
+    lodash.debounce "^4.0.8"
+
 react-native-permissions@^2.0.10:
   version "2.0.10"
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-2.0.10.tgz#d01f5ce7cc48f99d33f2f7ed32bb70abe5ea03dd"
