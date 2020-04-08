@@ -40,8 +40,6 @@ class API {
           latitude: searchLocation.latitude,
           longitude: searchLocation.longitude,
           uuid: this.uuid,
-          //TODO: replace this with different dynamic one
-          placeType: 'grocery_or_supermarket',
         },
       });
     }

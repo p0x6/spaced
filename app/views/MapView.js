@@ -2,6 +2,7 @@ import React, { useEffect, memo } from 'react';
 import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -66,40 +67,48 @@ const MapViewComponent = ({
     };
   }, [region]);
 
-  // const renderAnnotations = () => {
-  //   const items = [];
-  //
-  //   const places = _.get(placeMarkers, 'features', []);
-  //
-  //   for (let i = 0; i < places.length; i++) {
-  //     const coordinate = _.get(places[i], 'geometry.coordinates', null);
-  //     const details = _.get(places[i], 'properties', null);
-  //
-  //     if (!coordinate) continue;
-  //
-  //     const title = `Lon: ${coordinate[0]} Lat: ${coordinate[1]}`;
-  //     const id = `pointAnnotation${i}`;
-  //
-  //     items.push(
-  //       <MapboxGL.PointAnnotation
-  //         key={id}
-  //         id={id}
-  //         coordinate={coordinate}
-  //         title={title}>
-  //         <View style={styles.annotationContainer} />
-  //         <MapboxGL.Callout title={`${details.name}`}>
-  //           {/*<View>*/}
-  //           {/*  <Text>*/}
-  //           {/*    {details.address}*/}
-  //           {/*  </Text>*/}
-  //           {/*</View>*/}
-  //         </MapboxGL.Callout>
-  //       </MapboxGL.PointAnnotation>,
-  //     );
-  //   }
-  //
-  //   return items;
-  // };
+  const renderAnnotations = () => {
+    const items = [];
+
+    const places = _.get(placeMarkers, 'features', []);
+
+    console.log('====== PLACES ======', places, placeMarkers);
+
+    for (let i = 0; i < places.length; i++) {
+      const coordinate = _.get(places[i], 'geometry.coordinates', null);
+      const details = _.get(places[i], 'properties', null);
+      const text = _.get(places[i], 'text', null);
+
+      if (!coordinate) continue;
+
+      const title = details.address || details.name;
+      const id = `pointAnnotation${i}`;
+
+      items.push(
+        <MapboxGL.PointAnnotation
+          key={id}
+          id={id}
+          coordinate={coordinate}
+          title={title}>
+          <View
+            style={[
+              styles.annotationContainer,
+              { transform: [{ rotate: '45deg' }] },
+            ]}
+          />
+          <MapboxGL.Callout title={`${text || details.name}`}>
+            {/*<View>*/}
+            {/*  <Text>*/}
+            {/*    {details.address}*/}
+            {/*  </Text>*/}
+            {/*</View>*/}
+          </MapboxGL.Callout>
+        </MapboxGL.PointAnnotation>,
+      );
+    }
+
+    return items;
+  };
 
   return (
     <View style={styles.container}>
@@ -142,7 +151,7 @@ const MapViewComponent = ({
             style={layerStyles.singlePoint}
           />
         </MapboxGL.ShapeSource>
-        {/*{renderAnnotations()}*/}
+        {renderAnnotations()}
       </MapboxGL.MapView>
     </View>
   );
@@ -163,17 +172,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  // annotationContainer: {
-  //   width: ANNOTATION_SIZE,
-  //   height: ANNOTATION_SIZE,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   backgroundColor: '#2E4874',
-  //   borderRadius: ANNOTATION_SIZE / 2,
-  //   borderWidth: StyleSheet.hairlineWidth,
-  //   borderColor: '#2E4874',
-  //   overflow: 'hidden',
-  // },
+  annotationContainer: {
+    width: 20,
+    height: 20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 0,
+    backgroundColor: '#89849b',
+    transform: [{ rotate: '45deg' }],
+  },
 });
 
 export default memo(MapViewComponent);

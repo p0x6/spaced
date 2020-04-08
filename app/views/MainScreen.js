@@ -78,6 +78,9 @@ const MainScreen = () => {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     });
+    moveToSearchArea({
+      geometry: { coordinates: [location.longitude, location.latitude] },
+    });
     populateMarkers({
       latitude: location.latitude,
       longitude: location.longitude,
@@ -183,10 +186,6 @@ const MainScreen = () => {
         latitudeDelta: safeLocation.latitudeDelta || 0.01,
         longitudeDelta: safeLocation.longitudeDelta || 0.01,
       });
-      populateMarkers({
-        latitude: safeLocation.latitude,
-        longitude: safeLocation.longitude,
-      });
     }
   }
 
@@ -234,14 +233,19 @@ const MainScreen = () => {
   const onRenderSearchItems = ({ item, index }) => {
     console.log('ITEM=>>', item);
 
+    const itemClick = item => {
+      changeSearchingState(false);
+      moveToSearchArea(item);
+      setPlaceMarkers({ features: [item] });
+    };
+
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={styles.box}
         onPress={() => {
           // this.refs.input.blur();
-          changeSearchingState(false);
-          moveToSearchArea(item);
+          itemClick(item);
         }}
         key={index}>
         <Text numberOfLines={1} style={styles.locationTitle}>
