@@ -203,6 +203,7 @@ const BottomPanel = ({
         top: isLogging ? 410 : 350,
         bottom: isAnimating ? 0 : 180,
       }}
+      snappingPoints={[isLogging ? 410 : 350, 180]}
       showBackdrop={false}
       containerStyle={styles.panelContainer}
       minimumDistanceThreshold={10}
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingBottom: 20,
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
   },
   helpDrawer: {
     marginTop: 20,
@@ -365,7 +366,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingBottom: 20,
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
   },
   panelContainer: {
     zIndex: 1,

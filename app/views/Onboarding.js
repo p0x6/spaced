@@ -88,8 +88,7 @@ const Onboarding = () => {
     {
       text: [
         'You are in charge',
-        'Your location data is shared only with your consent.',
-        'You can blacklist your home and work addresses.',
+        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
       ],
       titleIndex: [0],
     },
@@ -102,7 +101,7 @@ const Onboarding = () => {
   const buttonTitles = {
     0: 'GET STARTED',
     2: 'ENABLE LOCATION',
-    default: 'NEXT',
+    default: 'CONTINUE',
   };
 
   const generateParticles = () => {
@@ -204,7 +203,7 @@ const textStyles = {
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 18,
-    paddingBottom: 5,
+    paddingBottom: 20,
     paddingTop: 5,
   },
 };

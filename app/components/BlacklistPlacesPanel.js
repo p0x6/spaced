@@ -346,14 +346,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   markContainer: {
-    backgroundColor: '#e1e1e1',
+    backgroundColor: '#B7BFCE',
     borderRadius: 4,
     width: '24%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   markText: {
-    color: '#5d5d5d',
+    color: '#435d8b',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,
