@@ -1,11 +1,12 @@
 const axios = require('axios');
 import { GetStoreData, SetStoreData } from '../helpers/General';
 import UUIDGenerator from 'react-native-uuid-generator';
+import Config from 'react-native-config';
 
 class API {
   constructor() {
     this.instance = axios.create({
-      baseURL: 'https://safe-path.herokuapp.com/api/v0',
+      baseURL: Config.BACKEND_URL,
       timeout: 10000,
     });
     this.isReady = false;
