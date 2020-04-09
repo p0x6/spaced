@@ -5,6 +5,7 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import { lineString as makeLineString } from '@turf/helpers';
 import MapboxDirectionsFactory from '@mapbox/mapbox-sdk/services/directions';
 import Config from 'react-native-config';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -54,8 +55,6 @@ const layerStyles = {
   },
 };
 
-const ANNOTATION_SIZE = 15;
-
 const MapViewComponent = ({
   isLogging,
   mapRef,
@@ -67,22 +66,23 @@ const MapViewComponent = ({
   let [userLocation, setUserLocation] = useState();
   let [route, setRoute] = useState();
 
-  useEffect(() => {
-    const fetchRoute = async () => {
-      const reqOptions = {
-        waypoints: [
-          { coordinates: [-74.0059717, 40.712775] },
-          { coordinates: [-73.968285, 40.785091] },
-        ],
-        profile: 'walking',
-        geometries: 'geojson',
-      };
-      const res = await directionsClient.getDirections(reqOptions).send();
-      const newRoute = makeLineString(res.body.routes[0].geometry.coordinates);
-      setRoute(newRoute);
+  const fetchRoute = async destinationCoordinates => {
+    BackgroundGeolocation.getCurrentLocation(location => {
+      setUserLocation(location);
+    });
+    const reqOptions = {
+      waypoints: [
+        { coordinates: [userLocation.longitude, userLocation.latitude] },
+        { coordinates: destinationCoordinates },
+      ],
+      profile: 'walking',
+      geometries: 'geojson',
     };
-    fetchRoute();
-  }, []);
+    const res = await directionsClient.getDirections(reqOptions).send();
+    console.log('routes: ', res.body.routes[0].geometry.coordinates);
+    const newRoute = makeLineString(res.body.routes[0].geometry.coordinates);
+    setRoute(newRoute);
+  };
 
   const onUserLocationUpdate = newUserLocation => {
     console.log('----- NEW LOCAGION ------', newUserLocation);
@@ -99,6 +99,7 @@ const MapViewComponent = ({
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    fetchRoute([-73.968285, 40.785091]);
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
@@ -139,6 +140,15 @@ const MapViewComponent = ({
   //   return items;
   // };
 
+  const renderRoute = () => {
+    if (isLogging && route)
+      return (
+        <MapboxGL.ShapeSource id='routeSource' shape={route}>
+          <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
+        </MapboxGL.ShapeSource>
+      );
+  };
+
   return (
     <View style={styles.container}>
       <MapboxGL.MapView
@@ -159,10 +169,7 @@ const MapViewComponent = ({
         //   onUserLocationUpdate(newUserLocation)
         // }
         />
-
-        <MapboxGL.ShapeSource id='routeSource' shape={route}>
-          <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
-        </MapboxGL.ShapeSource>
+        {renderRoute()}
 
         <MapboxGL.ShapeSource
           id='userLocations'
