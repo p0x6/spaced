@@ -241,7 +241,6 @@ const whiteButtonStyles = {
   text: {
     color: colors.BLACK,
     fontFamily: 'DMSans-Regular',
-    fontWeight: 'bold',
     fontSize: 13,
   },
 };
