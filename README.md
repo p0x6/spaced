@@ -1,6 +1,7 @@
 # Spaced
 
-Based on MIT - COVID-19 Safe Paths
+Based on MIT - [COVID-19 Safe Paths](http://safepaths.mit.edu/)
+
 Demo: https://youtu.be/Bljz1zgAkiE
 
 ----
