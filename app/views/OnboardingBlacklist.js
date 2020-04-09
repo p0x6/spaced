@@ -13,10 +13,6 @@ import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
 const BlacklistPlaces = () => {
   const { navigate } = useNavigation();
 
-  const onPressGoHome = () => {
-    navigate('MainScreen');
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -24,7 +20,9 @@ const BlacklistPlaces = () => {
           <BlacklistPlacesPanel isOnboarding />
         </View>
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.goHomeButton} onPress={onPressGoHome}>
+          <TouchableOpacity
+            style={styles.goHomeButton}
+            onPress={() => navigate('MainScreen', {})}>
             <Text style={styles.goHomeButtonText}>Not now, take me home</Text>
           </TouchableOpacity>
         </View>

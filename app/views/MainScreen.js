@@ -10,6 +10,7 @@ import {
   Keyboard,
   Image,
 } from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import { GetStoreData } from '../helpers/General';
@@ -63,6 +64,7 @@ const MainScreen = () => {
           }
         })
         .catch(error => console.log(error));
+      SplashScreen.hide();
       return BackHandler.removeEventListener(
         'hardwareBackPress',
         handleBackPress,

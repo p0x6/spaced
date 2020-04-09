@@ -15,6 +15,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 
 #import <CodePush/CodePush.h>
+#import "RNSplashScreen.h"
 
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
@@ -44,6 +45,7 @@
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
+  [RNSplashScreen show];
   return YES;
 }
 
