@@ -1,6 +1,8 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { Dimensions, StyleSheet, View, Image } from 'react-native';
 import { Emitter } from 'react-native-particles';
+
+import SplashScreen from 'react-native-splash-screen';
 
 import Logo from '../components/Logo';
 import CustomText from '../components/CustomText';
@@ -34,6 +36,10 @@ const particleImages = [
 const Onboarding = () => {
   const [page, setPage] = useState(0);
   const { navigate } = useNavigation();
+
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
 
   const participationCallback = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
