@@ -254,6 +254,8 @@ PODS:
     - React
   - react-native-safe-area-context (0.6.0):
     - React
+  - react-native-splash-screen (3.2.0):
+    - React
   - react-native-uuid-generator (6.1.1):
     - React
   - react-native-viewpager (3.3.0):
@@ -360,6 +362,7 @@ DEPENDENCIES:
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-uuid-generator (from `../node_modules/react-native-uuid-generator`)
   - "react-native-viewpager (from `../node_modules/@react-native-community/viewpager`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -458,6 +461,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-maps"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-splash-screen:
+    :path: "../node_modules/react-native-splash-screen"
   react-native-uuid-generator:
     :path: "../node_modules/react-native-uuid-generator"
   react-native-viewpager:
@@ -549,6 +554,7 @@ SPEC CHECKSUMS:
   react-native-mapbox-gl: c740c0e97fe18f8280433bfabaa6a9d1f751b79f
   react-native-maps: f4b89da81626ad7f151a8bfcb79733295d31ce5c
   react-native-safe-area-context: d288138da2c800caa111f9352e9333f186a06ead
+  react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-uuid-generator: 82ffa2a1cac94242ebed52c4dedc5044d3412717
   react-native-viewpager: a7b438ca32c57b2614ece2a123e7fe116f743131
   react-native-webview: 160ac8d6bb974e2933f2de6bb7464a8e934ff31d
@@ -577,6 +583,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 51a9c878b8478ee4676619bfeb532867e3cecf4c
+PODFILE CHECKSUM: 7f3c0a1264995e9c2b933f06360d62e2f8555e57
 
 COCOAPODS: 1.9.1

@@ -20,6 +20,7 @@ import { EventRegister } from 'react-native-event-listeners';
 import { useNavigation } from '@react-navigation/native';
 import MapBoxAPI from '../services/MapBoxAPI';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import { SetStoreData } from '../helpers/General';
 
 const BlacklistPlacesPanel = ({ isOnboarding }) => {
   const [searchedResult, setSearchedResult] = useState([]);
@@ -28,6 +29,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
   const [inputtingControl, setInputtingControl] = useState(null);
   const [searchType, setSearchType] = useState(isOnboarding ? 'Home' : 'All');
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [keyboardShowing, setKeyboardShowing] = useState(false);
 
   const { navigate } = useNavigation();
 
@@ -73,8 +75,21 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
           }
         });
       }
+      const keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        () => setKeyboardShowing(true),
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        'keyboardDidHide',
+        () => setKeyboardShowing(false),
+      );
+
+      return function removeListeners() {
+        keyboardDidShowListener.remove();
+        keyboardDidHideListener.remove();
+      };
     }),
-    [],
+    [isOnboarding],
   );
 
   const getCurrentLocation = () => {
@@ -133,7 +148,9 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
     if (searchType === 'Home' && isOnboarding) {
       setSearchType('Work');
     } else if (searchType === 'Work') {
-      navigate('MainScreen', {});
+      SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
+        navigate('MainScreen', {}),
+      );
     }
   };
 
@@ -259,13 +276,14 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
   };
 
   const renderDescriptionText = () => {
+    if (keyboardShowing) return null;
     switch (searchType) {
       case 'Home':
-        return 'You can blacklist your home location so that others will not be able to see you within a big radius of your home';
+        return 'Spaced NEVER shares your blacklisted locations.\n\nYou can blacklist your home location so that others will not be able to see you within a big radius of your home.\n\nData inside the radius will NEVER leave your phone.';
       case 'Work':
         return 'You can also blacklist your work location as well so you will not be tracked at work';
       default:
-        return "You can blacklist a location like home or office, so that others don't see your location.";
+        return "Spaced NEVER shares your blacklisted locations.\n\nYou can blacklist a location like home or office, so that others don't see your location.\n\nData inside the radius will NEVER leave your phone.";
     }
   };
 
@@ -331,14 +349,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   markContainer: {
-    backgroundColor: '#e1e1e1',
+    backgroundColor: '#B7BFCE',
     borderRadius: 4,
     width: '24%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   markText: {
-    color: '#5d5d5d',
+    color: '#435d8b',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,

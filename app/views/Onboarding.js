@@ -1,6 +1,8 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { Dimensions, StyleSheet, View, Image } from 'react-native';
 import { Emitter } from 'react-native-particles';
+
+import SplashScreen from 'react-native-splash-screen';
 
 import Logo from '../components/Logo';
 import CustomText from '../components/CustomText';
@@ -12,7 +14,7 @@ import LocationServices, {
 } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import BroadcastingServices from '../services/BroadcastingService';
-import { SetStoreData } from '../helpers/General';
+import { GetStoreData, SetStoreData } from '../helpers/General';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
@@ -35,6 +37,10 @@ const Onboarding = () => {
   const [page, setPage] = useState(0);
   const { navigate } = useNavigation();
 
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
   const participationCallback = () => {
     SetStoreData('PARTICIPATE', 'true').then(() => {
       console.log('saved participate');
@@ -50,8 +56,14 @@ const Onboarding = () => {
               console.log('HAS WORK LOCATION', location);
               navigate('MainScreen', {});
             } else {
-              console.log('NO HOME OR WORK LOCATIONS', location);
-              navigate('OnboardingBlacklist', {});
+              GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
+                console.log('NO HOME OR WORK LOCATIONS', location);
+                if (isOnboarded === 'true') {
+                  navigate('MainScreen', {});
+                } else {
+                  navigate('OnboardingBlacklist', {});
+                }
+              });
             }
           });
         }
@@ -82,8 +94,7 @@ const Onboarding = () => {
     {
       text: [
         'You are in charge',
-        'Your location data is shared only with your consent.',
-        'You can blacklist your home and work addresses.',
+        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
       ],
       titleIndex: [0],
     },
@@ -96,7 +107,7 @@ const Onboarding = () => {
   const buttonTitles = {
     0: 'GET STARTED',
     2: 'ENABLE LOCATION',
-    default: 'NEXT',
+    default: 'CONTINUE',
   };
 
   const generateParticles = () => {
@@ -198,7 +209,7 @@ const textStyles = {
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 18,
-    paddingBottom: 5,
+    paddingBottom: 20,
     paddingTop: 5,
   },
 };
@@ -235,7 +246,6 @@ const whiteButtonStyles = {
   text: {
     color: colors.BLACK,
     fontFamily: 'DMSans-Regular',
-    fontWeight: 'bold',
     fontSize: 13,
   },
 };

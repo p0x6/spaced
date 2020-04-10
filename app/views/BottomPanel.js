@@ -36,7 +36,7 @@ const BottomPanel = ({
           if (isParticipating === 'true') {
             setIsLogging(true);
             willParticipate();
-            showFullPanel({ toValue: 170, velocity: -0.8 });
+            showFullPanel({ toValue: 180, velocity: -0.8 });
             setTimeout(() => setIsAnimating(false), 2000);
           } else {
             setIsLogging(false);
@@ -46,7 +46,7 @@ const BottomPanel = ({
         })
         .catch(error => console.log(error));
     }),
-    [isLogging, isSearching],
+    [],
   );
 
   const willParticipate = () => {
@@ -96,7 +96,7 @@ const BottomPanel = ({
       hideFullPanel();
     } else {
       setOptOut();
-      showFullPanel({ toValue: 330 });
+      showFullPanel({ toValue: 350 });
     }
   };
 
@@ -184,6 +184,15 @@ const BottomPanel = ({
     );
   };
 
+  const renderDragOval = () => {
+    if (!isLogging) return null;
+    return (
+      <View style={styles.ovalWrapper}>
+        <View style={styles.oval} />
+      </View>
+    );
+  };
+
   if (isSearching || modal) return null;
 
   return (
@@ -191,20 +200,22 @@ const BottomPanel = ({
       allowDragging={isLogging}
       ref={sliderRef}
       draggableRange={{
-        top: isLogging ? 400 : 330,
-        bottom: isAnimating ? 0 : 170,
+        top: isLogging ? 420 : 350,
+        bottom: isAnimating ? 0 : 180,
       }}
+      snappingPoints={[isLogging ? 420 : 350, 180]}
       showBackdrop={false}
       containerStyle={styles.panelContainer}
       minimumDistanceThreshold={10}
       friction={50}>
       <>
         <View style={styles.bottomDrawer}>
-          <View style={styles.ovalWrapper}>
-            <View style={styles.oval} />
-          </View>
+          {renderDragOval()}
           <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            style={[
+              { flexDirection: 'row', justifyContent: 'space-between' },
+              isLogging ? null : styles.noOval,
+            ]}>
             <Text
               style={{
                 fontFamily: 'DMSans-Medium',
@@ -337,22 +348,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#CAD2D3',
     borderRadius: 40,
   },
+  noOval: {
+    paddingTop: 10,
+  },
   bottomDrawer: {
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20,
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
   },
   helpDrawer: {
-    marginTop: 10,
+    marginTop: 20,
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20,
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 10,
   },
   panelContainer: {
     zIndex: 1,

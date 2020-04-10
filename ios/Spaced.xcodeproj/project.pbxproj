@@ -365,6 +365,7 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 3P8NG556XQ;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -655,7 +656,9 @@
 			baseConfigurationReference = 71D1C872DB0CCC3BBC3D907E /* Pods-Spaced.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 3P8NG556XQ;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -666,7 +669,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Spaced/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -674,6 +677,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yangllc.spaced;
 				PRODUCT_NAME = Spaced;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -683,7 +687,9 @@
 			baseConfigurationReference = 9440D638E4331481079AE235 /* Pods-Spaced.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3P8NG556XQ;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -694,7 +700,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Spaced/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -702,6 +708,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yangllc.spaced;
 				PRODUCT_NAME = Spaced;
+				PROVISIONING_PROFILE_SPECIFIER = "Spaced Distribution - App Store";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

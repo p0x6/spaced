@@ -10,8 +10,6 @@ import {
 import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
 
-const closeIcon = require('../assets/images/close.png');
-
 const SearchAddress = ({
   isSearching,
   setIsSearching,
@@ -60,8 +58,8 @@ const SearchAddress = ({
             exitSearch();
           }}>
           <Image
-            source={closeIcon}
-            style={{ width: 12, height: 12, resizeMode: 'center' }}
+            source={require('../assets/images/blue_close.png')}
+            style={{ width: 12, height: 12, resizeMode: 'cover' }}
           />
         </TouchableOpacity>
       );
@@ -110,7 +108,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '95%',
-    borderRadius: 14,
+    borderRadius: 6,
     marginTop: 10,
     shadowColor: '#B0C6E2',
     shadowOffset: {
@@ -124,7 +122,7 @@ const styles = StyleSheet.create({
   searchView: {
     backgroundColor: '#fff',
     width: '95%',
-    borderRadius: 14,
+    borderRadius: 6,
     marginTop: 32,
     marginLeft: 10,
     flexDirection: 'row',

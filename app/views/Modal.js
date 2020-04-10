@@ -58,8 +58,8 @@ const Modal = props => {
       }}>
       <TouchableOpacity style={styles.exit} onPress={() => exit()}>
         <Image
-          source={require('../assets/images/close.png')}
-          style={{ width: 12, height: 12, resizeMode: 'center' }}
+          source={require('../assets/images/blue_close.png')}
+          style={{ width: 12, height: 12, resizeMode: 'cover' }}
         />
       </TouchableOpacity>
       {props.children}
