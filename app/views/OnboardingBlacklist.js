@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,9 +9,16 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import colors from '../constants/colors';
 import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
+import { SetStoreData, GetStoreData } from '../helpers/General';
 
 const BlacklistPlaces = () => {
   const { navigate } = useNavigation();
+
+  useEffect(() => {
+    GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
+      if (isOnboarded === 'true') navigate('MainScreen', {});
+    });
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,7 +29,11 @@ const BlacklistPlaces = () => {
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.goHomeButton}
-            onPress={() => navigate('MainScreen', {})}>
+            onPress={() =>
+              SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
+                navigate('MainScreen', {}),
+              )
+            }>
             <Text style={styles.goHomeButtonText}>Not now, take me home</Text>
           </TouchableOpacity>
         </View>

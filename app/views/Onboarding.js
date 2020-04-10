@@ -14,7 +14,7 @@ import LocationServices, {
 } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import BroadcastingServices from '../services/BroadcastingService';
-import { SetStoreData } from '../helpers/General';
+import { GetStoreData, SetStoreData } from '../helpers/General';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
@@ -56,8 +56,14 @@ const Onboarding = () => {
               console.log('HAS WORK LOCATION', location);
               navigate('MainScreen', {});
             } else {
-              console.log('NO HOME OR WORK LOCATIONS', location);
-              navigate('OnboardingBlacklist', {});
+              GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
+                console.log('NO HOME OR WORK LOCATIONS', location);
+                if (isOnboarded === 'true') {
+                  navigate('MainScreen', {});
+                } else {
+                  navigate('OnboardingBlacklist', {});
+                }
+              });
             }
           });
         }
