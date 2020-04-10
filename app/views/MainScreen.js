@@ -46,6 +46,7 @@ const MainScreen = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const [navigateLocation, setNavigateLocation] = useState([]);
   const [modal, setModal] = useState(null);
   const [bounds, setBounds] = useState([]);
 
@@ -239,6 +240,7 @@ const MainScreen = () => {
       changeSearchingState(false);
       moveToSearchArea(item);
       setPlaceMarkers({ features: [item] });
+      setNavigateLocation(item.geometry.coordinates);
     };
 
     return (
@@ -308,6 +310,7 @@ const MainScreen = () => {
         region={region}
         userMarkers={userMarkers}
         placeMarkers={placeMarkers}
+        navigateLocation={navigateLocation}
       />
       {renderSearchInput()}
       {renderBlacklistModal()}

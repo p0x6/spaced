@@ -73,6 +73,18 @@ class API {
       this.getUUID();
     }
   }
+
+  getPathToDestination(start, destination) {
+    console.log(start, destination);
+    return this.instance.get('/get-route', {
+      params: {
+        startLongitude: start[0],
+        startLatitude: start[1],
+        endLongitude: destination[0],
+        endLatitude: destination[1],
+      },
+    });
+  }
 }
 
 const SafePathsAPI = new API();

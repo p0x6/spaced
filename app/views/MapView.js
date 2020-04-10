@@ -1,6 +1,7 @@
 import React, { useEffect, memo, useState } from 'react';
 import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import SafePathsAPI from '../services/API';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { lineString as makeLineString } from '@turf/helpers';
 import MapboxDirectionsFactory from '@mapbox/mapbox-sdk/services/directions';
@@ -63,27 +64,29 @@ const MapViewComponent = ({
   region,
   userMarkers,
   placeMarkers,
+  navigateLocation,
 }) => {
   const { navigate } = useNavigation();
   let [userLocation, setUserLocation] = useState();
   let [route, setRoute] = useState();
 
   const fetchRoute = async destinationCoordinates => {
-    BackgroundGeolocation.getCurrentLocation(location => {
-      setUserLocation(location);
+    BackgroundGeolocation.getCurrentLocation(async location => {
+      console.log(
+        '---- fetch route -----',
+        userLocation,
+        destinationCoordinates,
+      );
+      const res = await SafePathsAPI.getPathToDestination(
+        [location.longitude, location.latitude],
+        destinationCoordinates,
+      );
+      console.log('routes: ', res.data);
+      if (_.get(res, 'data.coordinates', null)) {
+        const newRoute = makeLineString(res.data.coordinates);
+        setRoute(newRoute);
+      }
     });
-    const reqOptions = {
-      waypoints: [
-        { coordinates: [userLocation.longitude, userLocation.latitude] },
-        { coordinates: destinationCoordinates },
-      ],
-      profile: 'walking',
-      geometries: 'geojson',
-    };
-    const res = await directionsClient.getDirections(reqOptions).send();
-    console.log('routes: ', res.body.routes[0].geometry.coordinates);
-    const newRoute = makeLineString(res.body.routes[0].geometry.coordinates);
-    setRoute(newRoute);
   };
 
   const onUserLocationUpdate = newUserLocation => {
@@ -101,7 +104,10 @@ const MapViewComponent = ({
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    fetchRoute([-73.968285, 40.785091]);
+    if (navigateLocation && navigateLocation.length === 2) {
+      console.log('------ NAVIGATE LOCATION ------', navigateLocation);
+      fetchRoute(navigateLocation);
+    }
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
