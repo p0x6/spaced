@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '95%',
-    borderRadius: 14,
+    borderRadius: 6,
     marginTop: 10,
     shadowColor: '#B0C6E2',
     shadowOffset: {
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   searchView: {
     backgroundColor: '#fff',
     width: '95%',
-    borderRadius: 14,
+    borderRadius: 6,
     marginTop: 32,
     marginLeft: 10,
     flexDirection: 'row',

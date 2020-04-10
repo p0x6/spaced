@@ -20,6 +20,7 @@ import { EventRegister } from 'react-native-event-listeners';
 import { useNavigation } from '@react-navigation/native';
 import MapBoxAPI from '../services/MapBoxAPI';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import { SetStoreData } from '../helpers/General';
 
 const BlacklistPlacesPanel = ({ isOnboarding }) => {
   const [searchedResult, setSearchedResult] = useState([]);
@@ -147,7 +148,9 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
     if (searchType === 'Home' && isOnboarding) {
       setSearchType('Work');
     } else if (searchType === 'Work') {
-      navigate('MainScreen', {});
+      SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
+        navigate('MainScreen', {}),
+      );
     }
   };
 
@@ -346,14 +349,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   markContainer: {
-    backgroundColor: '#e1e1e1',
+    backgroundColor: '#B7BFCE',
     borderRadius: 4,
     width: '24%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   markText: {
-    color: '#5d5d5d',
+    color: '#435d8b',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,

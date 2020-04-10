@@ -14,7 +14,7 @@ import LocationServices, {
 } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import BroadcastingServices from '../services/BroadcastingService';
-import { SetStoreData } from '../helpers/General';
+import { GetStoreData, SetStoreData } from '../helpers/General';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
@@ -56,8 +56,14 @@ const Onboarding = () => {
               console.log('HAS WORK LOCATION', location);
               navigate('MainScreen', {});
             } else {
-              console.log('NO HOME OR WORK LOCATIONS', location);
-              navigate('OnboardingBlacklist', {});
+              GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
+                console.log('NO HOME OR WORK LOCATIONS', location);
+                if (isOnboarded === 'true') {
+                  navigate('MainScreen', {});
+                } else {
+                  navigate('OnboardingBlacklist', {});
+                }
+              });
             }
           });
         }
@@ -88,8 +94,7 @@ const Onboarding = () => {
     {
       text: [
         'You are in charge',
-        'Your location data is shared only with your consent.',
-        'You can blacklist your home and work addresses.',
+        'Your location data is shared only with your consent. You can blacklist your home and work addresses.',
       ],
       titleIndex: [0],
     },
@@ -102,7 +107,7 @@ const Onboarding = () => {
   const buttonTitles = {
     0: 'GET STARTED',
     2: 'ENABLE LOCATION',
-    default: 'NEXT',
+    default: 'CONTINUE',
   };
 
   const generateParticles = () => {
@@ -204,7 +209,7 @@ const textStyles = {
     lineHeight: 20,
     letterSpacing: 2,
     fontSize: 18,
-    paddingBottom: 5,
+    paddingBottom: 20,
     paddingTop: 5,
   },
 };
