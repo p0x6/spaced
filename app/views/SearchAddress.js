@@ -10,8 +10,6 @@ import {
 import React, { useRef, useEffect } from 'react';
 import colors from '../constants/colors';
 
-const closeIcon = require('../assets/images/close.png');
-
 const SearchAddress = ({
   isSearching,
   setIsSearching,
@@ -60,8 +58,8 @@ const SearchAddress = ({
             exitSearch();
           }}>
           <Image
-            source={closeIcon}
-            style={{ width: 12, height: 12, resizeMode: 'center' }}
+            source={require('../assets/images/blue_close.png')}
+            style={{ width: 12, height: 12, resizeMode: 'cover' }}
           />
         </TouchableOpacity>
       );

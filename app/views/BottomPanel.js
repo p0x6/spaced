@@ -40,7 +40,7 @@ const BottomPanel = ({
             setTimeout(() => setIsAnimating(false), 2000);
           } else {
             setIsLogging(false);
-            showFullPanel({ toValue: 350, velocity: -0.98 });
+            showFullPanel({ toValue: 330, velocity: -0.98 });
             setTimeout(() => setIsAnimating(false), 3000);
           }
         })
@@ -96,7 +96,7 @@ const BottomPanel = ({
       hideFullPanel();
     } else {
       setOptOut();
-      showFullPanel({ toValue: 330 });
+      showFullPanel({ toValue: 350 });
     }
   };
 
@@ -200,10 +200,10 @@ const BottomPanel = ({
       allowDragging={isLogging}
       ref={sliderRef}
       draggableRange={{
-        top: isLogging ? 410 : 350,
+        top: isLogging ? 420 : 350,
         bottom: isAnimating ? 0 : 180,
       }}
-      snappingPoints={[isLogging ? 410 : 350, 180]}
+      snappingPoints={[isLogging ? 420 : 350, 180]}
       showBackdrop={false}
       containerStyle={styles.panelContainer}
       minimumDistanceThreshold={10}
