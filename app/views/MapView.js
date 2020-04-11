@@ -1,23 +1,19 @@
 import React, { useEffect, memo, useState } from 'react';
-import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
+import { StyleSheet, View, Dimensions, BackHandler, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SafePathsAPI from '../services/API';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import { lineString as makeLineString } from '@turf/helpers';
-import MapboxDirectionsFactory from '@mapbox/mapbox-sdk/services/directions';
-import Config from 'react-native-config';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
-const accessToken = Config.MAPBOX_ACCESS_TOKEN;
-const directionsClient = MapboxDirectionsFactory({ accessToken });
 
 const layerStyles = {
   route: {
-    lineColor: '#1D1D1D',
+    lineColor: '#2E4874',
     lineCap: MapboxGL.LineJoin.Round,
     lineWidth: 3,
     lineOpacity: 0.84,
@@ -65,6 +61,7 @@ const MapViewComponent = ({
   userMarkers,
   placeMarkers,
   navigateLocation,
+  displayRoute,
 }) => {
   const { navigate } = useNavigation();
   let [userLocation, setUserLocation] = useState();
@@ -104,14 +101,14 @@ const MapViewComponent = ({
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    if (navigateLocation && navigateLocation.length === 2) {
+    if (navigateLocation && navigateLocation.length === 2 && displayRoute) {
       console.log('------ NAVIGATE LOCATION ------', navigateLocation);
       fetchRoute(navigateLocation);
     }
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
-  }, [region]);
+  }, [region, displayRoute, navigateLocation]);
 
   const renderAnnotations = () => {
     const items = [];
@@ -142,13 +139,8 @@ const MapViewComponent = ({
               { transform: [{ rotate: '45deg' }] },
             ]}
           />
-          <MapboxGL.Callout title={`${text || details.name}`}>
-            {/*<View>*/}
-            {/*  <Text>*/}
-            {/*    {details.address}*/}
-            {/*  </Text>*/}
-            {/*</View>*/}
-          </MapboxGL.Callout>
+          <MapboxGL.Callout
+            title={`${text || details.name}`}></MapboxGL.Callout>
         </MapboxGL.PointAnnotation>,
       );
     }
@@ -192,7 +184,7 @@ const MapViewComponent = ({
           cluster
           clusterRadius={50}
           clusterMaxZoom={14}
-          url='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'>
+          url='https://spaced-app.s3.us-east-2.amazonaws.com/test.geojson'>
           <MapboxGL.SymbolLayer
             id='pointCount'
             style={layerStyles.clusterCount}

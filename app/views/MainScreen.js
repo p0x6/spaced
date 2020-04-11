@@ -23,6 +23,7 @@ import _ from 'lodash';
 import Modal from './Modal';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import BottomPanel from './BottomPanel';
+import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
 import colors from '../constants/colors';
 import moment from 'moment';
@@ -47,7 +48,9 @@ const MainScreen = () => {
   const [searchedResult, setSearchedResult] = useState([]);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [navigateLocation, setNavigateLocation] = useState([]);
+  const [searchedLocation, setSearchedLocation] = useState(null);
   const [modal, setModal] = useState(null);
+  const [displayRoute, setDisplayRoute] = useState(false);
   const [bounds, setBounds] = useState([]);
 
   const mapRef = useRef(null);
@@ -193,6 +196,9 @@ const MainScreen = () => {
   }
 
   const changeSearchingState = state => {
+    console.log('======= CHANGE SEARCHING STATE =======');
+    setSearchedLocation(null);
+    setDisplayRoute(false);
     if (state) {
       setIsSearching(state);
     } else {
@@ -240,6 +246,7 @@ const MainScreen = () => {
       changeSearchingState(false);
       moveToSearchArea(item);
       setPlaceMarkers({ features: [item] });
+      setSearchedLocation(item);
       setNavigateLocation(item.geometry.coordinates);
     };
 
@@ -260,6 +267,7 @@ const MainScreen = () => {
   };
 
   const renderBottomPanel = () => {
+    if (searchedLocation) return null;
     return (
       <BottomPanel
         isLogging={isLogging}
@@ -269,6 +277,20 @@ const MainScreen = () => {
         setModal={setModal}
         sliderRef={sliderRef}
         getInitialState={getInitialState}
+      />
+    );
+  };
+
+  const renderLocationDetailPanel = () => {
+    if (!searchedLocation) return null;
+    return (
+      <BottomPanelLocationDetails
+        isSearching={isSearching}
+        modal={modal}
+        sliderRef={sliderRef}
+        setSearchLocation={setSearchedLocation}
+        searchLocation={searchedLocation}
+        setDisplayRoute={setDisplayRoute}
       />
     );
   };
@@ -311,12 +333,14 @@ const MainScreen = () => {
         userMarkers={userMarkers}
         placeMarkers={placeMarkers}
         navigateLocation={navigateLocation}
+        displayRoute={displayRoute}
       />
       {renderSearchInput()}
       {renderBlacklistModal()}
       {renderActivityModal()}
       {renderSearchResults()}
       {renderBottomPanel()}
+      {renderLocationDetailPanel()}
     </View>
   );
 };
