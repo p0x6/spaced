@@ -1,5 +1,5 @@
 import React, { useEffect, memo, useState } from 'react';
-import { StyleSheet, View, Dimensions, BackHandler, Text } from 'react-native';
+import { StyleSheet, View, Dimensions, BackHandler, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SafePathsAPI from '../services/API';
 import MapboxGL from '@react-native-mapbox-gl/maps';
@@ -133,14 +133,7 @@ const MapViewComponent = ({
           id={id}
           coordinate={coordinate}
           title={title}>
-          <View
-            style={[
-              styles.annotationContainer,
-              { transform: [{ rotate: '45deg' }] },
-            ]}
-          />
-          <MapboxGL.Callout
-            title={`${text || details.name}`}></MapboxGL.Callout>
+          <MapboxGL.Callout title={`${text || details.name}`} />
         </MapboxGL.PointAnnotation>,
       );
     }
@@ -168,7 +161,7 @@ const MapViewComponent = ({
         pitchEnabled={isLogging}
         rotateEnabled={isLogging}>
         <MapboxGL.Camera
-          zoomLevel={15}
+          zoomLevel={17}
           centerCoordinate={[region.longitude, region.latitude]}
           animationMode={'flyTo'}
         />
@@ -223,16 +216,9 @@ const styles = StyleSheet.create({
     height: height,
     alignSelf: 'center',
   },
-
-  annotationContainer: {
-    width: 20,
-    height: 20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    borderBottomLeftRadius: 0,
-    backgroundColor: '#89849b',
-    transform: [{ rotate: '45deg' }],
+  dropper: {
+    width: 24,
+    height: 41,
   },
 });
 
