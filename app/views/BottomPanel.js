@@ -46,7 +46,7 @@ const BottomPanel = ({
         })
         .catch(error => console.log(error));
     }),
-    [isLogging, isSearching],
+    [],
   );
 
   const willParticipate = () => {

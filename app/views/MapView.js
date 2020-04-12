@@ -1,12 +1,23 @@
-import React, { useEffect, memo } from 'react';
-import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
+import React, { useEffect, memo, useState } from 'react';
+import { StyleSheet, View, Dimensions, BackHandler, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import SafePathsAPI from '../services/API';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import { lineString as makeLineString } from '@turf/helpers';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+
+import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 const layerStyles = {
+  route: {
+    lineColor: '#2E4874',
+    lineCap: MapboxGL.LineJoin.Round,
+    lineWidth: 3,
+    lineOpacity: 0.84,
+  },
   singlePoint: {
     circleColor: 'green',
     circleOpacity: 0.84,
@@ -43,16 +54,45 @@ const layerStyles = {
   },
 };
 
-const ANNOTATION_SIZE = 15;
-
 const MapViewComponent = ({
   isLogging,
   mapRef,
   region,
   userMarkers,
   placeMarkers,
+  navigateLocation,
+  displayRoute,
 }) => {
   const { navigate } = useNavigation();
+  let [userLocation, setUserLocation] = useState();
+  let [route, setRoute] = useState();
+
+  const fetchRoute = async destinationCoordinates => {
+    BackgroundGeolocation.getCurrentLocation(async location => {
+      console.log(
+        '---- fetch route -----',
+        userLocation,
+        destinationCoordinates,
+      );
+      const res = await SafePathsAPI.getPathToDestination(
+        [location.longitude, location.latitude],
+        destinationCoordinates,
+      );
+      console.log('routes: ', res.data);
+      if (_.get(res, 'data.coordinates', null)) {
+        const newRoute = makeLineString(res.data.coordinates);
+        setRoute(newRoute);
+      }
+    });
+  };
+
+  const onUserLocationUpdate = newUserLocation => {
+    console.log('----- NEW LOCAGION ------', newUserLocation);
+    setUserLocation([
+      newUserLocation.coords.longitude,
+      newUserLocation.coords.latitude,
+    ]);
+  };
 
   function handleBackPress() {
     navigate('MainScreen', {});
@@ -61,45 +101,54 @@ const MapViewComponent = ({
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    if (navigateLocation && navigateLocation.length === 2 && displayRoute) {
+      console.log('------ NAVIGATE LOCATION ------', navigateLocation);
+      fetchRoute(navigateLocation);
+    }
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
-  }, [region]);
+  }, [region, displayRoute, navigateLocation]);
 
-  // const renderAnnotations = () => {
-  //   const items = [];
-  //
-  //   const places = _.get(placeMarkers, 'features', []);
-  //
-  //   for (let i = 0; i < places.length; i++) {
-  //     const coordinate = _.get(places[i], 'geometry.coordinates', null);
-  //     const details = _.get(places[i], 'properties', null);
-  //
-  //     if (!coordinate) continue;
-  //
-  //     const title = `Lon: ${coordinate[0]} Lat: ${coordinate[1]}`;
-  //     const id = `pointAnnotation${i}`;
-  //
-  //     items.push(
-  //       <MapboxGL.PointAnnotation
-  //         key={id}
-  //         id={id}
-  //         coordinate={coordinate}
-  //         title={title}>
-  //         <View style={styles.annotationContainer} />
-  //         <MapboxGL.Callout title={`${details.name}`}>
-  //           {/*<View>*/}
-  //           {/*  <Text>*/}
-  //           {/*    {details.address}*/}
-  //           {/*  </Text>*/}
-  //           {/*</View>*/}
-  //         </MapboxGL.Callout>
-  //       </MapboxGL.PointAnnotation>,
-  //     );
-  //   }
-  //
-  //   return items;
-  // };
+  const renderAnnotations = () => {
+    const items = [];
+
+    const places = _.get(placeMarkers, 'features', []);
+
+    console.log('====== PLACES ======', places, placeMarkers);
+
+    for (let i = 0; i < places.length; i++) {
+      const coordinate = _.get(places[i], 'geometry.coordinates', null);
+      const details = _.get(places[i], 'properties', null);
+      const text = _.get(places[i], 'text', null);
+
+      if (!coordinate) continue;
+
+      const title = details.address || details.name;
+      const id = `pointAnnotation${i}`;
+
+      items.push(
+        <MapboxGL.PointAnnotation
+          key={id}
+          id={id}
+          coordinate={coordinate}
+          title={title}>
+          <MapboxGL.Callout title={`${text || details.name}`} />
+        </MapboxGL.PointAnnotation>,
+      );
+    }
+
+    return items;
+  };
+
+  const renderRoute = () => {
+    if (isLogging && route)
+      return (
+        <MapboxGL.ShapeSource id='routeSource' shape={route}>
+          <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
+        </MapboxGL.ShapeSource>
+      );
+  };
 
   return (
     <View style={styles.container}>
@@ -112,18 +161,23 @@ const MapViewComponent = ({
         pitchEnabled={isLogging}
         rotateEnabled={isLogging}>
         <MapboxGL.Camera
-          zoomLevel={15}
+          zoomLevel={17}
           centerCoordinate={[region.longitude, region.latitude]}
           animationMode={'flyTo'}
         />
-        <MapboxGL.UserLocation />
+        <MapboxGL.UserLocation
+        // onUpdate={newUserLocation =>
+        //   onUserLocationUpdate(newUserLocation)
+        // }
+        />
+        {renderRoute()}
 
         <MapboxGL.ShapeSource
           id='userLocations'
           cluster
           clusterRadius={50}
           clusterMaxZoom={14}
-          url='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'>
+          url='https://spaced-app.s3.us-east-2.amazonaws.com/test.geojson'>
           <MapboxGL.SymbolLayer
             id='pointCount'
             style={layerStyles.clusterCount}
@@ -142,7 +196,7 @@ const MapViewComponent = ({
             style={layerStyles.singlePoint}
           />
         </MapboxGL.ShapeSource>
-        {/*{renderAnnotations()}*/}
+        {renderAnnotations()}
       </MapboxGL.MapView>
     </View>
   );
@@ -162,18 +216,10 @@ const styles = StyleSheet.create({
     height: height,
     alignSelf: 'center',
   },
-
-  // annotationContainer: {
-  //   width: ANNOTATION_SIZE,
-  //   height: ANNOTATION_SIZE,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   backgroundColor: '#2E4874',
-  //   borderRadius: ANNOTATION_SIZE / 2,
-  //   borderWidth: StyleSheet.hairlineWidth,
-  //   borderColor: '#2E4874',
-  //   overflow: 'hidden',
-  // },
+  dropper: {
+    width: 24,
+    height: 41,
+  },
 });
 
 export default memo(MapViewComponent);

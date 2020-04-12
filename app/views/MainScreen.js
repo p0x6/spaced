@@ -23,6 +23,7 @@ import _ from 'lodash';
 import Modal from './Modal';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import BottomPanel from './BottomPanel';
+import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
 import colors from '../constants/colors';
 import moment from 'moment';
@@ -46,7 +47,10 @@ const MainScreen = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const [navigateLocation, setNavigateLocation] = useState([]);
+  const [searchedLocation, setSearchedLocation] = useState(null);
   const [modal, setModal] = useState(null);
+  const [displayRoute, setDisplayRoute] = useState(false);
   const [bounds, setBounds] = useState([]);
 
   const mapRef = useRef(null);
@@ -79,6 +83,9 @@ const MainScreen = () => {
       longitude: location.longitude,
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
+    });
+    moveToSearchArea({
+      geometry: { coordinates: [location.longitude, location.latitude] },
     });
     populateMarkers({
       latitude: location.latitude,
@@ -185,14 +192,13 @@ const MainScreen = () => {
         latitudeDelta: safeLocation.latitudeDelta || 0.01,
         longitudeDelta: safeLocation.longitudeDelta || 0.01,
       });
-      populateMarkers({
-        latitude: safeLocation.latitude,
-        longitude: safeLocation.longitude,
-      });
     }
   }
 
   const changeSearchingState = state => {
+    console.log('======= CHANGE SEARCHING STATE =======');
+    setSearchedLocation(null);
+    setDisplayRoute(false);
     if (state) {
       setIsSearching(state);
     } else {
@@ -236,14 +242,21 @@ const MainScreen = () => {
   const onRenderSearchItems = ({ item, index }) => {
     console.log('ITEM=>>', item);
 
+    const itemClick = item => {
+      changeSearchingState(false);
+      moveToSearchArea(item);
+      setPlaceMarkers({ features: [item] });
+      setSearchedLocation(item);
+      setNavigateLocation(item.geometry.coordinates);
+    };
+
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={styles.box}
         onPress={() => {
           // this.refs.input.blur();
-          changeSearchingState(false);
-          moveToSearchArea(item);
+          itemClick(item);
         }}
         key={index}>
         <Text numberOfLines={1} style={styles.locationTitle}>
@@ -254,6 +267,7 @@ const MainScreen = () => {
   };
 
   const renderBottomPanel = () => {
+    if (searchedLocation) return null;
     return (
       <BottomPanel
         isLogging={isLogging}
@@ -263,6 +277,20 @@ const MainScreen = () => {
         setModal={setModal}
         sliderRef={sliderRef}
         getInitialState={getInitialState}
+      />
+    );
+  };
+
+  const renderLocationDetailPanel = () => {
+    if (!searchedLocation) return null;
+    return (
+      <BottomPanelLocationDetails
+        isSearching={isSearching}
+        modal={modal}
+        sliderRef={sliderRef}
+        setSearchLocation={setSearchedLocation}
+        searchLocation={searchedLocation}
+        setDisplayRoute={setDisplayRoute}
       />
     );
   };
@@ -304,12 +332,15 @@ const MainScreen = () => {
         region={region}
         userMarkers={userMarkers}
         placeMarkers={placeMarkers}
+        navigateLocation={navigateLocation}
+        displayRoute={displayRoute}
       />
       {renderSearchInput()}
       {renderBlacklistModal()}
       {renderActivityModal()}
       {renderSearchResults()}
       {renderBottomPanel()}
+      {renderLocationDetailPanel()}
     </View>
   );
 };

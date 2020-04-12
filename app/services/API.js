@@ -41,8 +41,6 @@ class API {
           latitude: searchLocation.latitude,
           longitude: searchLocation.longitude,
           uuid: this.uuid,
-          //TODO: replace this with different dynamic one
-          placeType: 'grocery_or_supermarket',
         },
       });
     }
@@ -74,6 +72,18 @@ class API {
     } else {
       this.getUUID();
     }
+  }
+
+  getPathToDestination(start, destination) {
+    console.log(start, destination);
+    return this.instance.get('/get-route', {
+      params: {
+        startLongitude: start[0],
+        startLatitude: start[1],
+        endLongitude: destination[0],
+        endLatitude: destination[1],
+      },
+    });
   }
 }
 
