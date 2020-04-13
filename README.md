@@ -2,7 +2,8 @@
 
 Based on MIT - [COVID-19 Safe Paths](http://safepaths.mit.edu/)
 
-Demo: https://youtu.be/Bljz1zgAkiE
+Intro: https://bit.ly/spaced-intro
+Demo: https://bit.ly/spaced-demo
 
 ----
 
