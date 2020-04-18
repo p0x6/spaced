@@ -4,8 +4,8 @@ import { Image, Text, View } from 'react-native';
 import colors from '../../constants/colors';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import moment from 'moment';
-// import SafePathsAPI from '../../services/API';
-// import _ from 'lodash';
+import SafePathsAPI from '../../services/API';
+import _ from 'lodash';
 
 const activitylogIcon = require('../../assets/images/activitylog.png');
 
@@ -13,49 +13,48 @@ const ActivityLog = ({ modal, setModal }) => {
   const [interactions, setInteractions] = useState([]);
 
   useEffect(() => {
-    // SafePathsAPI.getIntersections().then(data => {
-    //   const userInteractions = _.get(data, 'data', []);
-    //   setInteractions(userInteractions.reverse());
-    // });
-
-    setInteractions(
-      [
-        {
-          count: 10,
-          date: moment()
-            .subtract(5, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 4,
-          date: moment()
-            .subtract(4, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 8,
-          date: moment()
-            .subtract(3, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 2,
-          date: moment()
-            .subtract(2, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 9,
-          date: moment()
-            .subtract(1, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 11,
-          date: moment().format('YYYY-MM-DD'),
-        },
-      ].reverse(),
-    );
+    SafePathsAPI.getIntersections().then(data => {
+      const userInteractions = _.get(data, 'data', []);
+      setInteractions(userInteractions.reverse());
+    });
+    // setInteractions(
+    //   [
+    //     {
+    //       count: 10,
+    //       date: moment()
+    //         .subtract(5, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 4,
+    //       date: moment()
+    //         .subtract(4, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 8,
+    //       date: moment()
+    //         .subtract(3, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 2,
+    //       date: moment()
+    //         .subtract(2, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 9,
+    //       date: moment()
+    //         .subtract(1, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 11,
+    //       date: moment().format('YYYY-MM-DD'),
+    //     },
+    //   ].reverse(),
+    // );
   }, [modal]);
 
   if (modal !== 'activity' || interactions.length < 1) return null;

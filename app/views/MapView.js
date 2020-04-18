@@ -1,5 +1,5 @@
 import React, { useEffect, memo, useState } from 'react';
-import { StyleSheet, View, Dimensions, BackHandler, Image } from 'react-native';
+import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SafePathsAPI from '../services/API';
 import MapboxGL from '@react-native-mapbox-gl/maps';
@@ -10,8 +10,14 @@ import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+const defaultGeoJSON = require('./defaultGeoJSON.json');
 
 const layerStyles = {
+  smileyFace: {
+    fillAntialias: true,
+    fillColor: 'white',
+    fillOutlineColor: 'rgba(255, 255, 255, 0.84)',
+  },
   route: {
     lineColor: '#2E4874',
     lineCap: MapboxGL.LineJoin.Round,
@@ -86,13 +92,13 @@ const MapViewComponent = ({
     });
   };
 
-  const onUserLocationUpdate = newUserLocation => {
-    console.log('----- NEW LOCAGION ------', newUserLocation);
-    setUserLocation([
-      newUserLocation.coords.longitude,
-      newUserLocation.coords.latitude,
-    ]);
-  };
+  // const onUserLocationUpdate = newUserLocation => {
+  //   console.log('----- NEW LOCAGION ------', newUserLocation);
+  //   setUserLocation([
+  //     newUserLocation.coords.longitude,
+  //     newUserLocation.coords.latitude,
+  //   ]);
+  // };
 
   function handleBackPress() {
     navigate('MainScreen', {});
@@ -108,7 +114,7 @@ const MapViewComponent = ({
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
-  }, [region, displayRoute, navigateLocation]);
+  }, []);
 
   const renderAnnotations = () => {
     const items = [];
@@ -177,7 +183,8 @@ const MapViewComponent = ({
           cluster
           clusterRadius={50}
           clusterMaxZoom={14}
-          url='https://spaced-app.s3.us-east-2.amazonaws.com/test.geojson'>
+          // url='https://spaced-app.s3.us-east-2.amazonaws.com/test3.geojson'
+          shape={userMarkers || defaultGeoJSON}>
           <MapboxGL.SymbolLayer
             id='pointCount'
             style={layerStyles.clusterCount}

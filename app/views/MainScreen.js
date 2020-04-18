@@ -8,7 +8,6 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
-  Image,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
@@ -20,13 +19,9 @@ import { debounce } from 'debounce';
 import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
-import Modal from './Modal';
-import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import BottomPanel from './BottomPanel';
 import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
-import colors from '../constants/colors';
-import moment from 'moment';
 import ActivityLog from './modals/ActivityLog';
 
 const width = Dimensions.get('window').width;
@@ -42,7 +37,7 @@ const INITIAL_REGION = {
 const MainScreen = () => {
   const [isLogging, setIsLogging] = useState(false);
   const [region, setRegion] = useState(INITIAL_REGION);
-  const [userMarkers, setUserMarkers] = useState({});
+  const [userMarkers, setUserMarkers] = useState(null);
   const [placeMarkers, setPlaceMarkers] = useState({});
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
@@ -96,7 +91,13 @@ const MainScreen = () => {
   const getInitialState = () => {
     BackgroundGeolocation.getCurrentLocation(
       location => {
-        setRegion(location);
+        const { latitude, longitude } = location;
+        setInitialMapCenter({
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
       },
       () => {
         try {
@@ -167,11 +168,9 @@ const MainScreen = () => {
 
   async function populateMarkers(passedRegion) {
     SafePathsAPI.getPositions(passedRegion || region).then(userPositions => {
-      let userMarkers = _.get(userPositions, 'data.users', null);
-      let placeMarkers = _.get(userPositions, 'data.places', null);
-      console.log('---- markers -----', userMarkers, placeMarkers);
+      let userMarkers = _.get(userPositions, 'data', null);
+      console.log('---- markers -----', userMarkers);
       setUserMarkers(userMarkers);
-      setPlaceMarkers(placeMarkers);
     });
   }
 
