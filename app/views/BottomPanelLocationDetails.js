@@ -33,6 +33,7 @@ const BottomPanelLocationDetails = ({
   searchLocation,
   setSearchLocation,
   setDisplayRoute,
+  setPlaceMarkers,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
   const [busyTimes, setBusyTimes] = useState([]);
@@ -204,6 +205,7 @@ const BottomPanelLocationDetails = ({
               onPress={() => {
                 setSearchLocation(null);
                 setDisplayRoute(false);
+                setPlaceMarkers(null);
               }}>
               <Image
                 source={require('../assets/images/blue_close.png')}

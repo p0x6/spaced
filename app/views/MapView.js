@@ -111,10 +111,11 @@ const MapViewComponent = ({
       console.log('------ NAVIGATE LOCATION ------', navigateLocation);
       fetchRoute(navigateLocation);
     }
+    setRoute(null);
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
-  }, []);
+  }, [region, displayRoute, navigateLocation, userMarkers, placeMarkers]);
 
   const renderAnnotations = () => {
     const items = [];
@@ -170,6 +171,7 @@ const MapViewComponent = ({
           zoomLevel={17}
           centerCoordinate={[region.longitude, region.latitude]}
           animationMode={'flyTo'}
+          followUserLocation={displayRoute}
         />
         <MapboxGL.UserLocation
         // onUpdate={newUserLocation =>

@@ -38,7 +38,7 @@ const MainScreen = () => {
   const [isLogging, setIsLogging] = useState(false);
   const [region, setRegion] = useState(INITIAL_REGION);
   const [userMarkers, setUserMarkers] = useState(null);
-  const [placeMarkers, setPlaceMarkers] = useState({});
+  const [placeMarkers, setPlaceMarkers] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [isInitialRender, setIsInitialRender] = useState(true);
@@ -290,6 +290,7 @@ const MainScreen = () => {
         setSearchLocation={setSearchedLocation}
         searchLocation={searchedLocation}
         setDisplayRoute={setDisplayRoute}
+        setPlaceMarkers={setPlaceMarkers}
       />
     );
   };
