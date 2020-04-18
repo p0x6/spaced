@@ -70,16 +70,11 @@ const MapViewComponent = ({
   displayRoute,
 }) => {
   const { navigate } = useNavigation();
-  let [userLocation, setUserLocation] = useState();
   let [route, setRoute] = useState();
 
   const fetchRoute = async destinationCoordinates => {
     BackgroundGeolocation.getCurrentLocation(async location => {
-      console.log(
-        '---- fetch route -----',
-        userLocation,
-        destinationCoordinates,
-      );
+      console.log('---- fetch route -----', destinationCoordinates);
       const res = await SafePathsAPI.getPathToDestination(
         [location.longitude, location.latitude],
         destinationCoordinates,
@@ -110,8 +105,9 @@ const MapViewComponent = ({
     if (navigateLocation && navigateLocation.length === 2 && displayRoute) {
       console.log('------ NAVIGATE LOCATION ------', navigateLocation);
       fetchRoute(navigateLocation);
+    } else {
+      setRoute(null);
     }
-    setRoute(null);
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };

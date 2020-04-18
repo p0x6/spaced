@@ -188,6 +188,13 @@ const MainScreen = () => {
         '======== moving area to searched location ======',
         safeLocation,
       );
+      if (
+        region &&
+        safeLocation.latitude === region.latitude &&
+        safeLocation.longitude === region.longitude
+      ) {
+        setRegion(INITIAL_REGION);
+      }
       setRegion({
         latitude: safeLocation.latitude,
         longitude: safeLocation.longitude,
@@ -329,6 +336,7 @@ const MainScreen = () => {
         isLogging={isLogging}
         modal={modal}
         setModal={setModal}
+        goToMyLocation={getInitialState}
       />
     );
   };

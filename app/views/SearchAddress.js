@@ -18,6 +18,7 @@ const SearchAddress = ({
   textInputRef,
   modal,
   setModal,
+  goToMyLocation,
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -81,6 +82,20 @@ const SearchAddress = ({
     );
   };
 
+  const renderMyLocationIcon = () => {
+    if (modal || isSearching) return null;
+    return (
+      <TouchableOpacity
+        onPress={() => goToMyLocation()}
+        style={styles.myLocation}>
+        <Image
+          source={require('../assets/images/myLocationIcon.png')}
+          style={{ width: 30, height: 30, resizeMode: 'cover' }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <Animated.View
       style={[
@@ -109,7 +124,10 @@ const SearchAddress = ({
           }}
         />
       </View>
-      {renderAppInfoIcon()}
+      <View style={styles.infoContainer}>
+        {renderMyLocationIcon()}
+        {renderAppInfoIcon()}
+      </View>
     </Animated.View>
   );
 };
@@ -125,14 +143,6 @@ const styles = StyleSheet.create({
     width: '95%',
     borderRadius: 6,
     marginTop: 10,
-    shadowColor: '#B0C6E2',
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.58,
-    shadowRadius: 16.0,
-    elevation: 60,
   },
   searchView: {
     backgroundColor: '#fff',
@@ -143,6 +153,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     height: 48,
+    shadowColor: '#B0C6E2',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+    elevation: 60,
   },
   searchInput: {
     flex: 1,
@@ -152,10 +170,21 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-Regular',
   },
   // App Icon
+  infoContainer: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    marginTop: 10,
+    width: '100%',
+  },
   appIcon: {
     color: colors.PRIMARY_TEXT,
-    alignItems: 'flex-end',
-    marginTop: 10,
+    alignSelf: 'flex-end',
+  },
+  myLocation: {
+    color: colors.PRIMARY_TEXT,
+    alignSelf: 'flex-start',
+    flex: 1,
+    marginLeft: 10,
   },
 });
 
