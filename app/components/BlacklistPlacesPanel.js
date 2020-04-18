@@ -121,7 +121,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
 
   const onPressItem = (control, item) => {
     Keyboard.dismiss();
-    const placeName = _.get(item, 'place_name', '').split(',')[0];
+    const placeName = _.get(item, 'properties.name', '').split(',')[0];
     setAddress(control, placeName);
     if (control === 'Home') {
       setHomeLocation({
@@ -205,7 +205,8 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
         style={styles.itemButton}
         onPress={() => onPressItem(control, item)}>
         <Text numberOfLines={1} style={styles.locationTitle}>
-          {item.place_name}
+          {item.properties.name} - {item.properties.housenumber}{' '}
+          {item.properties.street} {item.properties.postalcode}
         </Text>
       </TouchableOpacity>
     );

@@ -4,22 +4,25 @@ const axios = require('axios');
 class API {
   constructor() {
     this.instance = axios.create({
-      baseURL: 'https://api.mapbox.com',
+      baseURL: 'https://api.openrouteservice.org',
       timeout: 5000,
     });
   }
 
-  search(text, currentLocation, bbox) {
+  search(text, currentLocation) {
     const params = {
-      autocomplete: 'true',
-      proximity:
+      text,
+      'focus.point.lon':
         currentLocation.longitude !== null
-          ? [currentLocation.longitude, currentLocation.latitude] + ''
+          ? currentLocation.longitude + ''
           : undefined,
-      bbox: bbox + '',
-      access_token: Config.MAPBOX_ACCESS_TOKEN,
+      'focus.point.lat':
+        currentLocation.longitude !== null
+          ? currentLocation.latitude + ''
+          : undefined,
+      access_token: Config.OPEN_TOKEN,
     };
-    return this.instance.get(`/geocoding/v5/mapbox.places/${text}.json`, {
+    return this.instance.get(`/geocode/autocomplete`, {
       params,
     });
   }

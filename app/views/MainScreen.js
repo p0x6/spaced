@@ -251,6 +251,8 @@ const MainScreen = () => {
   const onRenderSearchItems = ({ item, index }) => {
     console.log('ITEM=>>', item);
 
+    if (!item || !item.properties || !item.geometry) return null;
+
     const itemClick = item => {
       changeSearchingState(false);
       moveToSearchArea(item);
@@ -269,7 +271,8 @@ const MainScreen = () => {
         }}
         key={index}>
         <Text numberOfLines={1} style={styles.locationTitle}>
-          {item.place_name}
+          {item.properties.name} - {item.properties.housenumber}{' '}
+          {item.properties.street} {item.properties.postalcode}
         </Text>
       </TouchableOpacity>
     );
