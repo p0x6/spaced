@@ -192,7 +192,10 @@ const ActivityLog = ({ modal, setModal }) => {
               fontSize: 18,
               marginRight: 40,
             }}>
-            {moment(interactions[0].date, 'YYYY-M-D').format('dddd M/DD')}
+            {moment(
+              interactions[interactions.length - 1].date,
+              'YYYY-M-D',
+            ).format('dddd M/DD')}
           </Text>
           <Text
             style={{
@@ -200,7 +203,7 @@ const ActivityLog = ({ modal, setModal }) => {
               fontFamily: 'DMSans-Bold',
               fontSize: 36,
             }}>
-            {interactions[0].count.toString()}
+            {interactions[interactions.length - 1].count.toString()}
           </Text>
         </View>
       </View>
