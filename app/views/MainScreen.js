@@ -8,6 +8,7 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
+  Image,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
@@ -23,6 +24,8 @@ import BottomPanel from './BottomPanel';
 import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
 import ActivityLog from './modals/ActivityLog';
+import AppInfo from './modals/AppInfo';
+import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -311,6 +314,10 @@ const MainScreen = () => {
     return <ActivityLog setModal={setModal} modal={modal} />;
   };
 
+  const renderAppInfoModal = () => {
+    return <AppInfo setModal={setModal} modal={modal} />;
+  };
+
   const renderSearchInput = () => {
     if (modal) return null;
     return (
@@ -320,6 +327,8 @@ const MainScreen = () => {
         setIsSearching={changeSearchingState}
         onChangeDestination={onChangeDestination}
         isLogging={isLogging}
+        modal={modal}
+        setModal={setModal}
       />
     );
   };
@@ -339,6 +348,7 @@ const MainScreen = () => {
       {renderBlacklistModal()}
       {renderActivityModal()}
       {renderSearchResults()}
+      {renderAppInfoModal()}
       {renderBottomPanel()}
       {renderLocationDetailPanel()}
     </View>
@@ -355,25 +365,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: '#BDBDBD',
     padding: 15,
-  },
-  // activity
-  main: {
-    flex: 1,
-    paddingVertical: 20,
-    width: '100%',
-  },
-  notificationsHeader: {
-    backgroundColor: 'rgba(175, 186, 205, 0.27)',
-    width: width * 0.95,
-    marginLeft: -Math.abs(width * 0.03),
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  notificationsHeaderText: {
-    marginLeft: Math.abs(width * 0.03),
-    color: '#435d8b',
-    fontSize: 16,
-    fontFamily: 'DMSans-Bold',
   },
 });
 

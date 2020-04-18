@@ -16,6 +16,8 @@ const SearchAddress = ({
   onChangeDestination,
   isLogging,
   textInputRef,
+  modal,
+  setModal,
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -67,6 +69,18 @@ const SearchAddress = ({
     return null;
   };
 
+  const renderAppInfoIcon = () => {
+    if (modal || isSearching) return null;
+    return (
+      <TouchableOpacity onPress={() => setModal('info')} style={styles.appIcon}>
+        <Image
+          source={require('../assets/images/infoIcon.png')}
+          style={{ width: 30, height: 30, resizeMode: 'cover' }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <Animated.View
       style={[
@@ -95,6 +109,7 @@ const SearchAddress = ({
           }}
         />
       </View>
+      {renderAppInfoIcon()}
     </Animated.View>
   );
 };
@@ -102,7 +117,7 @@ const SearchAddress = ({
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     color: colors.PRIMARY_TEXT,
     zIndex: 999,
     position: 'absolute',
@@ -135,6 +150,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
     fontSize: 14,
     fontFamily: 'DMSans-Regular',
+  },
+  // App Icon
+  appIcon: {
+    color: colors.PRIMARY_TEXT,
+    alignItems: 'flex-end',
+    marginTop: 10,
   },
 });
 
