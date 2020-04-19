@@ -1,30 +1,178 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
-import {
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import moment from 'moment';
+import SafePathsAPI from '../services/API';
+import _ from 'lodash';
 
-const width = Dimensions.get('window').width;
-const timeText = [
-  '9 am to 12 pm',
-  '12 pm to 3 pm',
-  '3 pm to 6 pm',
-  '6 pm to 9 pm',
+const busyText = [
+  'Not busy',
+  'Less busy',
+  'Usually busy',
+  'Extremely busy',
+  'Dangerously Busy',
 ];
-const busyText = ['Not busy', 'Less busy', 'Usually busy', 'Extremely busy'];
-const recommendationTest = [
+const recommendationText = [
   'Recommended',
   'Use Caution',
   'Not Recommended',
   'Avoid',
+  'Do NOT Go',
 ];
+
+// const testPayload = {
+//   "devicesAtPlaceNow": 0,
+//   "densityNow": Math.floor((Math.random() * 150)),
+//   "busyHours": [
+//     {
+//       "dayOfWeek": 1,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 2,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 3,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 4,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 5,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 6,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     },
+//     {
+//       "dayOfWeek": 7,
+//       "timeRange": [
+//         {
+//           "timeRange": "9am - 12pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "12pm - 3pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "3pm - 6pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         },
+//         {
+//           "timeRange": "6pm - 9pm",
+//           "load": Math.floor((Math.random() * 150)),
+//         }
+//       ]
+//     }
+//   ]
+// }
 
 const BottomPanelLocationDetails = ({
   isSearching,
@@ -42,8 +190,15 @@ const BottomPanelLocationDetails = ({
     useCallback(() => {
       showFullPanel({ toValue: 120, velocity: -0.8 });
       setTimeout(() => setIsAnimating(false), 2000);
-      const testData = [0, 1, 3, 2];
-      setBusyTimes(testData);
+      const placeId = _.get(searchLocation, 'properties.id');
+      if (placeId) {
+        SafePathsAPI.getLocationInfo(placeId.split('/')[1]).then(data => {
+          if (data.data) {
+            setBusyTimes(data.data);
+          }
+        });
+      }
+      // setBusyTimes(testPayload)
     }),
     [isSearching, searchLocation, modal],
   );
@@ -54,22 +209,41 @@ const BottomPanelLocationDetails = ({
     }
   };
 
-  const renderLocationTimeItem = index => {
-    const busyness = busyTimes[index];
+  const renderLocationTimeItem = item => {
+    const busynessNumber = Math.min(Math.round(item.load / 25), 4);
     return (
       <View style={styles.busyTimesContainer}>
         <Text style={[styles.busyTimesListBaseText, styles.busyTimesTimeRange]}>
-          {timeText[busyness]}
+          {item.timeRange}
         </Text>
         <Text style={[styles.busyTimesListBaseText, styles.busyTimesBusyness]}>
-          {busyText[busyness]}
+          {busyText[busynessNumber]}
         </Text>
         <Text
           style={[
             styles.busyTimesListBaseText,
             styles.busyTimesRecommendation,
           ]}>
-          {recommendationTest[busyness]}
+          {recommendationText[busynessNumber]}
+        </Text>
+      </View>
+    );
+  };
+
+  const checkForInsufficientData = item => {
+    let isSufficientDays = 0;
+    for (let i = 0; i < item.length; i++) {
+      if (item[i].load > 1) isSufficientDays++;
+    }
+    return isSufficientDays;
+  };
+
+  const renderInsufficentData = () => {
+    return (
+      <View>
+        <Text
+          style={[styles.busyTimesTimeRange, { fontSize: 16, marginTop: 10 }]}>
+          Insufficient Data To Recommend Times
         </Text>
       </View>
     );
@@ -77,13 +251,31 @@ const BottomPanelLocationDetails = ({
 
   const renderLocationTimes = () => {
     console.log('busytimes', busyTimes);
-    if (!busyTimes || busyTimes.length !== 4) return null;
+    console.log('===== TIME 1 ======', busyTimes);
+    if (!busyTimes.busyHours || busyTimes.busyHours.length !== 7)
+      return renderInsufficentData();
+    const todayIndex = moment().format('d');
+    const dayBusyTimes = busyTimes.busyHours[todayIndex]['timeRange'];
+    console.log(
+      '===== TIME ======',
+      todayIndex,
+      busyTimes.busyHours[todayIndex]['timeRange'],
+    );
+    if (!checkForInsufficientData(dayBusyTimes)) return renderInsufficentData();
     return (
       <View>
-        {busyTimes.map((item, index) => {
+        <View
+          style={{
+            height: 0.3,
+            backgroundColor: 'black',
+            marginTop: 20,
+            width: '100%',
+          }}
+        />
+        {dayBusyTimes.map((item, index) => {
           return (
             <View key={index}>
-              {renderLocationTimeItem(index)}
+              {renderLocationTimeItem(item)}
               <View style={styles.separator} />
             </View>
           );
@@ -97,7 +289,7 @@ const BottomPanelLocationDetails = ({
     setDisplayRoute(true);
   };
 
-  const renderLocationEnabledOptions = () => {
+  const renderLocationInfo = () => {
     return (
       <View
         style={{
@@ -120,7 +312,7 @@ const BottomPanelLocationDetails = ({
                 paddingBottom: 10,
                 color: '#000',
               }}>
-              {searchLocation.text}
+              {searchLocation.properties.name}
             </Text>
             <TouchableOpacity
               style={{
@@ -149,17 +341,10 @@ const BottomPanelLocationDetails = ({
               fontSize: 13,
               color: '#2E4874',
             }}>
-            {searchLocation.properties.address}
+            {searchLocation.properties.housenumber}{' '}
+            {searchLocation.properties.street}
           </Text>
         </View>
-        <View
-          style={{
-            height: 0.3,
-            backgroundColor: 'black',
-            marginTop: 20,
-            width: '100%',
-          }}
-        />
       </View>
     );
   };
@@ -189,9 +374,9 @@ const BottomPanelLocationDetails = ({
       ref={sliderRef}
       draggableRange={{
         top: 420,
-        bottom: isAnimating ? 0 : 160,
+        bottom: isAnimating ? 0 : 200,
       }}
-      snappingPoints={[420, 180]}
+      snappingPoints={[420, 200]}
       showBackdrop={false}
       containerStyle={styles.panelContainer}
       minimumDistanceThreshold={10}
@@ -215,7 +400,7 @@ const BottomPanelLocationDetails = ({
           </View>
           <View
             style={[{ flexDirection: 'row', justifyContent: 'space-between' }]}>
-            {renderLocationEnabledOptions()}
+            {renderLocationInfo()}
           </View>
           {renderLocationTimes()}
           {renderDisclosure()}

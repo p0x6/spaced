@@ -20,7 +20,7 @@ class API {
         currentLocation.longitude !== null
           ? currentLocation.latitude + ''
           : undefined,
-      access_token: Config.OPEN_TOKEN,
+      api_key: Config.OPEN_TOKEN,
     };
     return this.instance.get(`/geocode/autocomplete`, {
       params,

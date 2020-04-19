@@ -85,6 +85,10 @@ class API {
       },
     });
   }
+
+  getLocationInfo(id) {
+    return this.instance.get(`/busy-times/${id}`);
+  }
 }
 
 const SafePathsAPI = new API();
