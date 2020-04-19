@@ -1,6 +1,5 @@
 import React, { useState, memo, useEffect } from 'react';
-import { Dimensions, StyleSheet, View, Image } from 'react-native';
-import { Emitter } from 'react-native-particles';
+import { Dimensions, StyleSheet, View } from 'react-native';
 
 import SplashScreen from 'react-native-splash-screen';
 
@@ -18,20 +17,6 @@ import { GetStoreData, SetStoreData } from '../helpers/General';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').width;
-
-const particleImages = [
-  require('../assets/images/particles/1.png'),
-  require('../assets/images/particles/2.png'),
-  require('../assets/images/particles/3.png'),
-  require('../assets/images/particles/4.png'),
-  require('../assets/images/particles/5.png'),
-  require('../assets/images/particles/6.png'),
-  require('../assets/images/particles/7.png'),
-  require('../assets/images/particles/8.png'),
-  require('../assets/images/particles/9.png'),
-  require('../assets/images/particles/10.png'),
-];
 
 const Onboarding = () => {
   const [page, setPage] = useState(0);
@@ -110,43 +95,8 @@ const Onboarding = () => {
     default: 'CONTINUE',
   };
 
-  const generateParticles = () => {
-    const positions = [];
-    for (let i = 0; i < height / 100; i++) {
-      positions.push({
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-      });
-    }
-    return (
-      <View>
-        {positions.map((position, index) => {
-          return (
-            <Emitter
-              key={position}
-              autoStart
-              numberOfParticles={1}
-              emissionRate={3}
-              particleLife={60000}
-              direction={90}
-              spread={120}
-              speed={5}
-              segments={60}
-              width={width}
-              height={height}
-              gravity={0}
-              fromPosition={{ x: position.x, y: position.y }}>
-              <Image source={particleImages[index]} />
-            </Emitter>
-          );
-        })}
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      {generateParticles()}
       <View style={styles.logoContainer}>
         <Logo />
       </View>

@@ -229,8 +229,8 @@ const BottomPanel = ({
             <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
               <ToggleSwitch
                 isOn={isLogging}
-                onColor='#2E4874'
-                offColor='#2E4874'
+                onColor='#435d8b'
+                offColor='rgba(47, 72, 117, 0.6)'
                 onToggle={toggleLocation}
               />
             </View>

@@ -117,7 +117,7 @@ const SearchAddress = ({
           autoCapitalize='none'
           blurOnSubmit
           placeholder={'Search location or zip code'}
-          placeholderTextColor='#454f63'
+          placeholderTextColor='#435d8b'
           onFocus={() => setIsSearching(true)}
           onChangeText={destination => {
             onChangeDestination(destination);
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     height: 48,
-    shadowColor: '#B0C6E2',
+    shadowColor: '#435d8b',
     shadowOffset: {
       width: 0,
       height: 12,
@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
     fontSize: 14,
     fontFamily: 'DMSans-Regular',
+    fontWeight: '500',
   },
   // App Icon
   infoContainer: {
