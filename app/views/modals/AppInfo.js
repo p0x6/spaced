@@ -49,8 +49,10 @@ const AppInfo = ({ modal, setModal }) => {
           <Text>View License</Text>
         </TouchableOpacity>
         <Button
-          onPress={() => Linking.openURL('mailto:me@p0x6.com?subject=Spaced')}
-          title=' Email Me: me@p0x6.com'
+          onPress={() =>
+            Linking.openURL('mailto:bobby@yanglabs.co?subject=Spaced')
+          }
+          title=' Email Me: bobby@yanglabs.co'
         />
       </View>
     </Modal>
