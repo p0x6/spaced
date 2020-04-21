@@ -297,8 +297,6 @@ const MainScreen = () => {
     if (searchedLocation) return null;
     return (
       <BottomPanel
-        isLogging={isLogging}
-        setIsLogging={setIsLogging}
         isSearching={isSearching}
         modal={modal}
         setModal={setModal}

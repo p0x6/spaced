@@ -7,3 +7,23 @@ export function setBlacklistLocation(location, address) {
     address,
   };
 }
+
+export function setLogging(
+  enabled,
+  callback = () => {
+    return;
+  },
+) {
+  return {
+    type: ActionTypes.SET_LOGGING,
+    enabled,
+    callback,
+  };
+}
+
+export function setBlacklistOnboardingStatus(completed) {
+  return {
+    type: ActionTypes.SET_BLACKLIST_ONBOARDING_STATUS,
+    completed,
+  };
+}

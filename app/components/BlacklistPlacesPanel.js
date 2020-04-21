@@ -1,7 +1,10 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setBlacklistLocation } from '../reducers/actions';
+import {
+  setBlacklistLocation,
+  setBlacklistOnboardingStatus,
+} from '../reducers/actions';
 import {
   StyleSheet,
   Text,
@@ -18,13 +21,13 @@ import { EventRegister } from 'react-native-event-listeners';
 import { useNavigation } from '@react-navigation/native';
 import MapBoxAPI from '../services/MapBoxAPI';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-import { SetStoreData } from '../helpers/General';
 
 const BlacklistPlacesPanel = ({
   isOnboarding,
   homeAddress,
   workAddress,
   setBlacklistLocation,
+  setBlacklistOnboardingStatus,
 }) => {
   const [searchInput, setSearchInput] = useState({ home: null, work: null });
   const [searchedResult, setSearchedResult] = useState([]);
@@ -122,13 +125,12 @@ const BlacklistPlacesPanel = ({
     EventRegister.emit(`set-${location}-location`, coordinates);
 
     setSearchedResult([]);
-
+    console.log('===== SOMETHING =====', searchType, isOnboarding);
     if (searchType === 'Home' && isOnboarding) {
       setSearchType('Work');
     } else if (searchType === 'Work') {
-      SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
-        navigate('MainScreen', {}),
-      );
+      setBlacklistOnboardingStatus(true);
+      navigate('MainScreen', {});
     }
   };
 
@@ -369,6 +371,7 @@ const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       setBlacklistLocation,
+      setBlacklistOnboardingStatus,
     },
     dispatch,
   );

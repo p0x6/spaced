@@ -17,4 +17,26 @@ const blacklistLocations = (state = { HOME: null, WORK: null }, action) => {
   }
 };
 
-export default combineReducers({ blacklistLocations });
+const blacklistOnboardingStatus = (state = null, action) => {
+  switch (action.type) {
+    case ActionTypes.SET_BLACKLIST_ONBOARDING_STATUS:
+      return action.completed;
+    default:
+      return state;
+  }
+};
+
+const isLogging = (state = null, action) => {
+  switch (action.type) {
+    case ActionTypes.SET_LOGGING:
+      return action.enabled;
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({
+  blacklistLocations,
+  blacklistOnboardingStatus,
+  isLogging,
+});

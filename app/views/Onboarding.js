@@ -1,24 +1,22 @@
 import React, { useState, memo, useEffect } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { setBlacklistOnboardingStatus, setLogging } from '../reducers/actions';
+
 import SplashScreen from 'react-native-splash-screen';
 
 import Logo from '../components/Logo';
 import CustomText from '../components/CustomText';
 import Button2 from '../components/Button2';
 
-import LocationServices, {
-  getHomeLocation,
-  getWorkLocation,
-} from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
-import BroadcastingServices from '../services/BroadcastingService';
-import { GetStoreData, SetStoreData } from '../helpers/General';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
 
-const Onboarding = () => {
+const Onboarding = ({ blacklistOnboardingStatus, setLogging }) => {
   const [page, setPage] = useState(0);
   const { navigate } = useNavigation();
 
@@ -27,38 +25,15 @@ const Onboarding = () => {
   }, []);
 
   const participationCallback = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() => {
-      console.log('saved participate');
-      getHomeLocation().then(location => {
-        const parsedLocation = JSON.parse(location);
-        if (parsedLocation && parsedLocation.address) {
-          console.log('HAS HOME LOCATION', location);
-          navigate('MainScreen', {});
-        } else {
-          getWorkLocation().then(location => {
-            const parsedLocation = JSON.parse(location);
-            if (parsedLocation && parsedLocation.address) {
-              console.log('HAS WORK LOCATION', location);
-              navigate('MainScreen', {});
-            } else {
-              GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
-                console.log('NO HOME OR WORK LOCATIONS', location);
-                if (isOnboarded === 'true') {
-                  navigate('MainScreen', {});
-                } else {
-                  navigate('OnboardingBlacklist', {});
-                }
-              });
-            }
-          });
-        }
-      });
-    });
+    if (!blacklistOnboardingStatus) {
+      navigate('OnboardingBlacklist', {});
+    } else {
+      navigate('MainScreen', {});
+    }
   };
 
   const willParticipate = () => {
-    LocationServices.start(participationCallback);
-    BroadcastingServices.start();
+    setLogging(true, participationCallback);
   };
 
   const isPage = pageNum => page === pageNum;
@@ -200,4 +175,18 @@ const whiteButtonStyles = {
   },
 };
 
-export default memo(Onboarding);
+const mapStateToProps = state => ({
+  blacklistOnboardingStatus: state.blacklistOnboardingStatus,
+  isLogging: state.isLogging,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      setBlacklistOnboardingStatus,
+      setLogging,
+    },
+    dispatch,
+  );
+
+export default memo(connect(mapStateToProps, mapDispatchToProps)(Onboarding));
