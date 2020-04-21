@@ -13,15 +13,17 @@ const ActivityLog = ({ modal, setModal }) => {
   const [interactions, setInteractions] = useState([]);
 
   useEffect(() => {
-    SafePathsAPI.getIntersections()
-      .then(data => {
-        const userInteractions = _.get(data, 'data', []);
-        setInteractions(userInteractions.reverse());
-      })
-      .catch(e => {
-        console.log('FAILED TO GET INTERSECTIONS: ', e);
-        setInteractions([]);
-      });
+    if (modal === 'activity') {
+      SafePathsAPI.getIntersections()
+        .then(data => {
+          const userInteractions = _.get(data, 'data', []);
+          setInteractions(userInteractions.reverse());
+        })
+        .catch(e => {
+          console.log('FAILED TO GET INTERSECTIONS: ', e);
+          setInteractions([]);
+        });
+    }
     // setInteractions(
     //   [
     //     {

@@ -51,17 +51,15 @@ export class LocationData {
 
     this.getBlacklistedLocations();
     this.homeLocationListener = EventRegister.addEventListener(
-      'setHomeLocation',
-      data => {
-        const coordinates = _.get(data, 'coordinates', []);
+      'set-HOME-location',
+      coordinates => {
         console.log('SETTING HOME LOCATION: ', coordinates);
         this.createLocationPolygon(coordinates, 'Home');
       },
     );
     this.workLocationListener = EventRegister.addEventListener(
-      'setWorkLocation',
-      data => {
-        const coordinates = _.get(data, 'coordinates', []);
+      'set-WORK-location',
+      coordinates => {
         console.log('SETTING WORK LOCATION: ', coordinates);
         this.createLocationPolygon(coordinates, 'Work');
       },
@@ -104,16 +102,16 @@ export class LocationData {
   getBlacklistedLocations() {
     getHomeLocation().then(location => {
       const parsedLocation = JSON.parse(location);
-      console.log('BLACKLIST HOME:', location);
-      if (parsedLocation && parsedLocation.coordinates) {
-        this.createLocationPolygon(parsedLocation.coordinates, 'Home');
+      console.log('BLACKLIST HOME:', parsedLocation);
+      if (parsedLocation && parsedLocation.length === 2) {
+        this.createLocationPolygon(parsedLocation, 'Home');
       }
     });
     getWorkLocation().then(location => {
       const parsedLocation = JSON.parse(location);
-      console.log('BLACKLIST Work:', location);
-      if (parsedLocation && parsedLocation.coordinates) {
-        this.createLocationPolygon(parsedLocation.coordinates, 'Work');
+      console.log('BLACKLIST WORK:', location);
+      if (parsedLocation && parsedLocation.length === 2) {
+        this.createLocationPolygon(parsedLocation, 'Work');
       }
     });
   }
@@ -236,7 +234,8 @@ export class LocationData {
 export default class LocationServices {
   static start(callback) {
     const locationData = new LocationData();
-    global.window.locationData = locationData;
+    // FOR DEBUGGING ONLY
+    // global.window.locationData = locationData;
 
     instanceCount += 1;
     if (instanceCount > 1) {
