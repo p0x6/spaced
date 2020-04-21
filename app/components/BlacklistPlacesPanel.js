@@ -47,10 +47,9 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
       verifiedLocation.longitude = currentLocation.longitude;
       verifiedLocation.latitude = currentLocation.latitude;
     }
-    MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(
+    MapBoxAPI.mapboxSearch(text, verifiedLocation, verifiedBounds).then(
       result => {
         if (result && result.data && result.data.features) {
-          console.log(result.data.features);
           setSearchedResult(result.data.features);
         }
       },
@@ -121,7 +120,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
 
   const onPressItem = (control, item) => {
     Keyboard.dismiss();
-    const placeName = _.get(item, 'properties.name', '').split(',')[0];
+    const placeName = _.get(item, 'place_name', '').split(',')[0];
     setAddress(control, placeName);
     if (control === 'Home') {
       setHomeLocation({
@@ -205,8 +204,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
         style={styles.itemButton}
         onPress={() => onPressItem(control, item)}>
         <Text numberOfLines={1} style={styles.locationTitle}>
-          {item.properties.name} - {item.properties.housenumber}{' '}
-          {item.properties.street} {item.properties.postalcode}
+          {item.place_name}
         </Text>
       </TouchableOpacity>
     );

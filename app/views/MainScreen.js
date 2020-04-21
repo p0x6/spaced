@@ -37,6 +37,17 @@ const INITIAL_REGION = {
   longitudeDelta: 50,
 };
 
+const createGeoJSON = item => {
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [item.geometry.location.lng, item.geometry.location.lat],
+    },
+    properties: item,
+  };
+};
+
 const MainScreen = () => {
   const [isLogging, setIsLogging] = useState(false);
   const [region, setRegion] = useState(INITIAL_REGION);
@@ -143,8 +154,8 @@ const MainScreen = () => {
       verifiedLocation.latitude = currentLocation.latitude;
     }
     MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(result => {
-      if (result && result.data && result.data.features) {
-        setSearchedResult(result.data.features);
+      if (result && result.data && result.data.predictions) {
+        setSearchedResult(result.data.predictions);
       }
     });
   };
@@ -251,14 +262,19 @@ const MainScreen = () => {
   const onRenderSearchItems = ({ item, index }) => {
     console.log('ITEM=>>', item);
 
-    if (!item || !item.properties || !item.geometry) return null;
+    if (!item || !item.description || !item.place_id) return null;
 
     const itemClick = item => {
-      changeSearchingState(false);
-      moveToSearchArea(item);
-      setPlaceMarkers({ features: [item] });
-      setSearchedLocation(item);
-      setNavigateLocation(item.geometry.coordinates);
+      MapBoxAPI.getPlaceDetails(item.place_id).then(data => {
+        if (data && data.data && data.data.result) {
+          const geoJSON = createGeoJSON(data.data.result);
+          changeSearchingState(false);
+          moveToSearchArea(geoJSON);
+          setPlaceMarkers({ features: [geoJSON] });
+          setSearchedLocation(geoJSON);
+          setNavigateLocation(geoJSON.geometry.coordinates);
+        }
+      });
     };
 
     return (
@@ -271,8 +287,7 @@ const MainScreen = () => {
         }}
         key={index}>
         <Text numberOfLines={1} style={styles.locationTitle}>
-          {item.properties.name} - {item.properties.housenumber}{' '}
-          {item.properties.street} {item.properties.postalcode}
+          {item.description}
         </Text>
       </TouchableOpacity>
     );
