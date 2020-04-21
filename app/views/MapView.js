@@ -1,4 +1,5 @@
 import React, { useEffect, memo, useState } from 'react';
+import { connect } from 'react-redux';
 import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SafePathsAPI from '../services/API';
@@ -227,4 +228,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(MapViewComponent);
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+});
+
+export default memo(connect(mapStateToProps, null)(MapViewComponent));

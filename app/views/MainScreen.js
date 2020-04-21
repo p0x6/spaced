@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
+import { connect } from 'react-redux';
 import {
   StyleSheet,
   View,
@@ -48,19 +49,16 @@ const createGeoJSON = item => {
   };
 };
 
-const MainScreen = () => {
-  const [isLogging, setIsLogging] = useState(false);
+const MainScreen = ({ isLogging }) => {
   const [region, setRegion] = useState(INITIAL_REGION);
   const [userMarkers, setUserMarkers] = useState(null);
   const [placeMarkers, setPlaceMarkers] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
-  const [isInitialRender, setIsInitialRender] = useState(true);
   const [navigateLocation, setNavigateLocation] = useState([]);
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [modal, setModal] = useState(null);
   const [displayRoute, setDisplayRoute] = useState(false);
-  const [bounds, setBounds] = useState([]);
 
   const mapRef = useRef(null);
   const sliderRef = useRef(null);
@@ -69,14 +67,7 @@ const MainScreen = () => {
   useEffect(
     useCallback(() => {
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-      GetStoreData('PARTICIPATE')
-        .then(isParticipating => {
-          if (isParticipating === 'true' && isInitialRender) {
-            getInitialState();
-            setIsInitialRender(false);
-          }
-        })
-        .catch(error => console.log(error));
+      if (isLogging) getInitialState();
       SplashScreen.hide();
       return BackHandler.removeEventListener(
         'hardwareBackPress',
@@ -349,7 +340,6 @@ const MainScreen = () => {
         isSearching={isSearching}
         setIsSearching={changeSearchingState}
         onChangeDestination={onChangeDestination}
-        isLogging={isLogging}
         modal={modal}
         setModal={setModal}
         goToMyLocation={getInitialState}
@@ -360,7 +350,6 @@ const MainScreen = () => {
   return (
     <View style={styles.container}>
       <MapView
-        isLogging={isLogging}
         mapRef={mapRef}
         region={region}
         userMarkers={userMarkers}
@@ -392,4 +381,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(MainScreen);
+const mapDispatchToProps = state => ({
+  isLogging: state.isLogging,
+});
+
+export default memo(connect(mapDispatchToProps, null)(MainScreen));

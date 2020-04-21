@@ -1,14 +1,15 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   TextInput,
   Animated,
   Image,
 } from 'react-native';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import colors from '../constants/colors';
+
+import { connect } from 'react-redux';
 
 const SearchAddress = ({
   isSearching,
@@ -189,4 +190,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchAddress;
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+});
+
+export default memo(connect(mapStateToProps, null)(SearchAddress));
