@@ -34,3 +34,17 @@ export function setMapLocation(location) {
     location,
   };
 }
+
+export function setSearchingState(isSearching) {
+  return {
+    type: ActionTypes.SET_SEARCHING_STATE,
+    isSearching,
+  };
+}
+
+export function setNavigation(lineString) {
+  return {
+    type: ActionTypes.SET_NAVIGATION_LINE_STRING,
+    lineString: lineString,
+  };
+}

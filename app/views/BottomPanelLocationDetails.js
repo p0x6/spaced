@@ -5,6 +5,10 @@ import moment from 'moment';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
 
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setMapLocation, setNavigation } from '../reducers/actions';
+
 const busyText = [
   'Not busy',
   'Less busy',
@@ -179,25 +183,15 @@ const BottomPanelLocationDetails = ({
   modal,
   sliderRef,
   searchLocation,
-  setSearchLocation,
   setDisplayRoute,
-  setPlaceMarkers,
+  setMapLocation,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
-  const [busyTimes, setBusyTimes] = useState([]);
 
   useEffect(
     useCallback(() => {
       showFullPanel({ toValue: 120, velocity: -0.8 });
       setTimeout(() => setIsAnimating(false), 2000);
-      const placeId = _.get(searchLocation, 'properties.id');
-      if (placeId) {
-        SafePathsAPI.getLocationInfo(placeId.split('/')[1]).then(data => {
-          if (data.data) {
-            setBusyTimes(data.data);
-          }
-        });
-      }
       // setBusyTimes(testPayload)
     }),
     [isSearching, searchLocation, modal],
@@ -250,16 +244,15 @@ const BottomPanelLocationDetails = ({
   };
 
   const renderLocationTimes = () => {
-    console.log('busytimes', busyTimes);
-    console.log('===== TIME 1 ======', busyTimes);
-    if (!busyTimes.busyHours || busyTimes.busyHours.length !== 7)
+    console.log('busytimes', searchLocation.busyTimes);
+    if (!searchLocation.busyTimes || searchLocation.busyTimes.length !== 7)
       return renderInsufficentData();
     const todayIndex = moment().format('d');
-    const dayBusyTimes = busyTimes.busyHours[todayIndex]['timeRange'];
+    const dayBusyTimes = searchLocation.busyTimes[todayIndex]['timeRange'];
     console.log(
       '===== TIME ======',
       todayIndex,
-      busyTimes.busyHours[todayIndex]['timeRange'],
+      searchLocation.busyTimes[todayIndex]['timeRange'],
     );
     if (!checkForInsufficientData(dayBusyTimes)) return renderInsufficentData();
     return (
@@ -312,7 +305,7 @@ const BottomPanelLocationDetails = ({
                 paddingBottom: 10,
                 color: '#000',
               }}>
-              {searchLocation.properties.name}
+              {searchLocation.name}
             </Text>
             <TouchableOpacity
               style={{
@@ -341,8 +334,7 @@ const BottomPanelLocationDetails = ({
               fontSize: 13,
               color: '#2E4874',
             }}>
-            {searchLocation.properties.housenumber}{' '}
-            {searchLocation.properties.street}
+            {searchLocation.address.split(',')[0]}
           </Text>
         </View>
       </View>
@@ -373,7 +365,7 @@ const BottomPanelLocationDetails = ({
       allowDragging
       ref={sliderRef}
       draggableRange={{
-        top: 420,
+        top: 520,
         bottom: isAnimating ? 0 : 200,
       }}
       snappingPoints={[420, 200]}
@@ -388,9 +380,8 @@ const BottomPanelLocationDetails = ({
             <TouchableOpacity
               style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
               onPress={() => {
-                setSearchLocation(null);
+                setMapLocation({ coordinates: [] });
                 setDisplayRoute(false);
-                setPlaceMarkers(null);
               }}>
               <Image
                 source={require('../assets/images/blue_close.png')}
@@ -475,4 +466,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(BottomPanelLocationDetails);
+const mapStateToProps = state => ({
+  searchLocation: state.mapLocation,
+  isSearching: state.isSearching,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ setMapLocation, setNavigation }, dispatch);
+
+export default memo(
+  connect(mapStateToProps, mapDispatchToProps)(BottomPanelLocationDetails),
+);

@@ -1,6 +1,6 @@
 import * as ActionTypes from './actionTypes';
 import { GetStoreData, SetStoreData } from '../helpers/General';
-import { setLogging, setMapLocation } from './actions';
+import { setLogging, setMapLocation, setSearchingState } from './actions';
 import LocationServices from '../services/LocationService';
 import BroadcastingServices from '../services/BroadcastingService';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
@@ -21,6 +21,9 @@ const router = () => {
         }
       });
     }
+
+    if (currState.mapLocation.coordinates !== nextState.mapLocation.coordinates)
+      dispatch(setSearchingState(false));
 
     if (
       currState.isLogging !== nextState.isLogging &&
@@ -43,8 +46,10 @@ const router = () => {
     }
 
     if (
-      currState.mapLocation.coordinates &&
-      currState.mapLocation.coordinates.length !== 2
+      (currState.mapLocation.coordinates &&
+        currState.mapLocation.coordinates.length !== 2) ||
+      (currState.mapLocation.coordinates.length === 2 &&
+        nextState.mapLocation.coordinates.length === 0)
     ) {
       BackgroundGeolocation.getCurrentLocation(
         location => {

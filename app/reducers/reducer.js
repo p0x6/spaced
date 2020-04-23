@@ -1,5 +1,6 @@
 import * as ActionTypes from './actionTypes';
 import { combineReducers } from 'redux';
+import { Keyboard } from 'react-native';
 
 const blacklistLocations = (state = { HOME: null, WORK: null }, action) => {
   switch (action.type) {
@@ -52,9 +53,20 @@ const mapLocation = (
   }
 };
 
+const isSearching = (state = false, action) => {
+  switch (action.type) {
+    case ActionTypes.SET_SEARCHING_STATE:
+      if (!action.isSearching) Keyboard.dismiss();
+      return action.isSearching;
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   blacklistLocations,
   blacklistOnboardingStatus,
   isLogging,
   mapLocation,
+  isSearching,
 });

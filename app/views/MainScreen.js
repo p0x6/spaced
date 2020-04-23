@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setMapLocation } from '../reducers/actions';
+import { setMapLocation, setSearchingState } from '../reducers/actions';
 
 import {
   StyleSheet,
@@ -35,13 +35,6 @@ import colors from '../constants/colors';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-const INITIAL_REGION = {
-  latitude: 36.56,
-  longitude: 20.39,
-  latitudeDelta: 50,
-  longitudeDelta: 50,
-};
-
 const createGeoJSON = item => {
   return {
     type: 'Feature',
@@ -53,9 +46,14 @@ const createGeoJSON = item => {
   };
 };
 
-const MainScreen = ({ isLogging, setMapLocation, region }) => {
+const MainScreen = ({
+  isLogging,
+  setMapLocation,
+  region,
+  isSearching,
+  setSearchingState,
+}) => {
   const [userMarkers, setUserMarkers] = useState(null);
-  const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [navigateLocation, setNavigateLocation] = useState([]);
   const [searchedLocation, setSearchedLocation] = useState(null);
@@ -193,9 +191,9 @@ const MainScreen = ({ isLogging, setMapLocation, region }) => {
     setSearchedLocation(null);
     setDisplayRoute(false);
     if (state) {
-      setIsSearching(state);
+      setSearchingState(state);
     } else {
-      setIsSearching(state);
+      setSearchingState(state);
       Keyboard.dismiss();
     }
   };
@@ -283,7 +281,7 @@ const MainScreen = ({ isLogging, setMapLocation, region }) => {
   };
 
   const renderBottomPanel = () => {
-    if (searchedLocation) return null;
+    if (region && region.name) return null;
     return (
       <BottomPanel
         isSearching={isSearching}
@@ -296,16 +294,12 @@ const MainScreen = ({ isLogging, setMapLocation, region }) => {
   };
 
   const renderLocationDetailPanel = () => {
-    if (!searchedLocation) return null;
+    if (region && !region.name) return null;
     return (
       <BottomPanelLocationDetails
-        isSearching={isSearching}
         modal={modal}
         sliderRef={sliderRef}
-        setSearchLocation={setSearchedLocation}
-        searchLocation={searchedLocation}
         setDisplayRoute={setDisplayRoute}
-        setPlaceMarkers={setPlaceMarkers}
       />
     );
   };
@@ -380,9 +374,10 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   isLogging: state.isLogging,
   region: state.mapLocation,
+  isSearching: state.isSearching,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ setMapLocation }, dispatch);
+  bindActionCreators({ setMapLocation, setSearchingState }, dispatch);
 
 export default memo(connect(mapStateToProps, mapDispatchToProps)(MainScreen));
