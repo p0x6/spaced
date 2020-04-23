@@ -112,37 +112,21 @@ const MapViewComponent = ({
     return function cleanup() {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
-  }, [region, displayRoute, navigateLocation, userMarkers, placeMarkers]);
+  }, [region, displayRoute, navigateLocation, userMarkers]);
 
   const renderAnnotations = () => {
-    const items = [];
-
-    const places = _.get(placeMarkers, 'features', []);
-
-    console.log('====== PLACES ======', places, placeMarkers);
-
-    for (let i = 0; i < places.length; i++) {
-      const coordinate = _.get(places[i], 'geometry.coordinates', null);
-      const details = _.get(places[i], 'properties', null);
-      const text = _.get(places[i], 'text', null);
-
-      if (!coordinate) continue;
-
-      const title = details.address || details.name;
-      const id = `pointAnnotation${i}`;
-
-      items.push(
+    if (region.name && region.address && region.coordinates) {
+      return (
         <MapboxGL.PointAnnotation
-          key={id}
-          id={id}
-          coordinate={coordinate}
-          title={title}>
-          <MapboxGL.Callout title={`${text || details.name}`} />
-        </MapboxGL.PointAnnotation>,
+          key={region.name}
+          id={region.name}
+          coordinate={region.coordinates}
+          title={region.name}>
+          <MapboxGL.Callout title={region.name} />
+        </MapboxGL.PointAnnotation>
       );
     }
-
-    return items;
+    return null;
   };
 
   const renderRoute = () => {
@@ -166,15 +150,11 @@ const MapViewComponent = ({
         rotateEnabled={isLogging}>
         <MapboxGL.Camera
           zoomLevel={17}
-          centerCoordinate={[region.longitude, region.latitude]}
+          centerCoordinate={region.coordinates}
           animationMode={'flyTo'}
           followUserLocation={displayRoute}
         />
-        <MapboxGL.UserLocation
-        // onUpdate={newUserLocation =>
-        //   onUserLocationUpdate(newUserLocation)
-        // }
-        />
+        <MapboxGL.UserLocation />
         {renderRoute()}
 
         <MapboxGL.ShapeSource
@@ -230,6 +210,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => ({
   isLogging: state.isLogging,
+  region: state.mapLocation,
 });
 
 export default memo(connect(mapStateToProps, null)(MapViewComponent));

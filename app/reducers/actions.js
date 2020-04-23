@@ -27,3 +27,10 @@ export function setBlacklistOnboardingStatus(completed) {
     completed,
   };
 }
+
+export function setMapLocation(location) {
+  return {
+    type: ActionTypes.SET_FOCUS_LOCATION,
+    location,
+  };
+}

@@ -35,8 +35,26 @@ const isLogging = (state = null, action) => {
   }
 };
 
+const mapLocation = (
+  state = {
+    coordinates: [],
+    name: '',
+    address: '',
+    busyHours: {},
+  },
+  action,
+) => {
+  switch (action.type) {
+    case ActionTypes.SET_FOCUS_LOCATION:
+      return action.location;
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   blacklistLocations,
   blacklistOnboardingStatus,
   isLogging,
+  mapLocation,
 });

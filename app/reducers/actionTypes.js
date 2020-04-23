@@ -2,3 +2,4 @@ export const SET_BLACKLIST_ADDRESS = 'blacklist/SET_HOME_ADDRESS';
 export const SET_BLACKLIST_ONBOARDING_STATUS = 'blacklist/ONBOARDING_STATUS';
 
 export const SET_LOGGING = 'map/SET_LOGGING';
+export const SET_FOCUS_LOCATION = 'map/SET_FOCUS_LOCATION';

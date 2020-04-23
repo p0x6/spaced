@@ -1,5 +1,9 @@
 import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
+
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setMapLocation } from '../reducers/actions';
+
 import {
   StyleSheet,
   View,
@@ -43,16 +47,14 @@ const createGeoJSON = item => {
     type: 'Feature',
     geometry: {
       type: 'Point',
-      coordinates: [item.geometry.location.lng, item.geometry.location.lat],
+      coordinates: [item.coordinates.longitude, item.coordinates.latitude],
     },
     properties: item,
   };
 };
 
-const MainScreen = ({ isLogging }) => {
-  const [region, setRegion] = useState(INITIAL_REGION);
+const MainScreen = ({ isLogging, setMapLocation, region }) => {
   const [userMarkers, setUserMarkers] = useState(null);
-  const [placeMarkers, setPlaceMarkers] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedResult, setSearchedResult] = useState([]);
   const [navigateLocation, setNavigateLocation] = useState([]);
@@ -77,45 +79,25 @@ const MainScreen = ({ isLogging }) => {
     [],
   );
 
-  const setInitialMapCenter = location => {
-    setRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
-    moveToSearchArea({
-      geometry: { coordinates: [location.longitude, location.latitude] },
-    });
-    populateMarkers({
-      latitude: location.latitude,
-      longitude: location.longitude,
-    });
-  };
-
   const getInitialState = () => {
     BackgroundGeolocation.getCurrentLocation(
       location => {
         const { latitude, longitude } = location;
-        setInitialMapCenter({
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+        setMapLocation({
+          coordinates: [longitude, latitude],
         });
       },
       () => {
         try {
           GetStoreData('LOCATION_DATA').then(locationArrayString => {
             const locationArray = JSON.parse(locationArrayString);
-            if (locationArray !== null) {
+            if (locationArray !== null && locationArray.length >= 1) {
               const { latitude, longitude } = locationArray.slice(-1)[0];
-              setInitialMapCenter({
-                latitude,
-                longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
+              setMapLocation({
+                coordinates: [longitude, latitude],
               });
+            } else {
+              setMapLocation({ coordinates: [20.39, 36.56] });
             }
           });
         } catch (error) {
@@ -179,32 +161,32 @@ const MainScreen = ({ isLogging }) => {
     });
   }
 
-  function moveToSearchArea(location) {
-    const safeLocationArray = _.get(location, 'geometry.coordinates', []);
-    const safeLocation = {
-      latitude: safeLocationArray[1],
-      longitude: safeLocationArray[0],
-    };
-    if (safeLocation) {
-      console.log(
-        '======== moving area to searched location ======',
-        safeLocation,
-      );
-      if (
-        region &&
-        safeLocation.latitude === region.latitude &&
-        safeLocation.longitude === region.longitude
-      ) {
-        setRegion(INITIAL_REGION);
-      }
-      setRegion({
-        latitude: safeLocation.latitude,
-        longitude: safeLocation.longitude,
-        latitudeDelta: safeLocation.latitudeDelta || 0.01,
-        longitudeDelta: safeLocation.longitudeDelta || 0.01,
-      });
-    }
-  }
+  // function moveToSearchArea(location) {
+  //   const safeLocationArray = _.get(location, 'geometry.coordinates', []);
+  //   const safeLocation = {
+  //     latitude: safeLocationArray[1],
+  //     longitude: safeLocationArray[0],
+  //   };
+  //   if (safeLocation) {
+  //     console.log(
+  //       '======== moving area to searched location ======',
+  //       safeLocation,
+  //     );
+  //     if (
+  //       region &&
+  //       safeLocation.latitude === region.latitude &&
+  //       safeLocation.longitude === region.longitude
+  //     ) {
+  //       setRegion(INITIAL_REGION);
+  //     }
+  //     setRegion({
+  //       latitude: safeLocation.latitude,
+  //       longitude: safeLocation.longitude,
+  //       latitudeDelta: safeLocation.latitudeDelta || 0.01,
+  //       longitudeDelta: safeLocation.longitudeDelta || 0.01,
+  //     });
+  //   }
+  // }
 
   const changeSearchingState = state => {
     console.log('======= CHANGE SEARCHING STATE =======');
@@ -256,16 +238,32 @@ const MainScreen = ({ isLogging }) => {
     if (!item || !item.description || !item.place_id) return null;
 
     const itemClick = item => {
-      MapBoxAPI.getPlaceDetails(item.place_id).then(data => {
-        if (data && data.data && data.data.result) {
-          const geoJSON = createGeoJSON(data.data.result);
-          changeSearchingState(false);
-          moveToSearchArea(geoJSON);
-          setPlaceMarkers({ features: [geoJSON] });
-          setSearchedLocation(geoJSON);
-          setNavigateLocation(geoJSON.geometry.coordinates);
+      SafePathsAPI.getLocationInfo(item.place_id).then(data => {
+        if (data && data.data) {
+          const geoJSON = createGeoJSON(data.data);
+          setMapLocation({
+            coordinates: geoJSON.geometry.coordinates,
+            name: geoJSON.properties.name,
+            address: geoJSON.properties.address,
+            busyTimes: geoJSON.properties.busyHours,
+          });
         }
       });
+      // MapBoxAPI.getPlaceDetails(item.place_id).then(data => {
+      //   if (data && data.data && data.data.result) {
+      //     const geoJSON = createGeoJSON(data.data.result);
+      //     setMapLocation({
+      //       coordinates: geoJSON.geometry.coordinates,
+      //       name: geoJSON.properties.name,
+      //       address: geoJSON.properties.formatted_address,
+      //     })
+      //     changeSearchingState(false);
+      //     moveToSearchArea(geoJSON);
+      //     setPlaceMarkers({ features: [geoJSON] });
+      //     setSearchedLocation(geoJSON);
+      //     setNavigateLocation(geoJSON.geometry.coordinates);
+      //   }
+      // });
     };
 
     return (
@@ -351,9 +349,7 @@ const MainScreen = ({ isLogging }) => {
     <View style={styles.container}>
       <MapView
         mapRef={mapRef}
-        region={region}
         userMarkers={userMarkers}
-        placeMarkers={placeMarkers}
         navigateLocation={navigateLocation}
         displayRoute={displayRoute}
       />
@@ -381,8 +377,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToProps = state => ({
+const mapStateToProps = state => ({
   isLogging: state.isLogging,
+  region: state.mapLocation,
 });
 
-export default memo(connect(mapDispatchToProps, null)(MainScreen));
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ setMapLocation }, dispatch);
+
+export default memo(connect(mapStateToProps, mapDispatchToProps)(MainScreen));
