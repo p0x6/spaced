@@ -25,7 +25,6 @@ const BottomPanel = ({
   isLogging,
   setLogging,
   getInitialState,
-  searchLocation,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
 
@@ -343,7 +342,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   isLogging: state.isLogging,
   isSearching: state.isSearching,
-  searchLocation: state.mapLocation,
+  searchLocation: state.placeLocation,
 });
 
 const mapDispatchToProps = dispatch =>

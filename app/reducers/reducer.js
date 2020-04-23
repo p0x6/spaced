@@ -36,7 +36,17 @@ const isLogging = (state = null, action) => {
   }
 };
 
-const mapLocation = (
+const mapLocation = (state = [], action) => {
+  switch (action.type) {
+    case ActionTypes.SET_FOCUS_LOCATION:
+      console.log('====== SETTING FOCUST LOCATION =======');
+      return action.location;
+    default:
+      return state;
+  }
+};
+
+const placeLocation = (
   state = {
     coordinates: [],
     name: '',
@@ -46,7 +56,7 @@ const mapLocation = (
   action,
 ) => {
   switch (action.type) {
-    case ActionTypes.SET_FOCUS_LOCATION:
+    case ActionTypes.SET_PLACE_LOCATION:
       return action.location;
     default:
       return state;
@@ -63,10 +73,21 @@ const isSearching = (state = false, action) => {
   }
 };
 
+const navigation = (state = null, action) => {
+  switch (action.type) {
+    case ActionTypes.SET_NAVIGATION_LINE_STRING:
+      return action.lineString;
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   blacklistLocations,
   blacklistOnboardingStatus,
   isLogging,
   mapLocation,
   isSearching,
+  navigation,
+  placeLocation,
 });

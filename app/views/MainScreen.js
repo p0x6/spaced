@@ -2,7 +2,11 @@ import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setMapLocation, setSearchingState } from '../reducers/actions';
+import {
+  setMapLocation,
+  setSearchingState,
+  setPlaceLocation,
+} from '../reducers/actions';
 
 import {
   StyleSheet,
@@ -13,7 +17,6 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
-  Image,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
@@ -30,7 +33,6 @@ import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
 import ActivityLog from './modals/ActivityLog';
 import AppInfo from './modals/AppInfo';
-import colors from '../constants/colors';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -50,15 +52,14 @@ const MainScreen = ({
   isLogging,
   setMapLocation,
   region,
+  place,
   isSearching,
   setSearchingState,
+  setPlaceLocation,
 }) => {
   const [userMarkers, setUserMarkers] = useState(null);
   const [searchedResult, setSearchedResult] = useState([]);
-  const [navigateLocation, setNavigateLocation] = useState([]);
-  const [searchedLocation, setSearchedLocation] = useState(null);
   const [modal, setModal] = useState(null);
-  const [displayRoute, setDisplayRoute] = useState(false);
 
   const mapRef = useRef(null);
   const sliderRef = useRef(null);
@@ -81,9 +82,8 @@ const MainScreen = ({
     BackgroundGeolocation.getCurrentLocation(
       location => {
         const { latitude, longitude } = location;
-        setMapLocation({
-          coordinates: [longitude, latitude],
-        });
+        setMapLocation([longitude, latitude]);
+        populateMarkers({ latitude, longitude });
       },
       () => {
         try {
@@ -91,11 +91,10 @@ const MainScreen = ({
             const locationArray = JSON.parse(locationArrayString);
             if (locationArray !== null && locationArray.length >= 1) {
               const { latitude, longitude } = locationArray.slice(-1)[0];
-              setMapLocation({
-                coordinates: [longitude, latitude],
-              });
+              setMapLocation([longitude, latitude]);
+              populateMarkers({ latitude, longitude });
             } else {
-              setMapLocation({ coordinates: [20.39, 36.56] });
+              setMapLocation([20.39, 36.56]);
             }
           });
         } catch (error) {
@@ -152,44 +151,17 @@ const MainScreen = ({
   };
 
   async function populateMarkers(passedRegion) {
-    SafePathsAPI.getPositions(passedRegion || region).then(userPositions => {
+    SafePathsAPI.getPositions(
+      passedRegion || { latitude: region[1], longitude: region[0] },
+    ).then(userPositions => {
       let userMarkers = _.get(userPositions, 'data', null);
       console.log('---- markers -----', userMarkers);
       setUserMarkers(userMarkers);
     });
   }
 
-  // function moveToSearchArea(location) {
-  //   const safeLocationArray = _.get(location, 'geometry.coordinates', []);
-  //   const safeLocation = {
-  //     latitude: safeLocationArray[1],
-  //     longitude: safeLocationArray[0],
-  //   };
-  //   if (safeLocation) {
-  //     console.log(
-  //       '======== moving area to searched location ======',
-  //       safeLocation,
-  //     );
-  //     if (
-  //       region &&
-  //       safeLocation.latitude === region.latitude &&
-  //       safeLocation.longitude === region.longitude
-  //     ) {
-  //       setRegion(INITIAL_REGION);
-  //     }
-  //     setRegion({
-  //       latitude: safeLocation.latitude,
-  //       longitude: safeLocation.longitude,
-  //       latitudeDelta: safeLocation.latitudeDelta || 0.01,
-  //       longitudeDelta: safeLocation.longitudeDelta || 0.01,
-  //     });
-  //   }
-  // }
-
   const changeSearchingState = state => {
     console.log('======= CHANGE SEARCHING STATE =======');
-    setSearchedLocation(null);
-    setDisplayRoute(false);
     if (state) {
       setSearchingState(state);
     } else {
@@ -239,7 +211,8 @@ const MainScreen = ({
       SafePathsAPI.getLocationInfo(item.place_id).then(data => {
         if (data && data.data) {
           const geoJSON = createGeoJSON(data.data);
-          setMapLocation({
+          setMapLocation(geoJSON.geometry.coordinates);
+          setPlaceLocation({
             coordinates: geoJSON.geometry.coordinates,
             name: geoJSON.properties.name,
             address: geoJSON.properties.address,
@@ -247,21 +220,6 @@ const MainScreen = ({
           });
         }
       });
-      // MapBoxAPI.getPlaceDetails(item.place_id).then(data => {
-      //   if (data && data.data && data.data.result) {
-      //     const geoJSON = createGeoJSON(data.data.result);
-      //     setMapLocation({
-      //       coordinates: geoJSON.geometry.coordinates,
-      //       name: geoJSON.properties.name,
-      //       address: geoJSON.properties.formatted_address,
-      //     })
-      //     changeSearchingState(false);
-      //     moveToSearchArea(geoJSON);
-      //     setPlaceMarkers({ features: [geoJSON] });
-      //     setSearchedLocation(geoJSON);
-      //     setNavigateLocation(geoJSON.geometry.coordinates);
-      //   }
-      // });
     };
 
     return (
@@ -281,7 +239,7 @@ const MainScreen = ({
   };
 
   const renderBottomPanel = () => {
-    if (region && region.name) return null;
+    if (place && place.name) return null;
     return (
       <BottomPanel
         isSearching={isSearching}
@@ -294,14 +252,8 @@ const MainScreen = ({
   };
 
   const renderLocationDetailPanel = () => {
-    if (region && !region.name) return null;
-    return (
-      <BottomPanelLocationDetails
-        modal={modal}
-        sliderRef={sliderRef}
-        setDisplayRoute={setDisplayRoute}
-      />
-    );
+    if (place && !place.name) return null;
+    return <BottomPanelLocationDetails modal={modal} sliderRef={sliderRef} />;
   };
 
   const renderBlacklistModal = () => {
@@ -341,12 +293,7 @@ const MainScreen = ({
 
   return (
     <View style={styles.container}>
-      <MapView
-        mapRef={mapRef}
-        userMarkers={userMarkers}
-        navigateLocation={navigateLocation}
-        displayRoute={displayRoute}
-      />
+      <MapView mapRef={mapRef} userMarkers={userMarkers} />
       {renderSearchInput()}
       {renderBlacklistModal()}
       {renderActivityModal()}
@@ -374,10 +321,14 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   isLogging: state.isLogging,
   region: state.mapLocation,
+  place: state.placeLocation,
   isSearching: state.isSearching,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ setMapLocation, setSearchingState }, dispatch);
+  bindActionCreators(
+    { setMapLocation, setSearchingState, setPlaceLocation },
+    dispatch,
+  );
 
 export default memo(connect(mapStateToProps, mapDispatchToProps)(MainScreen));

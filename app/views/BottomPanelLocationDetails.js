@@ -7,7 +7,13 @@ import _ from 'lodash';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setMapLocation, setNavigation } from '../reducers/actions';
+import {
+  setMapLocation,
+  setNavigation,
+  setPlaceLocation,
+} from '../reducers/actions';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import { lineString as makeLineString } from '@turf/helpers';
 
 const busyText = [
   'Not busy',
@@ -183,8 +189,9 @@ const BottomPanelLocationDetails = ({
   modal,
   sliderRef,
   searchLocation,
-  setDisplayRoute,
   setMapLocation,
+  setNavigation,
+  setPlaceLocation,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
 
@@ -279,7 +286,20 @@ const BottomPanelLocationDetails = ({
 
   const onNavigatePress = () => {
     sliderRef.current.hide();
-    setDisplayRoute(true);
+    BackgroundGeolocation.getCurrentLocation(location => {
+      const { latitude, longitude } = location;
+      SafePathsAPI.getPathToDestination(
+        [longitude, latitude],
+        searchLocation.coordinates,
+      ).then(data => {
+        if (_.get(data, 'data.coordinates', null)) {
+          const newRoute = makeLineString(data.data.coordinates);
+          setMapLocation([20.39, 36.56]);
+          setMapLocation([longitude, latitude]);
+          setNavigation(newRoute);
+        }
+      });
+    });
   };
 
   const renderLocationInfo = () => {
@@ -380,8 +400,13 @@ const BottomPanelLocationDetails = ({
             <TouchableOpacity
               style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
               onPress={() => {
-                setMapLocation({ coordinates: [] });
-                setDisplayRoute(false);
+                BackgroundGeolocation.getCurrentLocation(location => {
+                  const { latitude, longitude } = location;
+                  setPlaceLocation({});
+                  setNavigation(null);
+                  setMapLocation([20.39, 36.56]);
+                  setMapLocation([longitude, latitude]);
+                });
               }}>
               <Image
                 source={require('../assets/images/blue_close.png')}
@@ -467,12 +492,15 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-  searchLocation: state.mapLocation,
+  searchLocation: state.placeLocation,
   isSearching: state.isSearching,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ setMapLocation, setNavigation }, dispatch);
+  bindActionCreators(
+    { setMapLocation, setNavigation, setPlaceLocation },
+    dispatch,
+  );
 
 export default memo(
   connect(mapStateToProps, mapDispatchToProps)(BottomPanelLocationDetails),

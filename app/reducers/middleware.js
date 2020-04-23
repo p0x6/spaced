@@ -22,7 +22,10 @@ const router = () => {
       });
     }
 
-    if (currState.mapLocation.coordinates !== nextState.mapLocation.coordinates)
+    if (
+      currState.placeLocation.coordinates !==
+      nextState.placeLocation.coordinates
+    )
       dispatch(setSearchingState(false));
 
     if (
@@ -46,15 +49,13 @@ const router = () => {
     }
 
     if (
-      (currState.mapLocation.coordinates &&
-        currState.mapLocation.coordinates.length !== 2) ||
-      (currState.mapLocation.coordinates.length === 2 &&
-        nextState.mapLocation.coordinates.length === 0)
+      (currState.mapLocation && currState.mapLocation.length !== 2) ||
+      (nextState.mapLocation && nextState.mapLocation.length !== 2)
     ) {
       BackgroundGeolocation.getCurrentLocation(
         location => {
           const { latitude, longitude } = location;
-          dispatch(setMapLocation({ coordinates: [longitude, latitude] }));
+          dispatch(setMapLocation([longitude, latitude]));
         },
         () => {
           try {
@@ -62,12 +63,10 @@ const router = () => {
               const locationArray = JSON.parse(locationArrayString);
               if (locationArray !== null && locationArray.length >= 1) {
                 const { latitude, longitude } = locationArray.slice(-1)[0];
-                dispatch(
-                  setMapLocation({ coordinates: [longitude, latitude] }),
-                );
+                dispatch(setMapLocation([longitude, latitude]));
               } else {
                 // default location cannot get current location, and no past location data
-                dispatch(setMapLocation({ coordinates: [20.39, 36.56] }));
+                dispatch(setMapLocation([20.39, 36.56]));
               }
             });
           } catch (error) {

@@ -1,13 +1,7 @@
-import React, { useEffect, memo, useState } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import SafePathsAPI from '../services/API';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import { lineString as makeLineString } from '@turf/helpers';
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-
-import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -65,64 +59,20 @@ const MapViewComponent = ({
   isLogging,
   mapRef,
   region,
+  place,
   userMarkers,
-  placeMarkers,
-  navigateLocation,
-  displayRoute,
+  navigation,
 }) => {
-  const { navigate } = useNavigation();
-  let [route, setRoute] = useState();
-
-  const fetchRoute = async destinationCoordinates => {
-    BackgroundGeolocation.getCurrentLocation(async location => {
-      console.log('---- fetch route -----', destinationCoordinates);
-      const res = await SafePathsAPI.getPathToDestination(
-        [location.longitude, location.latitude],
-        destinationCoordinates,
-      );
-      console.log('routes: ', res.data);
-      if (_.get(res, 'data.coordinates', null)) {
-        const newRoute = makeLineString(res.data.coordinates);
-        setRoute(newRoute);
-      }
-    });
-  };
-
-  // const onUserLocationUpdate = newUserLocation => {
-  //   console.log('----- NEW LOCAGION ------', newUserLocation);
-  //   setUserLocation([
-  //     newUserLocation.coords.longitude,
-  //     newUserLocation.coords.latitude,
-  //   ]);
-  // };
-
-  function handleBackPress() {
-    navigate('MainScreen', {});
-    return true;
-  }
-
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    if (navigateLocation && navigateLocation.length === 2 && displayRoute) {
-      console.log('------ NAVIGATE LOCATION ------', navigateLocation);
-      fetchRoute(navigateLocation);
-    } else {
-      setRoute(null);
-    }
-    return function cleanup() {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
-  }, [region, displayRoute, navigateLocation, userMarkers]);
-
   const renderAnnotations = () => {
-    if (region.name && region.address && region.coordinates) {
+    console.log('===== PLACE =====', place);
+    if (place.name && place.address && place.coordinates) {
       return (
         <MapboxGL.PointAnnotation
-          key={region.name}
-          id={region.name}
-          coordinate={region.coordinates}
-          title={region.name}>
-          <MapboxGL.Callout title={region.name} />
+          key={place.name}
+          id={place.name}
+          coordinate={place.coordinates}
+          title={place.name}>
+          <MapboxGL.Callout title={place.name} />
         </MapboxGL.PointAnnotation>
       );
     }
@@ -130,13 +80,19 @@ const MapViewComponent = ({
   };
 
   const renderRoute = () => {
-    if (isLogging && route)
+    if (isLogging && navigation) {
+      console.log('====== HAS NAVIGATION ======', region, place);
       return (
-        <MapboxGL.ShapeSource id='routeSource' shape={route}>
+        <MapboxGL.ShapeSource id='routeSource' shape={navigation}>
           <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
         </MapboxGL.ShapeSource>
       );
+    }
   };
+
+  // if (region.coordinates !== 2) return null;
+
+  console.log('====== MAP REGION ======', region);
 
   return (
     <View style={styles.container}>
@@ -150,9 +106,9 @@ const MapViewComponent = ({
         rotateEnabled={isLogging}>
         <MapboxGL.Camera
           zoomLevel={17}
-          centerCoordinate={region.coordinates}
+          centerCoordinate={region}
           animationMode={'flyTo'}
-          followUserLocation={displayRoute}
+          followUserLocation={!!navigation}
         />
         <MapboxGL.UserLocation />
         {renderRoute()}
@@ -211,6 +167,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => ({
   isLogging: state.isLogging,
   region: state.mapLocation,
+  place: state.placeLocation,
+  navigation: state.navigation,
 });
 
 export default memo(connect(mapStateToProps, null)(MapViewComponent));

@@ -35,6 +35,13 @@ export function setMapLocation(location) {
   };
 }
 
+export function setPlaceLocation(location) {
+  return {
+    type: ActionTypes.SET_PLACE_LOCATION,
+    location,
+  };
+}
+
 export function setSearchingState(isSearching) {
   return {
     type: ActionTypes.SET_SEARCHING_STATE,
