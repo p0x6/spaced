@@ -1,4 +1,9 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
+
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { setBlacklistOnboardingStatus } from '../reducers/actions';
+
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,16 +14,14 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import colors from '../constants/colors';
 import BlacklistPlacesPanel from '../components/BlacklistPlacesPanel';
-import { SetStoreData, GetStoreData } from '../helpers/General';
 
-const BlacklistPlaces = () => {
+const BlacklistPlaces = ({
+  blacklistOnboardingStatus,
+  setBlacklistOnboardingStatus,
+}) => {
   const { navigate } = useNavigation();
 
-  useEffect(() => {
-    GetStoreData('BLACKLIST_ONBOARDED').then(isOnboarded => {
-      if (isOnboarded === 'true') navigate('MainScreen', {});
-    });
-  }, []);
+  if (blacklistOnboardingStatus) navigate('MainScreen', {});
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,11 +32,10 @@ const BlacklistPlaces = () => {
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.goHomeButton}
-            onPress={() =>
-              SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
-                navigate('MainScreen', {}),
-              )
-            }>
+            onPress={() => {
+              setBlacklistOnboardingStatus(true);
+              navigate('MainScreen', {});
+            }}>
             <Text style={styles.goHomeButtonText}>Not now, take me home</Text>
           </TouchableOpacity>
         </View>
@@ -71,4 +73,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(BlacklistPlaces);
+const mapStateToProps = state => ({
+  blacklistOnboardingStatus: state.blacklistOnboardingStatus,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      setBlacklistOnboardingStatus,
+    },
+    dispatch,
+  );
+
+export default memo(
+  connect(mapStateToProps, mapDispatchToProps)(BlacklistPlaces),
+);

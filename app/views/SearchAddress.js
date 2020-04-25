@@ -1,14 +1,18 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   TextInput,
   Animated,
   Image,
 } from 'react-native';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import colors from '../constants/colors';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setMapLocation } from '../reducers/actions';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 const SearchAddress = ({
   isSearching,
@@ -18,7 +22,7 @@ const SearchAddress = ({
   textInputRef,
   modal,
   setModal,
-  goToMyLocation,
+  setMapLocation,
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -86,7 +90,13 @@ const SearchAddress = ({
     if (modal || isSearching) return null;
     return (
       <TouchableOpacity
-        onPress={() => goToMyLocation()}
+        onPress={() => {
+          BackgroundGeolocation.getCurrentLocation(location => {
+            const { latitude, longitude } = location;
+            setMapLocation([20.39, 36.56]);
+            setMapLocation([longitude, latitude]);
+          });
+        }}
         style={styles.myLocation}>
         <Image
           source={require('../assets/images/myLocationIcon.png')}
@@ -189,4 +199,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchAddress;
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ setMapLocation }, dispatch);
+
+export default memo(
+  connect(mapStateToProps, mapDispatchToProps)(SearchAddress),
+);

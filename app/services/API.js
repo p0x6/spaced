@@ -86,8 +86,12 @@ class API {
     });
   }
 
-  getLocationInfo(id) {
-    return this.instance.get(`/busy-times/${id}`);
+  getLocationInfo(placeId) {
+    return this.instance.get(`/busy-times`, {
+      params: {
+        placeId,
+      },
+    });
   }
 }
 
