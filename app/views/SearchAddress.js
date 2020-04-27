@@ -1,14 +1,18 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   TextInput,
   Animated,
   Image,
 } from 'react-native';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import colors from '../constants/colors';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setMapLocation } from '../reducers/actions';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 const SearchAddress = ({
   isSearching,
@@ -16,6 +20,9 @@ const SearchAddress = ({
   onChangeDestination,
   isLogging,
   textInputRef,
+  modal,
+  setModal,
+  setMapLocation,
 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -67,6 +74,38 @@ const SearchAddress = ({
     return null;
   };
 
+  const renderAppInfoIcon = () => {
+    if (modal || isSearching) return null;
+    return (
+      <TouchableOpacity onPress={() => setModal('info')} style={styles.appIcon}>
+        <Image
+          source={require('../assets/images/infoIcon.png')}
+          style={{ width: 30, height: 30, resizeMode: 'cover' }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
+  const renderMyLocationIcon = () => {
+    if (modal || isSearching) return null;
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          BackgroundGeolocation.getCurrentLocation(location => {
+            const { latitude, longitude } = location;
+            setMapLocation([20.39, 36.56]);
+            setMapLocation([longitude, latitude]);
+          });
+        }}
+        style={styles.myLocation}>
+        <Image
+          source={require('../assets/images/myLocationIcon.png')}
+          style={{ width: 30, height: 30, resizeMode: 'cover' }}
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <Animated.View
       style={[
@@ -88,12 +127,16 @@ const SearchAddress = ({
           autoCapitalize='none'
           blurOnSubmit
           placeholder={'Search location or zip code'}
-          placeholderTextColor='#454f63'
+          placeholderTextColor='#435d8b'
           onFocus={() => setIsSearching(true)}
           onChangeText={destination => {
             onChangeDestination(destination);
           }}
         />
+      </View>
+      <View style={styles.infoContainer}>
+        {renderMyLocationIcon()}
+        {renderAppInfoIcon()}
       </View>
     </Animated.View>
   );
@@ -102,7 +145,7 @@ const SearchAddress = ({
 const styles = StyleSheet.create({
   // Container covers the entire screen
   container: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     color: colors.PRIMARY_TEXT,
     zIndex: 999,
     position: 'absolute',
@@ -110,14 +153,6 @@ const styles = StyleSheet.create({
     width: '95%',
     borderRadius: 6,
     marginTop: 10,
-    shadowColor: '#B0C6E2',
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.58,
-    shadowRadius: 16.0,
-    elevation: 60,
   },
   searchView: {
     backgroundColor: '#fff',
@@ -128,6 +163,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     height: 48,
+    shadowColor: '#435d8b',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+    elevation: 60,
   },
   searchInput: {
     flex: 1,
@@ -135,7 +178,34 @@ const styles = StyleSheet.create({
     marginRight: 16,
     fontSize: 14,
     fontFamily: 'DMSans-Regular',
+    fontWeight: '500',
+  },
+  // App Icon
+  infoContainer: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    marginTop: 10,
+    width: '100%',
+  },
+  appIcon: {
+    color: colors.PRIMARY_TEXT,
+    alignSelf: 'flex-end',
+  },
+  myLocation: {
+    color: colors.PRIMARY_TEXT,
+    alignSelf: 'flex-start',
+    flex: 1,
+    marginLeft: 10,
   },
 });
 
-export default SearchAddress;
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ setMapLocation }, dispatch);
+
+export default memo(
+  connect(mapStateToProps, mapDispatchToProps)(SearchAddress),
+);

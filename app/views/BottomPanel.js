@@ -9,10 +9,9 @@ import {
 } from 'react-native';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import ToggleSwitch from 'toggle-switch-react-native';
-import { GetStoreData, SetStoreData } from '../helpers/General';
-import BroadcastingServices from '../services/BroadcastingService';
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-import LocationServices from '../services/LocationService';
+import { bindActionCreators } from 'redux';
+import { setLogging } from '../reducers/actions';
+import { connect } from 'react-redux';
 
 const blacklistIcon = require('../assets/images/blacklist.png');
 const linkIcon = require('../assets/images/link.png');
@@ -24,59 +23,24 @@ const BottomPanel = ({
   setModal,
   sliderRef,
   isLogging,
-  setIsLogging,
+  setLogging,
   getInitialState,
 }) => {
   const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(
     useCallback(() => {
-      GetStoreData('PARTICIPATE')
-        .then(isParticipating => {
-          if (isParticipating === 'true') {
-            setIsLogging(true);
-            willParticipate();
-            showFullPanel({ toValue: 180, velocity: -0.8 });
-            setTimeout(() => setIsAnimating(false), 2000);
-          } else {
-            setIsLogging(false);
-            showFullPanel({ toValue: 330, velocity: -0.98 });
-            setTimeout(() => setIsAnimating(false), 3000);
-          }
-        })
-        .catch(error => console.log(error));
+      if (isLogging) {
+        getInitialState();
+        showFullPanel({ toValue: 180, velocity: -0.8 });
+        setTimeout(() => setIsAnimating(false), 2000);
+      } else {
+        showFullPanel({ toValue: 330, velocity: -0.98 });
+        setTimeout(() => setIsAnimating(false), 3000);
+      }
     }),
     [],
   );
-
-  const willParticipate = () => {
-    SetStoreData('PARTICIPATE', 'true').then(() => {
-      LocationServices.start();
-      BroadcastingServices.start();
-      setIsLogging(true);
-    });
-
-    getInitialState();
-
-    // Check and see if they actually authorized in the system dialog.
-    // If not, stop services and set the state to !isLogging
-    // Fixes tripleblindmarket/private-kit#129
-    BackgroundGeolocation.checkStatus(({ authorization }) => {
-      if (authorization === BackgroundGeolocation.NOT_AUTHORIZED) {
-        LocationServices.stop();
-        BroadcastingServices.stop();
-        setIsLogging(false);
-      }
-    });
-  };
-
-  const setOptOut = () => {
-    SetStoreData('PARTICIPATE', 'false').then(() => {
-      LocationServices.stop();
-      BroadcastingServices.stop();
-      setIsLogging(false);
-    });
-  };
 
   const showFullPanel = (options = { toValue: null, velocity: null }) => {
     if (sliderRef && sliderRef.current) {
@@ -92,10 +56,10 @@ const BottomPanel = ({
 
   const toggleLocation = isOn => {
     if (isOn) {
-      willParticipate();
+      setLogging(true);
       hideFullPanel();
     } else {
-      setOptOut();
+      setLogging(false);
       showFullPanel({ toValue: 350 });
     }
   };
@@ -229,8 +193,8 @@ const BottomPanel = ({
             <View style={{ paddingRight: 20, height: 40, marginTop: 5 }}>
               <ToggleSwitch
                 isOn={isLogging}
-                onColor='#2E4874'
-                offColor='#2E4874'
+                onColor='#435d8b'
+                offColor='rgba(47, 72, 117, 0.6)'
                 onToggle={toggleLocation}
               />
             </View>
@@ -375,4 +339,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(BottomPanel);
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+  isSearching: state.isSearching,
+  searchLocation: state.placeLocation,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      setLogging,
+    },
+    dispatch,
+  );
+
+export default memo(connect(mapStateToProps, mapDispatchToProps)(BottomPanel));

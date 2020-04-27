@@ -1,13 +1,25 @@
-import React, { useEffect, memo } from 'react';
-import { StyleSheet, View, Dimensions, BackHandler } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { memo } from 'react';
+import { connect } from 'react-redux';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import _ from 'lodash';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+const defaultGeoJSON = require('./defaultGeoJSON.json');
 
 const layerStyles = {
+  smileyFace: {
+    fillAntialias: true,
+    fillColor: 'white',
+    fillOutlineColor: 'rgba(255, 255, 255, 0.84)',
+  },
+  route: {
+    lineColor: '#2E4874',
+    lineCap: MapboxGL.LineJoin.Round,
+    lineWidth: 3,
+    lineOpacity: 0.84,
+  },
   singlePoint: {
     circleColor: 'green',
     circleOpacity: 0.84,
@@ -44,71 +56,44 @@ const layerStyles = {
   },
 };
 
-const ANNOTATION_SIZE = 15;
-
 const MapViewComponent = ({
   isLogging,
   mapRef,
   region,
+  place,
   userMarkers,
-  placeMarkers,
+  navigation,
 }) => {
-  const { navigate } = useNavigation();
-
-  function handleBackPress() {
-    navigate('MainScreen', {});
-    return true;
-  }
-
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    return function cleanup() {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
-  }, [region]);
-
   const renderAnnotations = () => {
-    const items = [];
-
-    const places = _.get(placeMarkers, 'features', []);
-
-    console.log('====== PLACES ======', places, placeMarkers);
-
-    for (let i = 0; i < places.length; i++) {
-      const coordinate = _.get(places[i], 'geometry.coordinates', null);
-      const details = _.get(places[i], 'properties', null);
-      const text = _.get(places[i], 'text', null);
-
-      if (!coordinate) continue;
-
-      const title = details.address || details.name;
-      const id = `pointAnnotation${i}`;
-
-      items.push(
+    console.log('===== PLACE =====', place);
+    if (place.name && place.address && place.coordinates) {
+      return (
         <MapboxGL.PointAnnotation
-          key={id}
-          id={id}
-          coordinate={coordinate}
-          title={title}>
-          <View
-            style={[
-              styles.annotationContainer,
-              { transform: [{ rotate: '45deg' }] },
-            ]}
-          />
-          <MapboxGL.Callout title={`${text || details.name}`}>
-            {/*<View>*/}
-            {/*  <Text>*/}
-            {/*    {details.address}*/}
-            {/*  </Text>*/}
-            {/*</View>*/}
-          </MapboxGL.Callout>
-        </MapboxGL.PointAnnotation>,
+          key={place.name}
+          id={place.name}
+          coordinate={place.coordinates}
+          title={place.name}>
+          <MapboxGL.Callout title={place.name} />
+        </MapboxGL.PointAnnotation>
       );
     }
-
-    return items;
+    return null;
   };
+
+  const renderRoute = () => {
+    if (isLogging && navigation) {
+      console.log('====== HAS NAVIGATION ======', region, place);
+      return (
+        <MapboxGL.ShapeSource id='routeSource' shape={navigation}>
+          <MapboxGL.LineLayer id='routeFill' style={layerStyles.route} />
+        </MapboxGL.ShapeSource>
+      );
+    }
+  };
+
+  // if (region.coordinates !== 2) return null;
+
+  console.log('====== MAP REGION ======', region);
 
   return (
     <View style={styles.container}>
@@ -121,18 +106,21 @@ const MapViewComponent = ({
         pitchEnabled={isLogging}
         rotateEnabled={isLogging}>
         <MapboxGL.Camera
-          zoomLevel={15}
-          centerCoordinate={[region.longitude, region.latitude]}
+          zoomLevel={17}
+          centerCoordinate={region}
           animationMode={'flyTo'}
+          followUserLocation={!!navigation}
         />
         <MapboxGL.UserLocation />
+        {renderRoute()}
 
         <MapboxGL.ShapeSource
           id='userLocations'
           cluster
           clusterRadius={50}
           clusterMaxZoom={14}
-          url='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'>
+          // url='https://spaced-app.s3.us-east-2.amazonaws.com/test3.geojson'
+          shape={userMarkers || defaultGeoJSON}>
           <MapboxGL.SymbolLayer
             id='pointCount'
             style={layerStyles.clusterCount}
@@ -171,17 +159,17 @@ const styles = StyleSheet.create({
     height: height,
     alignSelf: 'center',
   },
-
-  annotationContainer: {
-    width: 20,
-    height: 20,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    borderBottomLeftRadius: 0,
-    backgroundColor: '#89849b',
-    transform: [{ rotate: '45deg' }],
+  dropper: {
+    width: 24,
+    height: 41,
   },
 });
 
-export default memo(MapViewComponent);
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+  region: state.mapLocation,
+  place: state.placeLocation,
+  navigation: state.navigation,
+});
+
+export default memo(connect(mapStateToProps, null)(MapViewComponent));

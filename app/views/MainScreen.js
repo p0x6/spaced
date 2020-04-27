@@ -1,4 +1,13 @@
 import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
+
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import {
+  setMapLocation,
+  setSearchingState,
+  setPlaceLocation,
+} from '../reducers/actions';
+
 import {
   StyleSheet,
   View,
@@ -8,7 +17,6 @@ import {
   BackHandler,
   FlatList,
   Keyboard,
-  Image,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
@@ -20,34 +28,38 @@ import { debounce } from 'debounce';
 import MapBoxAPI from '../services/MapBoxAPI';
 import SafePathsAPI from '../services/API';
 import _ from 'lodash';
-import Modal from './Modal';
-import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import BottomPanel from './BottomPanel';
+import BottomPanelLocationDetails from './BottomPanelLocationDetails';
 import BlacklistModal from './modals/BlacklistModal';
-import colors from '../constants/colors';
-import moment from 'moment';
 import ActivityLog from './modals/ActivityLog';
+import AppInfo from './modals/AppInfo';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-const INITIAL_REGION = {
-  latitude: 36.56,
-  longitude: 20.39,
-  latitudeDelta: 50,
-  longitudeDelta: 50,
+const createGeoJSON = item => {
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [item.coordinates.longitude, item.coordinates.latitude],
+    },
+    properties: item,
+  };
 };
 
-const MainScreen = () => {
-  const [isLogging, setIsLogging] = useState(false);
-  const [region, setRegion] = useState(INITIAL_REGION);
-  const [userMarkers, setUserMarkers] = useState({});
-  const [placeMarkers, setPlaceMarkers] = useState({});
-  const [isSearching, setIsSearching] = useState(false);
+const MainScreen = ({
+  isLogging,
+  setMapLocation,
+  region,
+  place,
+  isSearching,
+  setSearchingState,
+  setPlaceLocation,
+}) => {
+  const [userMarkers, setUserMarkers] = useState(null);
   const [searchedResult, setSearchedResult] = useState([]);
-  const [isInitialRender, setIsInitialRender] = useState(true);
   const [modal, setModal] = useState(null);
-  const [bounds, setBounds] = useState([]);
 
   const mapRef = useRef(null);
   const sliderRef = useRef(null);
@@ -56,14 +68,7 @@ const MainScreen = () => {
   useEffect(
     useCallback(() => {
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-      GetStoreData('PARTICIPATE')
-        .then(isParticipating => {
-          if (isParticipating === 'true' && isInitialRender) {
-            getInitialState();
-            setIsInitialRender(false);
-          }
-        })
-        .catch(error => console.log(error));
+      if (isLogging) getInitialState();
       SplashScreen.hide();
       return BackHandler.removeEventListener(
         'hardwareBackPress',
@@ -73,39 +78,23 @@ const MainScreen = () => {
     [],
   );
 
-  const setInitialMapCenter = location => {
-    setRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
-    moveToSearchArea({
-      geometry: { coordinates: [location.longitude, location.latitude] },
-    });
-    populateMarkers({
-      latitude: location.latitude,
-      longitude: location.longitude,
-    });
-  };
-
   const getInitialState = () => {
     BackgroundGeolocation.getCurrentLocation(
       location => {
-        setRegion(location);
+        const { latitude, longitude } = location;
+        setMapLocation([longitude, latitude]);
+        populateMarkers({ latitude, longitude });
       },
       () => {
         try {
           GetStoreData('LOCATION_DATA').then(locationArrayString => {
             const locationArray = JSON.parse(locationArrayString);
-            if (locationArray !== null) {
+            if (locationArray !== null && locationArray.length >= 1) {
               const { latitude, longitude } = locationArray.slice(-1)[0];
-              setInitialMapCenter({
-                latitude,
-                longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              });
+              setMapLocation([longitude, latitude]);
+              populateMarkers({ latitude, longitude });
+            } else {
+              setMapLocation([20.39, 36.56]);
             }
           });
         } catch (error) {
@@ -135,8 +124,8 @@ const MainScreen = () => {
       verifiedLocation.latitude = currentLocation.latitude;
     }
     MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(result => {
-      if (result && result.data && result.data.features) {
-        setSearchedResult(result.data.features);
+      if (result && result.data && result.data.predictions) {
+        setSearchedResult(result.data.predictions);
       }
     });
   };
@@ -162,40 +151,21 @@ const MainScreen = () => {
   };
 
   async function populateMarkers(passedRegion) {
-    SafePathsAPI.getPositions(passedRegion || region).then(userPositions => {
-      let userMarkers = _.get(userPositions, 'data.users', null);
-      let placeMarkers = _.get(userPositions, 'data.places', null);
-      console.log('---- markers -----', userMarkers, placeMarkers);
+    SafePathsAPI.getPositions(
+      passedRegion || { latitude: region[1], longitude: region[0] },
+    ).then(userPositions => {
+      let userMarkers = _.get(userPositions, 'data', null);
+      console.log('---- markers -----', userMarkers);
       setUserMarkers(userMarkers);
-      setPlaceMarkers(placeMarkers);
     });
   }
 
-  function moveToSearchArea(location) {
-    const safeLocationArray = _.get(location, 'geometry.coordinates', []);
-    const safeLocation = {
-      latitude: safeLocationArray[1],
-      longitude: safeLocationArray[0],
-    };
-    if (safeLocation) {
-      console.log(
-        '======== moving area to searched location ======',
-        safeLocation,
-      );
-      setRegion({
-        latitude: safeLocation.latitude,
-        longitude: safeLocation.longitude,
-        latitudeDelta: safeLocation.latitudeDelta || 0.01,
-        longitudeDelta: safeLocation.longitudeDelta || 0.01,
-      });
-    }
-  }
-
   const changeSearchingState = state => {
+    console.log('======= CHANGE SEARCHING STATE =======');
     if (state) {
-      setIsSearching(state);
+      setSearchingState(state);
     } else {
-      setIsSearching(state);
+      setSearchingState(state);
       Keyboard.dismiss();
     }
   };
@@ -235,10 +205,21 @@ const MainScreen = () => {
   const onRenderSearchItems = ({ item, index }) => {
     console.log('ITEM=>>', item);
 
+    if (!item || !item.description || !item.place_id) return null;
+
     const itemClick = item => {
-      changeSearchingState(false);
-      moveToSearchArea(item);
-      setPlaceMarkers({ features: [item] });
+      SafePathsAPI.getLocationInfo(item.place_id).then(data => {
+        if (data && data.data) {
+          const geoJSON = createGeoJSON(data.data);
+          setMapLocation(geoJSON.geometry.coordinates);
+          setPlaceLocation({
+            coordinates: geoJSON.geometry.coordinates,
+            name: geoJSON.properties.name,
+            address: geoJSON.properties.address,
+            busyTimes: geoJSON.properties.busyHours,
+          });
+        }
+      });
     };
 
     return (
@@ -251,17 +232,16 @@ const MainScreen = () => {
         }}
         key={index}>
         <Text numberOfLines={1} style={styles.locationTitle}>
-          {item.place_name}
+          {item.description}
         </Text>
       </TouchableOpacity>
     );
   };
 
   const renderBottomPanel = () => {
+    if (place && place.name) return null;
     return (
       <BottomPanel
-        isLogging={isLogging}
-        setIsLogging={setIsLogging}
         isSearching={isSearching}
         modal={modal}
         setModal={setModal}
@@ -269,6 +249,11 @@ const MainScreen = () => {
         getInitialState={getInitialState}
       />
     );
+  };
+
+  const renderLocationDetailPanel = () => {
+    if (place && !place.name) return null;
+    return <BottomPanelLocationDetails modal={modal} sliderRef={sliderRef} />;
   };
 
   const renderBlacklistModal = () => {
@@ -287,6 +272,10 @@ const MainScreen = () => {
     return <ActivityLog setModal={setModal} modal={modal} />;
   };
 
+  const renderAppInfoModal = () => {
+    return <AppInfo setModal={setModal} modal={modal} />;
+  };
+
   const renderSearchInput = () => {
     if (modal) return null;
     return (
@@ -295,25 +284,23 @@ const MainScreen = () => {
         isSearching={isSearching}
         setIsSearching={changeSearchingState}
         onChangeDestination={onChangeDestination}
-        isLogging={isLogging}
+        modal={modal}
+        setModal={setModal}
+        goToMyLocation={getInitialState}
       />
     );
   };
 
   return (
     <View style={styles.container}>
-      <MapView
-        isLogging={isLogging}
-        mapRef={mapRef}
-        region={region}
-        userMarkers={userMarkers}
-        placeMarkers={placeMarkers}
-      />
+      <MapView mapRef={mapRef} userMarkers={userMarkers} />
       {renderSearchInput()}
       {renderBlacklistModal()}
       {renderActivityModal()}
       {renderSearchResults()}
+      {renderAppInfoModal()}
       {renderBottomPanel()}
+      {renderLocationDetailPanel()}
     </View>
   );
 };
@@ -329,25 +316,19 @@ const styles = StyleSheet.create({
     borderBottomColor: '#BDBDBD',
     padding: 15,
   },
-  // activity
-  main: {
-    flex: 1,
-    paddingVertical: 20,
-    width: '100%',
-  },
-  notificationsHeader: {
-    backgroundColor: 'rgba(175, 186, 205, 0.27)',
-    width: width * 0.95,
-    marginLeft: -Math.abs(width * 0.03),
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  notificationsHeaderText: {
-    marginLeft: Math.abs(width * 0.03),
-    color: '#435d8b',
-    fontSize: 16,
-    fontFamily: 'DMSans-Bold',
-  },
 });
 
-export default memo(MainScreen);
+const mapStateToProps = state => ({
+  isLogging: state.isLogging,
+  region: state.mapLocation,
+  place: state.placeLocation,
+  isSearching: state.isSearching,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    { setMapLocation, setSearchingState, setPlaceLocation },
+    dispatch,
+  );
+
+export default memo(connect(mapStateToProps, mapDispatchToProps)(MainScreen));

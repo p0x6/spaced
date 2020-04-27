@@ -1,4 +1,10 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import {
+  setBlacklistLocation,
+  setBlacklistOnboardingStatus,
+} from '../reducers/actions';
 import {
   StyleSheet,
   Text,
@@ -10,28 +16,29 @@ import {
 } from 'react-native';
 import colors from '../constants/colors';
 import _ from 'lodash';
-import {
-  getHomeLocation,
-  getWorkLocation,
-  setHomeLocation,
-  setWorkLocation,
-} from '../services/LocationService';
+import { setHomeLocation, setWorkLocation } from '../services/LocationService';
 import { EventRegister } from 'react-native-event-listeners';
 import { useNavigation } from '@react-navigation/native';
 import MapBoxAPI from '../services/MapBoxAPI';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-import { SetStoreData } from '../helpers/General';
 
-const BlacklistPlacesPanel = ({ isOnboarding }) => {
+const BlacklistPlacesPanel = ({
+  isOnboarding,
+  homeAddress,
+  workAddress,
+  setBlacklistLocation,
+  setBlacklistOnboardingStatus,
+}) => {
+  const [searchInput, setSearchInput] = useState({ home: null, work: null });
   const [searchedResult, setSearchedResult] = useState([]);
-  const [homeAddress, setHomeAddress] = useState(null);
-  const [workAddress, setWorkAddress] = useState(null);
   const [inputtingControl, setInputtingControl] = useState(null);
   const [searchType, setSearchType] = useState(isOnboarding ? 'Home' : 'All');
   const [currentLocation, setCurrentLocation] = useState(null);
   const [keyboardShowing, setKeyboardShowing] = useState(false);
 
   const { navigate } = useNavigation();
+
+  console.log('===== HERE=======', homeAddress, workAddress);
 
   const search = (text, currentLocation, bounds) => {
     let verifiedBounds = [];
@@ -47,10 +54,9 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
       verifiedLocation.longitude = currentLocation.longitude;
       verifiedLocation.latitude = currentLocation.latitude;
     }
-    MapBoxAPI.search(text, verifiedLocation, verifiedBounds).then(
+    MapBoxAPI.mapboxSearch(text, verifiedLocation, verifiedBounds).then(
       result => {
         if (result && result.data && result.data.features) {
-          console.log(result.data.features);
           setSearchedResult(result.data.features);
         }
       },
@@ -61,20 +67,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
   useEffect(
     useCallback(() => {
       getCurrentLocation();
-      if (!isOnboarding) {
-        getHomeLocation().then(location => {
-          if (location && location !== 'null') {
-            const parsedLocation = JSON.parse(location);
-            setHomeAddress(_.get(parsedLocation, 'address', null));
-          }
-        });
-        getWorkLocation().then(location => {
-          if (location && location !== 'null') {
-            const parsedLocation = JSON.parse(location);
-            setWorkAddress(_.get(parsedLocation, 'address', null));
-          }
-        });
-      }
+      setSearchInput({ home: homeAddress, work: workAddress });
       const keyboardDidShowListener = Keyboard.addListener(
         'keyboardDidShow',
         () => setKeyboardShowing(true),
@@ -100,9 +93,9 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
 
   const setAddress = (control, text) => {
     if (control === 'Home') {
-      setHomeAddress(text);
+      setSearchInput({ ...searchInput, home: text });
     } else if (control === 'Work') {
-      setWorkAddress(text);
+      setSearchInput({ ...searchInput, work: text });
     }
   };
 
@@ -121,59 +114,32 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
 
   const onPressItem = (control, item) => {
     Keyboard.dismiss();
-    const placeName = _.get(item, 'place_name', '').split(',')[0];
-    setAddress(control, placeName);
-    if (control === 'Home') {
-      setHomeLocation({
-        address: placeName,
-        coordinates: item.geometry.coordinates,
-      });
-      EventRegister.emit('setHomeLocation', {
-        address: placeName,
-        coordinates: item.geometry.coordinates,
-      });
-    } else if (control === 'Work') {
-      setWorkLocation({
-        address: placeName,
-        coordinates: item.geometry.coordinates,
-      });
-      EventRegister.emit('setWorkLocation', {
-        address: placeName,
-        coordinates: item.geometry.coordinates,
-      });
-    }
+    const address = _.get(item, 'place_name', '').split(',')[0];
+    const coordinates = _.get(item, 'geometry.coordinates', []);
+    setAddress(control, address);
+    const location = control.toUpperCase();
+    setBlacklistLocation(location, address);
+
+    if (location === 'HOME') setHomeLocation(coordinates);
+    if (location === 'WORK') setWorkLocation(coordinates);
+    EventRegister.emit(`set-${location}-location`, coordinates);
 
     setSearchedResult([]);
-
+    console.log('===== SOMETHING =====', searchType, isOnboarding);
     if (searchType === 'Home' && isOnboarding) {
       setSearchType('Work');
     } else if (searchType === 'Work') {
-      SetStoreData('BLACKLIST_ONBOARDED', true).then(() =>
-        navigate('MainScreen', {}),
-      );
+      setBlacklistOnboardingStatus(true);
+      navigate('MainScreen', {});
     }
   };
 
   const onLocationClear = control => {
-    if (control === 'Home') {
-      setHomeLocation({
-        address: null,
-        coordinates: [],
-      });
-      EventRegister.emit('setHomeLocation', {
-        address: null,
-        coordinates: [],
-      });
-    } else if (control === 'Work') {
-      setWorkLocation({
-        address: null,
-        coordinates: [],
-      });
-      EventRegister.emit('setWorkLocation', {
-        address: null,
-        coordinates: [],
-      });
-    }
+    const location = control.toUpperCase();
+    setBlacklistLocation(location, null);
+    EventRegister.emit(`set-${location}-location`, []);
+    if (location === 'HOME') setHomeLocation([]);
+    if (location === 'WORK') setWorkLocation([]);
     setAddress(control, null);
   };
 
@@ -214,8 +180,8 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
   const renderAddedPanel = control => {
     if (inputtingControl !== control) return;
     if (
-      (inputtingControl === 'Home' && !homeAddress) ||
-      (inputtingControl === 'Work' && !workAddress) ||
+      (inputtingControl === 'Home' && !searchInput.home) ||
+      (inputtingControl === 'Work' && !searchInput.work) ||
       searchedResult.length === 0
     )
       return;
@@ -235,7 +201,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
   };
 
   const renderContent = control => {
-    const value = control === 'Home' ? homeAddress : workAddress;
+    const value = control === 'Home' ? searchInput.home : searchInput.work;
 
     return (
       <View style={styles.addedContainer}>
@@ -304,6 +270,7 @@ const BlacklistPlacesPanel = ({ isOnboarding }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -395,4 +362,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(BlacklistPlacesPanel);
+const mapStateToProps = state => ({
+  homeAddress: state.blacklistLocations.HOME,
+  workAddress: state.blacklistLocations.WORK,
+});
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(
+    {
+      setBlacklistLocation,
+      setBlacklistOnboardingStatus,
+    },
+    dispatch,
+  );
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(memo(BlacklistPlacesPanel));

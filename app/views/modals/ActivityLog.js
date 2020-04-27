@@ -4,8 +4,8 @@ import { Image, Text, View } from 'react-native';
 import colors from '../../constants/colors';
 import { VictoryAxis, VictoryBar, VictoryChart } from 'victory-native';
 import moment from 'moment';
-// import SafePathsAPI from '../../services/API';
-// import _ from 'lodash';
+import SafePathsAPI from '../../services/API';
+import _ from 'lodash';
 
 const activitylogIcon = require('../../assets/images/activitylog.png');
 
@@ -13,49 +13,55 @@ const ActivityLog = ({ modal, setModal }) => {
   const [interactions, setInteractions] = useState([]);
 
   useEffect(() => {
-    // SafePathsAPI.getIntersections().then(data => {
-    //   const userInteractions = _.get(data, 'data', []);
-    //   setInteractions(userInteractions.reverse());
-    // });
-
-    setInteractions(
-      [
-        {
-          count: 10,
-          date: moment()
-            .subtract(5, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 4,
-          date: moment()
-            .subtract(4, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 8,
-          date: moment()
-            .subtract(3, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 2,
-          date: moment()
-            .subtract(2, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 9,
-          date: moment()
-            .subtract(1, 'days')
-            .format('YYYY-MM-DD'),
-        },
-        {
-          count: 11,
-          date: moment().format('YYYY-MM-DD'),
-        },
-      ].reverse(),
-    );
+    if (modal === 'activity') {
+      SafePathsAPI.getIntersections()
+        .then(data => {
+          const userInteractions = _.get(data, 'data', []);
+          setInteractions(userInteractions.reverse());
+        })
+        .catch(e => {
+          console.log('FAILED TO GET INTERSECTIONS: ', e);
+          setInteractions([]);
+        });
+    }
+    // setInteractions(
+    //   [
+    //     {
+    //       count: 10,
+    //       date: moment()
+    //         .subtract(5, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 4,
+    //       date: moment()
+    //         .subtract(4, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 8,
+    //       date: moment()
+    //         .subtract(3, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 2,
+    //       date: moment()
+    //         .subtract(2, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 9,
+    //       date: moment()
+    //         .subtract(1, 'days')
+    //         .format('YYYY-MM-DD'),
+    //     },
+    //     {
+    //       count: 11,
+    //       date: moment().format('YYYY-MM-DD'),
+    //     },
+    //   ],
+    // );
   }, [modal]);
 
   if (modal !== 'activity' || interactions.length < 1) return null;
@@ -140,16 +146,13 @@ const ActivityLog = ({ modal, setModal }) => {
             <VictoryBar
               alignment='middle'
               barWidth={28}
-              cornerRadius={{ topLeft: 4, topRight: 4 }}
               height={100}
               style={{
                 data: {
                   fill: ({ datum }) =>
-                    datum.count <= 4
-                      ? '#aaff66'
-                      : datum.count <= 8
-                      ? '#ff950d'
-                      : '#ff6666',
+                    datum.date === moment().format('YYYY-MM-DD')
+                      ? '#FF8649'
+                      : '#7BC0FB',
                 },
               }}
               data={interactions}
@@ -193,7 +196,10 @@ const ActivityLog = ({ modal, setModal }) => {
               fontSize: 18,
               marginRight: 40,
             }}>
-            {moment(interactions[0].date, 'YYYY-M-D').format('dddd M/DD')}
+            {moment(
+              interactions[interactions.length - 1].date,
+              'YYYY-MM-DD',
+            ).format('dddd M/DD')}
           </Text>
           <Text
             style={{
@@ -201,7 +207,7 @@ const ActivityLog = ({ modal, setModal }) => {
               fontFamily: 'DMSans-Bold',
               fontSize: 36,
             }}>
-            {interactions[0].count.toString()}
+            {interactions[interactions.length - 1].count.toString()}
           </Text>
         </View>
       </View>

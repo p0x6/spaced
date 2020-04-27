@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@bam.tech/react-native-component-map-clustering": "^1.1.1",
+    "@mapbox/mapbox-sdk": "^0.10.0",
     "@mauron85/react-native-background-geolocation": "^0.6.3",
     "@react-native-community/async-storage": "^1.8.1",
     "@react-native-community/cli-platform-ios": "^3.0.0",
@@ -40,6 +41,7 @@
     "@react-navigation/native": "5.0.9",
     "@react-navigation/stack": "5.1.1",
     "@turf/boolean-point-in-polygon": "^6.0.1",
+    "@turf/helpers": "^6.1.4",
     "appcenter": "3.0.1",
     "appcenter-analytics": "3.0.1",
     "appcenter-crashes": "3.0.1",
@@ -69,7 +71,6 @@
     "react-native-linear-gradient": "^2.5.6",
     "react-native-map-clustering": "^3.1.2",
     "react-native-maps": "0.27.1",
-    "react-native-particles": "^0.0.8",
     "react-native-permissions": "^2.0.10",
     "react-native-popup-menu": "^0.15.7",
     "react-native-push-notification": "^3.1.9",
@@ -81,6 +82,9 @@
     "react-native-uuid-generator": "^6.1.1",
     "react-native-webview": "^8.1.2",
     "react-native-zip-archive": "^5.0.1",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-persist": "^6.0.0",
     "rn-fetch-blob": "^0.12.0",
     "rn-sliding-up-panel": "^2.4.0",
     "toggle-switch-react-native": "^2.1.0",
@@ -103,7 +107,8 @@
     "prettier": "1.19.1",
     "react-native-svg-transformer": "^0.14.3",
     "react-native-version": "^4.0.0",
-    "react-test-renderer": "16.9.0"
+    "react-test-renderer": "16.9.0",
+    "redux-logger": "^3.0.6"
   },
   "jest": {
     "preset": "react-native",

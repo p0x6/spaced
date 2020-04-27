@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from './store';
+import { Provider } from 'react-redux';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -37,48 +40,52 @@ class Entry extends Component {
 
   render() {
     return (
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName='InitialScreen'>
-          {this.state.initialRouteName === 'true' ? (
-            <Stack.Screen
-              name='InitialScreen'
-              component={MainScreen}
-              options={{ headerShown: false }}
-            />
-          ) : (
-            <Stack.Screen
-              name='InitialScreen'
-              component={Onboarding}
-              options={{ headerShown: false }}
-            />
-          )}
-          <Stack.Screen
-            name='MainScreen'
-            component={MainScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='ExportScreen'
-            component={ExportScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='ImportScreen'
-            component={ImportScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='LicensesScreen'
-            component={LicencesScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='OnboardingBlacklist'
-            component={OnboardingBlacklist}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName='InitialScreen'>
+              {this.state.initialRouteName === 'true' ? (
+                <Stack.Screen
+                  name='InitialScreen'
+                  component={MainScreen}
+                  options={{ headerShown: false }}
+                />
+              ) : (
+                <Stack.Screen
+                  name='InitialScreen'
+                  component={Onboarding}
+                  options={{ headerShown: false }}
+                />
+              )}
+              <Stack.Screen
+                name='MainScreen'
+                component={MainScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='ExportScreen'
+                component={ExportScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='ImportScreen'
+                component={ImportScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='LicensesScreen'
+                component={LicencesScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name='OnboardingBlacklist'
+                component={OnboardingBlacklist}
+                options={{ headerShown: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PersistGate>
+      </Provider>
     );
   }
 }
